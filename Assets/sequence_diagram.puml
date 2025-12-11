@@ -1,0 +1,41 @@
+@startuml DonorFlow Appointment Booking Sequence
+
+actor "Donor" as donor
+participant "UI" as ui
+participant "AppointmentController" as controller
+participant "CampaignService" as campaign
+participant "Firebase" as firebase
+participant "LocalDatabase" as db
+participant "NotificationService" as notify
+
+donor -> ui : Search for campaigns
+ui -> controller : getCampaigns(location)
+controller -> campaign : fetchNearby(location)
+campaign -> firebase : queryCampaigns(location)
+firebase --> campaign : campaignList
+campaign --> controller : campaignData
+controller --> ui : displayCampaigns()
+ui --> donor : Show campaign list
+
+donor -> ui : Select campaign
+ui -> controller : getCampaignDetails(campaignId)
+controller -> firebase : getCampaign(campaignId)
+firebase --> controller : campaignDetails
+controller --> ui : displayDetails()
+ui --> donor : Show campaign details
+
+donor -> ui : Book appointment(date, time)
+ui -> controller : createAppointment(campaignId, date, time, userId)
+controller -> firebase : saveAppointment(appointmentData)
+firebase --> controller : appointmentId
+controller -> db : cacheAppointment(appointmentData)
+db --> controller : success
+controller -> controller : calculatePoints()
+controller -> firebase : updateUserPoints(userId, points)
+firebase --> controller : pointsUpdated
+controller -> notify : scheduleReminder(appointmentId, date)
+notify --> controller : reminderScheduled
+controller --> ui : bookingConfirmed()
+ui --> donor : Show confirmation
+
+@enduml

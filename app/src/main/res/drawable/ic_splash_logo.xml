@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <!-- Blood drop shape -->
+    <path
+        android:pathData="M60,10 C60,10 20,55 20,75 C20,97 38,110 60,110 C82,110 100,97 100,75 C100,55 60,10 60,10Z"
+        android:fillColor="#FFFFFF"/>
+    <!-- Heart inside -->
+    <path
+        android:pathData="M60,45 C55,40 47,40 43,45 C38,50 38,58 43,63 L60,80 L77,63 C82,58 82,50 77,45 C73,40 65,40 60,45Z"
+        android:fillColor="@color/primary"/>
+</vector>

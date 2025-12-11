@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Info -->
+    <string name="app_name">BloodHero</string>
+    <string name="app_tagline">Be Someone\'s Hero Today</string>
+    <string name="app_description">Save lives through blood donation</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_campaigns">Campaigns</string>
+    <string name="nav_history">History</string>
+    <string name="nav_achievements">Achievements</string>
+    <string name="nav_profile">Profile</string>
+    
+    <!-- Splash Screen -->
+    <string name="splash_loading">Loading your hero journey…</string>
+    
+    <!-- Authentication -->
+    <string name="welcome_back">Welcome Back, Hero!</string>
+    <string name="login">Log In</string>
+    <string name="signup">Sign Up</string>
+    <string name="email_hint">Email address</string>
+    <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirm password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="no_account">Don\'t have an account?</string>
+    <string name="have_account">Already have an account?</string>
+    <string name="or_continue_with">Or continue with</string>
+    <string name="google_signin">Google</string>
+    <string name="facebook_signin">Facebook</string>
+    <string name="terms_agree">By signing up, you agree to our Terms of Service and Privacy Policy</string>
+    <string name="create_account">Create Account</string>
+    <string name="join_community">Join our community of life savers</string>
+    
+    <!-- Profile Setup -->
+    <string name="profile_setup_title">Complete Your Profile</string>
+    <string name="profile_setup_subtitle">Help us personalize your experience</string>
+    <string name="full_name">Full Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="blood_type">Blood Type</string>
+    <string name="select_blood_type">Select your blood type</string>
+    <string name="location">Location</string>
+    <string name="date_of_birth">Date of Birth</string>
+    <string name="save_profile">Save Profile</string>
+    <string name="skip_for_now">Skip for now</string>
+    
+    <!-- Blood Types -->
+    <string name="blood_a_positive">A+</string>
+    <string name="blood_a_negative">A-</string>
+    <string name="blood_b_positive">B+</string>
+    <string name="blood_b_negative">B-</string>
+    <string name="blood_ab_positive">AB+</string>
+    <string name="blood_ab_negative">AB-</string>
+    <string name="blood_o_positive">O+</string>
+    <string name="blood_o_negative">O-</string>
+    
+    <!-- Home Dashboard -->
+    <string name="greeting_morning">Good Morning</string>
+    <string name="greeting_afternoon">Good Afternoon</string>
+    <string name="greeting_evening">Good Evening</string>
+    <string name="make_first_donation">Make Your First Donation</string>
+    <string name="donation_impact">Each donation can impact up to three lives.</string>
+    <string name="donation_fact">Every 2 seconds someone needs blood.</string>
+    <string name="schedule_appointment">Schedule New Appointment</string>
+    <string name="total_donations">Total Donations</string>
+    <string name="total_points">Total Points</string>
+    <string name="lives_saved">Lives Saved</string>
+    <string name="next_donation">Next Donation</string>
+    <string name="days_until">days until eligible</string>
+    <string name="eligible_now">You\'re eligible to donate!</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="find_campaigns">Find Campaigns</string>
+    <string name="view_history">View History</string>
+    <string name="my_achievements">My Achievements</string>
+    <string name="leaderboard">Leaderboard</string>
+    <string name="upcoming_appointment">Upcoming Appointment</string>
+    <string name="no_upcoming">No upcoming appointments</string>
+    
+    <!-- Campaigns -->
+    <string name="find_donation_campaigns">Find Donation Campaigns</string>
+    <string name="search_location">Search by location…</string>
+    <string name="nearby_campaigns">Nearby Campaigns</string>
+    <string name="all_campaigns">All Campaigns</string>
+    <string name="filter">Filter</string>
+    <string name="sort_by">Sort by</string>
+    <string name="distance">Distance</string>
+    <string name="date">Date</string>
+    <string name="campaign_details">Campaign Details</string>
+    <string name="book_appointment">Book Appointment</string>
+    <string name="share_campaign">Share</string>
+    <string name="get_directions">Get Directions</string>
+    <string name="blood_types_needed">Blood Types Needed</string>
+    <string name="available_slots">Available Slots</string>
+    <string name="km_away">km away</string>
+    
+    <!-- Booking -->
+    <string name="select_date">Select Date</string>
+    <string name="select_time">Select Time</string>
+    <string name="confirm_booking">Confirm Booking</string>
+    <string name="booking_confirmed">Booking Confirmed!</string>
+    <string name="booking_reminder">We\'ll remind you before your appointment</string>
+    <string name="add_to_calendar">Add to Calendar</string>
+    <string name="cancel_booking">Cancel Booking</string>
+    <string name="reschedule">Reschedule</string>
+    
+    <!-- Donation History -->
+    <string name="donation_history">Donation History</string>
+    <string name="your_donations">Your Donations</string>
+    <string name="donations_this_year">Donations This Year</string>
+    <string name="last_donation">Your Last Donation</string>
+    <string name="view_past_donations">View Past Donations</string>
+    <string name="blood_journey">Blood Journey</string>
+    <string name="donation_made">Donation is made</string>
+    <string name="processing">Processing</string>
+    <string name="testing">Testing</string>
+    <string name="storage">Storage</string>
+    <string name="thank_you">Thank You</string>
+    <string name="impact_message">You\'ve helped impact up to 3 lives</string>
+    <string name="book_another">Book another like this</string>
+    <string name="share_donation">Share Donation</string>
+    
+    <!-- Achievements -->
+    <string name="achievements_title">Achievements</string>
+    <string name="badges_earned">Badges Earned</string>
+    <string name="badges_locked">Locked Badges</string>
+    <string name="unlock_criteria">Unlock Criteria</string>
+    <string name="badge_first_donation">First Drop</string>
+    <string name="badge_first_desc">Complete your first donation</string>
+    <string name="badge_five_donations">Regular Hero</string>
+    <string name="badge_five_desc">Complete 5 donations</string>
+    <string name="badge_ten_donations">Super Hero</string>
+    <string name="badge_ten_desc">Complete 10 donations</string>
+    <string name="badge_profile_complete">Profile Pro</string>
+    <string name="badge_profile_desc">Complete your profile</string>
+    <string name="badge_streak">Streak Master</string>
+    <string name="badge_streak_desc">Donate 3 times in a row</string>
+    
+    <!-- Leaderboard -->
+    <string name="leaderboard_title">Leaderboard</string>
+    <string name="top_donors">Top Donors</string>
+    <string name="your_rank">Your Rank</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    <string name="all_time">All Time</string>
+    <string name="points_label">pts</string>
+    
+    <!-- Profile -->
+    <string name="my_profile">My Profile</string>
+    <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="notification_settings">Notification Settings</string>
+    <string name="app_settings">App Settings</string>
+    <string name="help_support">Help &amp; Support</string>
+    <string name="about">About BloodHero</string>
+    <string name="logout">Log Out</string>
+    <string name="donor_card">Digital Donor Card</string>
+    <string name="donation_reminders">Donation Reminders</string>
+    <string name="campaign_alerts">Campaign Alerts</string>
+    <string name="achievement_notifications">Achievement Notifications</string>
+    
+    <!-- Achievements -->
+    <string name="achievements">Achievements</string>
+    
+    <!-- General -->
+    <string name="loading">Loading…</string>
+    <string name="error">Error</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="save">Save</string>
+    <string name="done">Done</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="continue_text">Continue</string>
+    <string name="see_all">See All</string>
+    <string name="no_data">No data available</string>
+</resources>

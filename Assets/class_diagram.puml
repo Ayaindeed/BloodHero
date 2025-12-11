@@ -1,0 +1,139 @@
+@startuml DonorFlow Class Diagram
+
+class User {
+  - userId: String
+  - email: String
+  - password: String
+  - name: String
+  - bloodType: String
+  - location: Location
+  - phoneNumber: String
+  - totalPoints: int
+  - createdAt: Date
+  + register()
+  + login()
+  + updateProfile()
+  + logout()
+}
+
+class Campaign {
+  - campaignId: String
+  - name: String
+  - location: Location
+  - date: Date
+  - timeSlots: List<TimeSlot>
+  - bloodTypesNeeded: List<String>
+  - organizerName: String
+  - description: String
+  + getCampaignDetails()
+  + getAvailableSlots()
+}
+
+class Appointment {
+  - appointmentId: String
+  - userId: String
+  - campaignId: String
+  - scheduledDate: Date
+  - timeSlot: TimeSlot
+  - status: AppointmentStatus
+  - createdAt: Date
+  + book()
+  + cancel()
+  + reschedule()
+  + getDetails()
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+class Donation {
+  - donationId: String
+  - userId: String
+  - appointmentId: String
+  - donationDate: Date
+  - bloodType: String
+  - location: String
+  - pointsEarned: int
+  + recordDonation()
+  + getDonationHistory()
+}
+
+class Badge {
+  - badgeId: String
+  - name: String
+  - description: String
+  - iconUrl: String
+  - unlockCriteria: String
+  - pointValue: int
+  + checkUnlockCondition()
+}
+
+class UserBadge {
+  - userBadgeId: String
+  - userId: String
+  - badgeId: String
+  - unlockedAt: Date
+  + unlock()
+  + getEarnedBadges()
+}
+
+class Points {
+  - pointsId: String
+  - userId: String
+  - amount: int
+  - source: String
+  - earnedAt: Date
+  + addPoints()
+  + getTotalPoints()
+}
+
+class Leaderboard {
+  - leaderboardId: String
+  - timeframe: String
+  + getRankings()
+  + getUserRank()
+  + getTopDonors()
+}
+
+class Notification {
+  - notificationId: String
+  - userId: String
+  - title: String
+  - message: String
+  - type: NotificationType
+  - sentAt: Date
+  - isRead: boolean
+  + send()
+  + markAsRead()
+}
+
+enum NotificationType {
+  APPOINTMENT_REMINDER
+  CAMPAIGN_ALERT
+  BADGE_UNLOCKED
+  LEADERBOARD_UPDATE
+}
+
+' Relationships
+User "1" -- "0..*" Appointment : books
+User "1" -- "0..*" Donation : makes
+User "1" -- "0..*" UserBadge : earns
+User "1" -- "0..*" Points : accumulates
+User "1" -- "0..*" Notification : receives
+
+Campaign "1" -- "0..*" Appointment : has
+Appointment "1" -- "0..1" Donation : results in
+Appointment --> AppointmentStatus
+
+Badge "1" -- "0..*" UserBadge : unlocked as
+UserBadge --> Badge
+UserBadge --> User
+
+Notification --> NotificationType
+Leaderboard --> User : ranks
+
+@enduml

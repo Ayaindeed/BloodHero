@@ -1,0 +1,110 @@
+@startuml DonorFlow Use Cases
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Blood Donor" as donor
+actor "Admin" as admin
+actor "System" as system
+actor "Notification Service" as notification
+
+rectangle "DonorFlow App" {
+  
+  usecase "Register Account" as UC1
+  usecase "Login" as UC2
+  usecase "Create Profile" as UC3
+  usecase "Update Profile" as UC4
+  
+  usecase "Search Donation Campaigns" as UC5
+  usecase "View Campaign Details" as UC6
+  usecase "Book Appointment" as UC7
+  usecase "Cancel Appointment" as UC8
+  usecase "View Upcoming Appointments" as UC9
+  
+  usecase "View Donation History" as UC10
+  usecase "View Statistics" as UC11
+  
+  usecase "Earn Points" as UC12
+  usecase "Unlock Badges" as UC13
+  usecase "View Achievements" as UC14
+  
+  usecase "View Leaderboard" as UC15
+  usecase "Compare Rankings" as UC16
+  
+  usecase "Receive Notifications" as UC17
+  usecase "Configure Notification Settings" as UC18
+  
+  usecase "Logout" as UC19
+  
+  ' Admin Use Cases
+  usecase "Create Campaign" as UC20
+  usecase "Edit Campaign" as UC21
+  usecase "Delete Campaign" as UC22
+  usecase "View All Appointments" as UC23
+  usecase "Confirm Donation" as UC24
+  usecase "Manage Users" as UC25
+  usecase "View Reports" as UC26
+  usecase "Send Notifications" as UC27
+  
+}
+
+' Authentication and Profile Management
+donor --> UC1
+donor --> UC2
+donor --> UC3
+donor --> UC4
+
+' Campaign and Appointment Management
+donor --> UC5
+donor --> UC6
+donor --> UC7
+donor --> UC8
+donor --> UC9
+
+' History and Statistics
+donor --> UC10
+donor --> UC11
+
+' Gamification
+donor --> UC14
+system --> UC12
+system --> UC13
+
+' Leaderboard
+donor --> UC15
+donor --> UC16
+
+' Notifications
+donor --> UC17
+donor --> UC18
+notification --> UC17
+
+' Session Management
+donor --> UC19
+
+' Admin Operations
+admin --> UC2
+admin --> UC20
+admin --> UC21
+admin --> UC22
+admin --> UC23
+admin --> UC24
+admin --> UC25
+admin --> UC26
+admin --> UC27
+admin --> UC19
+
+' Relationships
+UC1 ..> UC3 : <<include>>
+UC2 ..> UC4 : <<extend>>
+UC5 ..> UC6 : <<include>>
+UC6 ..> UC7 : <<extend>>
+UC7 ..> UC12 : <<include>>
+UC7 ..> UC13 : <<include>>
+UC10 ..> UC11 : <<include>>
+UC15 ..> UC16 : <<extend>>
+UC24 ..> UC12 : <<include>>
+UC24 ..> UC13 : <<include>>
+UC27 ..> UC17 : <<include>>
+
+@enduml

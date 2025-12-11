@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Header with Campaign Info -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_header_curved">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="32dp">
+
+                <!-- Toolbar -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageButton
+                        android:id="@+id/btnBack"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_back"
+                        app:tint="@android:color/white"
+                        android:contentDescription="Back" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="@string/book_appointment"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+                <!-- Campaign Name -->
+                <TextView
+                    android:id="@+id/tvCampaignName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Red Cross Blood Drive"
+                    android:textColor="@android:color/white"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-bold" />
+
+                <!-- Location -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_location"
+                        app:tint="@color/white_70" />
+
+                    <TextView
+                        android:id="@+id/tvLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="City Community Center"
+                        android:textColor="@color/white_70"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <!-- Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:layout_marginTop="-16dp">
+
+            <!-- Select Date Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/select_date"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <!-- Date Options -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvDates"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Select Time Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/select_time"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <!-- Time Slots Grid -->
+                    <GridLayout
+                        android:id="@+id/gridTimeSlots"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:columnCount="3"
+                        android:rowCount="3"
+                        android:alignmentMode="alignMargins"
+                        android:useDefaultMargins="true">
+
+                        <TextView
+                            android:id="@+id/time09"
+                            style="@style/TimeSlotStyle"
+                            android:text="09:00 AM" />
+
+                        <TextView
+                            android:id="@+id/time10"
+                            style="@style/TimeSlotStyle"
+                            android:text="10:00 AM" />
+
+                        <TextView
+                            android:id="@+id/time11"
+                            style="@style/TimeSlotStyle"
+                            android:text="11:00 AM" />
+
+                        <TextView
+                            android:id="@+id/time12"
+                            style="@style/TimeSlotStyle"
+                            android:text="12:00 PM" />
+
+                        <TextView
+                            android:id="@+id/time14"
+                            style="@style/TimeSlotStyle"
+                            android:text="02:00 PM" />
+
+                        <TextView
+                            android:id="@+id/time15"
+                            style="@style/TimeSlotStyle"
+                            android:text="03:00 PM" />
+
+                        <TextView
+                            android:id="@+id/time16"
+                            style="@style/TimeSlotStyle"
+                            android:text="04:00 PM" />
+
+                        <TextView
+                            android:id="@+id/time17"
+                            style="@style/TimeSlotStyle"
+                            android:text="05:00 PM" />
+
+                    </GridLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Pre-Donation Checklist -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pre-Donation Checklist"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <CheckBox
+                        android:id="@+id/cbHealthy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="I am feeling healthy today"
+                        android:textColor="@color/text_secondary"
+                        android:buttonTint="@color/primary" />
+
+                    <CheckBox
+                        android:id="@+id/cbMeal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="I have had a meal in the last 4 hours"
+                        android:textColor="@color/text_secondary"
+                        android:buttonTint="@color/primary" />
+
+                    <CheckBox
+                        android:id="@+id/cbHydrated"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="I am well hydrated"
+                        android:textColor="@color/text_secondary"
+                        android:buttonTint="@color/primary" />
+
+                    <CheckBox
+                        android:id="@+id/cbNoTattoo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="I have not gotten a tattoo in the last 6 months"
+                        android:textColor="@color/text_secondary"
+                        android:buttonTint="@color/primary" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Special Notes -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Special Notes (Optional)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <EditText
+                        android:id="@+id/etNotes"
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_input_field"
+                        android:padding="12dp"
+                        android:hint="Any allergies, medical conditions, or special requests..."
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_hint"
+                        android:textSize="14sp"
+                        android:gravity="top"
+                        android:inputType="textMultiLine"
+                        android:importantForAutofill="no" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Confirm Button -->
+            <Button
+                android:id="@+id/btnConfirmBooking"
+                style="@style/BloodHeroButton.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="@string/confirm_booking"
+                android:enabled="false" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="24dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,40 @@
+1. Purpose of this Lab
+In this lab, you will:
+1. Form your project team.
+2. Choose the mobile app you will develop for the final exam/project.
+3. Write a detailed project proposal describing:
+o The purpose of the app.
+o Target users.
+o Features and screens.
+o Navigation and UX.
+o Work distribution and timeline.
+
+This proposal will be graded and will define what you are expected to deliver in the final project.
+
+Be a mobile application relevant to the technologies used in this course.
+2. Provide real user value.
+3. Contain at least:
+o 5–8 main screens.
+o Persistent data storage (local or remote).
+o At least one non-trivial feature, such as:
+▪ Login/authentication (real or mock).
+▪ CRUD functions (create, view, edit, delete).
+▪ Search or filtering.
+▪ Dynamic lists or detail views.
+
+5. What Is Graded in This Lab (Proposal Marking Criteria)
+The proposal grade is based on clarity, feasibility, and structure—not only code.
+Proposed grading criteria:
+1. Clarity and completeness of the idea – 25%
+o Clear explanation of purpose and target users.
+o Appropriate and realistic scope.
+2. Functional requirements – 20%
+o Well-defined, structured, and meaningful features.
+3. Screens and navigation – 20%
+o Logical flow.
+o Clear understanding of all main screens.
+4. Non-functional requirements – 15%
+o Shows awareness of usability and performance considerations.
+5. Work plan and distribution – 10%
+o Realistic milestones.
+o Clear responsibilities.

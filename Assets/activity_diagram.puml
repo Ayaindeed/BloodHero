@@ -1,0 +1,68 @@
+@startuml DonorFlow Activity Diagram - User Registration and First Donation
+
+start
+
+:Open App;
+
+if (User has account?) then (yes)
+  :Enter credentials;
+  :Login;
+else (no)
+  :Click Register;
+  :Enter email and password;
+  :Submit registration;
+  if (Valid credentials?) then (no)
+    :Show error message;
+    stop
+  else (yes)
+    :Create user account;
+  endif
+  
+  :Navigate to profile setup;
+  :Enter name, blood type, location;
+  :Save profile;
+  :Unlock "Profile Complete" badge;
+endif
+
+:Navigate to Home Dashboard;
+:View stats and options;
+
+:Click "Find Campaigns";
+:Allow location access;
+:Load nearby campaigns;
+
+if (Campaigns available?) then (no)
+  :Show "No campaigns found";
+  stop
+else (yes)
+  :Display campaign list;
+endif
+
+:Select campaign;
+:View campaign details;
+:Click "Book Appointment";
+:Choose date and time slot;
+
+if (Slot available?) then (no)
+  :Show unavailable message;
+  stop
+else (yes)
+  :Confirm booking;
+  :Save appointment to database;
+  :Award booking points;
+  :Schedule notification reminder;
+  :Display confirmation;
+endif
+
+:Navigate to Appointments;
+:View upcoming appointment;
+
+note right
+  After actual donation,
+  system marks as completed,
+  awards points, and unlocks badges
+end note
+
+stop
+
+@enduml
