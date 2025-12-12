@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
+import com.example.bloodhero.utils.UserStorage;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -71,20 +72,27 @@ public class AdminUsersActivity extends AppCompatActivity {
     private void loadUsers() {
         allUsers = new ArrayList<>();
         
-        // Add the actual logged-in admin account from SharedPreferences
+        // Add admin account
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String adminName = prefs.getString("user_name", "Admin");
         String adminEmail = prefs.getString("user_email", "admin@contact.me");
-        allUsers.add(new User("0", adminName, adminEmail, "Admin", 0, true));
+        allUsers.add(new User("admin", adminName, adminEmail, "Admin", 0, true));
         
-        // Mock donor data
-        allUsers.add(new User("1", "Ahmed El Fassi", "ahmed@email.com", "A+", 5, true));
-        allUsers.add(new User("2", "Fatima Benali", "fatima@email.com", "O-", 3, true));
-        allUsers.add(new User("3", "Mohammed Alaoui", "mohammed@email.com", "B+", 8, true));
-        allUsers.add(new User("4", "Sara Idrissi", "sara@email.com", "AB+", 0, false));
-        allUsers.add(new User("5", "Youssef Tazi", "youssef@email.com", "O+", 12, true));
-        allUsers.add(new User("6", "Amina Berrada", "amina@email.com", "A-", 2, true));
-        allUsers.add(new User("7", "Karim Mansouri", "karim@email.com", "B-", 0, false));
+        // Load real users from UserStorage
+        List<UserStorage.UserData> registeredUsers = UserStorage.getAllUsers(this);
+        for (UserStorage.UserData userData : registeredUsers) {
+            // Skip if it's the admin email
+            if (!userData.email.equals(adminEmail)) {
+                allUsers.add(new User(
+                    userData.id,
+                    userData.name,
+                    userData.email,
+                    userData.bloodType,
+                    userData.donations,
+                    userData.verified
+                ));
+            }
+        }
 
         adapter.setUsers(allUsers);
         tvUserCount.setText(allUsers.size() + " users");

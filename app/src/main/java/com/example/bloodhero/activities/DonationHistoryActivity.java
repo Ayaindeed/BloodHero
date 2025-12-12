@@ -1,12 +1,12 @@
 package com.example.bloodhero.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bloodhero.R;
 import com.example.bloodhero.adapters.DonationAdapter;
 import com.example.bloodhero.models.Donation;
+import com.example.bloodhero.utils.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,29 @@ public class DonationHistoryActivity extends AppCompatActivity {
 
     private void loadUserStats() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int totalDonations = prefs.getInt("total_donations", 0);
+        String userEmail = prefs.getString("user_email", "");
+        
+        // Sync from central UserStorage first
+        UserStorage.UserData userData = UserStorage.getUserByEmail(this, userEmail);
+        int totalDonations;
+        
+        if (userData != null) {
+            totalDonations = userData.donations;
+            // Update local prefs to stay in sync
+            prefs.edit()
+                .putInt("total_donations", totalDonations)
+                .putInt("user_donations", totalDonations)
+                .apply();
+        } else {
+            totalDonations = prefs.getInt("total_donations", 0);
+        }
+        
+        // Also count from actual donation records as fallback
+        List<UserStorage.DonationData> donations = UserStorage.getDonationsByEmail(this, userEmail);
+        if (donations.size() > totalDonations) {
+            totalDonations = donations.size();
+        }
+        
         int livesSaved = totalDonations * 3; // Each donation can save up to 3 lives
 
         tvTotalDonations.setText(String.valueOf(totalDonations));
@@ -62,48 +85,24 @@ public class DonationHistoryActivity extends AppCompatActivity {
     private void loadDonations() {
         donationList = new ArrayList<>();
 
-        // Donations will be loaded from database when user completes donations
+        // Load real donations from UserStorage
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int totalDonations = prefs.getInt("total_donations", 0);
-        String bloodType = prefs.getString("blood_type", "A+");
-
-        // Load donations based on user's total donations count
-        // In production, these would come from BloodHeroDatabaseHelper
-        if (totalDonations > 0) {
-            // Placeholder for database-loaded donations
+        String userEmail = prefs.getString("user_email", "");
+        
+        List<UserStorage.DonationData> savedDonations = UserStorage.getDonationsByEmail(this, userEmail);
+        
+        for (UserStorage.DonationData donationData : savedDonations) {
             donationList.add(new Donation(
-                    "1", "user1", "camp1",
-                    "Centre de Transfusion Sanguine",
-                    "CHU Ibn Sina, Rabat",
-                    "2025-01-10",
-                    bloodType,
-                    100,
+                    donationData.id,
+                    donationData.userEmail,
+                    donationData.campaignName,
+                    donationData.campaignName,
+                    donationData.location,
+                    donationData.date,
+                    donationData.bloodType,
+                    donationData.pointsEarned,
                     "COMPLETED"
             ));
-
-            if (totalDonations >= 2) {
-                donationList.add(new Donation(
-                        "2", "user1", "camp2",
-                        "Hôpital Cheikh Khalifa",
-                        "Casablanca",
-                        "2024-10-15",
-                        bloodType,
-                        100,
-                        "COMPLETED"
-                ));
-            }
-
-            if (totalDonations >= 3) {
-                donationList.add(new Donation(
-                        "3", "user1", "camp3",
-                        "Université Mohammed V",
-                        "Rabat",
-                        "2024-07-20",
-                        bloodType,
-                        100,
-                        "COMPLETED"
-                ));
-            }
         }
 
         if (donationList.isEmpty()) {
@@ -114,11 +113,15 @@ public class DonationHistoryActivity extends AppCompatActivity {
             emptyState.setVisibility(View.GONE);
 
             donationAdapter = new DonationAdapter(donationList, donation -> {
-                // Show donation details
-                Toast.makeText(this, 
-                        "Donation at " + donation.getCampaignName() + "\n" +
-                        "Points earned: " + donation.getPointsEarned(),
-                        Toast.LENGTH_SHORT).show();
+                // Open Blood Journey Activity to show donation journey
+                Intent intent = new Intent(this, BloodJourneyActivity.class);
+                intent.putExtra("donation_id", donation.getId());
+                intent.putExtra("campaign_name", donation.getCampaignName());
+                intent.putExtra("location", donation.getLocation());
+                intent.putExtra("date", donation.getDate());
+                intent.putExtra("blood_type", donation.getBloodType());
+                intent.putExtra("points", donation.getPointsEarned());
+                startActivity(intent);
             });
 
             rvDonations.setLayoutManager(new LinearLayoutManager(this));
@@ -128,5 +131,12 @@ public class DonationHistoryActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> onBackPressed());
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh stats when returning to this screen
+        loadUserStats();
     }
 }

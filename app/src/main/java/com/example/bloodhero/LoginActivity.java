@@ -129,6 +129,9 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putBoolean("is_admin", true);
                 editor.putString("user_name", "Admin");
                 editor.putBoolean(KEY_PROFILE_COMPLETE, true);
+            } else {
+                // Sync user data from stored user preferences (updated by admin)
+                syncUserDataFromStorage(email, editor);
             }
             editor.apply();
 
@@ -153,5 +156,67 @@ public class LoginActivity extends AppCompatActivity {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             finish();
         }, 1500);
+    }
+    
+    /**
+     * Sync user data from storage that may have been updated by admin
+     */
+    private void syncUserDataFromStorage(String email, SharedPreferences.Editor editor) {
+        // Check for per-user stored data (updated by admin when marking donations complete)
+        String sanitizedEmail = email.replace("@", "_at_").replace(".", "_dot_");
+        SharedPreferences donorPrefs = getSharedPreferences("user_data_" + sanitizedEmail, MODE_PRIVATE);
+        
+        if (donorPrefs.getBoolean("data_updated", false)) {
+            // Sync points and donations from admin-updated storage
+            int storedPoints = donorPrefs.getInt("user_points", 0);
+            int storedDonations = donorPrefs.getInt("user_donations", 0);
+            
+            editor.putInt("user_points", storedPoints);
+            editor.putInt("user_donations", storedDonations);
+            editor.putInt("total_donations", storedDonations);
+            
+            // Sync badges
+            if (donorPrefs.getBoolean("badge_first_drop", false)) {
+                editor.putBoolean("badge_first_drop", true);
+            }
+            if (donorPrefs.getBoolean("badge_regular_donor", false)) {
+                editor.putBoolean("badge_regular_donor", true);
+            }
+            if (donorPrefs.getBoolean("badge_lifesaver", false)) {
+                editor.putBoolean("badge_lifesaver", true);
+            }
+            if (donorPrefs.getBoolean("badge_hero_status", false)) {
+                editor.putBoolean("badge_hero_status", true);
+            }
+            if (donorPrefs.getBoolean("badge_marathon_donor", false)) {
+                editor.putBoolean("badge_marathon_donor", true);
+            }
+            if (donorPrefs.getBoolean("badge_blood_legend", false)) {
+                editor.putBoolean("badge_blood_legend", true);
+            }
+            if (donorPrefs.getBoolean("badge_platinum_donor", false)) {
+                editor.putBoolean("badge_platinum_donor", true);
+            }
+        }
+        
+        // Also check in central user storage for the latest data
+        com.example.bloodhero.utils.UserStorage.UserData userData = 
+                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, email);
+        if (userData != null) {
+            editor.putInt("user_points", userData.points);
+            editor.putInt("total_points", userData.points);
+            editor.putInt("user_donations", userData.donations);
+            editor.putInt("total_donations", userData.donations);
+            editor.putString("user_name", userData.name);
+            editor.putString("blood_type", userData.bloodType);
+            // Sync phone and location
+            if (userData.phone != null && !userData.phone.isEmpty()) {
+                editor.putString("user_phone", userData.phone);
+            }
+            if (userData.location != null && !userData.location.isEmpty()) {
+                editor.putString("user_location", userData.location);
+            }
+            editor.putBoolean(KEY_PROFILE_COMPLETE, true);
+        }
     }
 }

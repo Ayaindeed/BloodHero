@@ -132,15 +132,32 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Simulate registration - In production, connect to Firebase Auth
         btnRegister.postDelayed(() -> {
-            // Save user data to local preferences
+            // Clear any previous user data first (important for fresh account)
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
+            editor.clear(); // Clear all previous data
+            
+            // Set new user data with fresh values
             editor.putBoolean(KEY_IS_LOGGED_IN, true);
             editor.putString(KEY_USER_EMAIL, email);
             editor.putString(KEY_USER_NAME, name);
+            editor.putInt("total_points", 0);
+            editor.putInt("user_points", 0);
+            editor.putInt("total_donations", 0);
+            editor.putInt("user_donations", 0);
+            editor.putBoolean("profile_complete", false);
+            editor.putBoolean("is_admin", false);
+            // Clear all badges
+            editor.putBoolean("badge_first_drop", false);
+            editor.putBoolean("badge_regular_donor", false);
+            editor.putBoolean("badge_lifesaver", false);
+            editor.putBoolean("badge_hero_status", false);
+            editor.putBoolean("badge_marathon_donor", false);
+            editor.putBoolean("badge_blood_legend", false);
+            editor.putBoolean("badge_platinum_donor", false);
             editor.apply();
 
-            // Save to UserStorage for admin sync
+            // Save to UserStorage for admin sync (new user with 0 points/donations)
             UserStorage.saveUser(this, name, email, null);
 
             Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();

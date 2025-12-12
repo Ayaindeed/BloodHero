@@ -78,7 +78,7 @@
                         android:layout_height="100dp"
                         android:src="@drawable/ic_profile"
                         app:civ_border_width="4dp"
-                        app:civ_border_color="@android:color/white" />
+                        app:civ_border_color="@color/background_dark" />
 
                     <TextView
                         android:id="@+id/tvUserName"
@@ -86,7 +86,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="John Doe"
-                        android:textColor="@color/text_on_primary"
+                        android:textColor="@color/background_dark"
                         android:textSize="22sp"
                         android:fontFamily="sans-serif-bold"
                         android:shadowColor="#40000000"
@@ -100,7 +100,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="john.doe@email.com"
-                        android:textColor="@color/text_on_primary"
+                        android:textColor="@color/background_dark"
                         android:alpha="0.9"
                         android:textSize="14sp" />
 

@@ -50,202 +50,6 @@
 
             </LinearLayout>
 
-            <!-- Blood Journey Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Your Blood Journey"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Track where your donation is"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
-
-                    <!-- Journey Progress Steps -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <!-- Step 1: Donated -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_primary">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_check"
-                                    app:tint="@android:color/white" />
-
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="Donated"
-                                android:textColor="@color/primary"
-                                android:textSize="11sp"
-                                android:fontFamily="sans-serif-medium" />
-
-                        </LinearLayout>
-
-                        <!-- Connector Line 1 -->
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="3dp"
-                            android:layout_weight="0.5"
-                            android:background="@color/primary" />
-
-                        <!-- Step 2: Testing -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_primary">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_check"
-                                    app:tint="@android:color/white" />
-
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="Testing"
-                                android:textColor="@color/primary"
-                                android:textSize="11sp"
-                                android:fontFamily="sans-serif-medium" />
-
-                        </LinearLayout>
-
-                        <!-- Connector Line 2 -->
-                        <View
-                            android:id="@+id/connector2"
-                            android:layout_width="0dp"
-                            android:layout_height="3dp"
-                            android:layout_weight="0.5"
-                            android:background="@color/divider" />
-
-                        <!-- Step 3: Processing -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_light">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_time"
-                                    app:tint="@color/text_secondary" />
-
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="Processing"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
-
-                        </LinearLayout>
-
-                        <!-- Connector Line 3 -->
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="3dp"
-                            android:layout_weight="0.5"
-                            android:background="@color/divider" />
-
-                        <!-- Step 4: In Use -->
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <FrameLayout
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:background="@drawable/bg_circle_light">
-
-                                <ImageView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:src="@drawable/ic_heart"
-                                    app:tint="@color/text_secondary" />
-
-                            </FrameLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
-                                android:text="In Use"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
         </LinearLayout>
 
     </RelativeLayout>
@@ -255,39 +59,48 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="20dp"
-        android:layout_marginTop="-16dp">
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="16dp"
+        android:layout_marginTop="8dp">
 
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp"
+                android:padding="20dp"
                 android:gravity="center">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_blood_drop"
+                    app:tint="@color/primary"
+                    android:layout_marginBottom="8dp" />
 
                 <TextView
                     android:id="@+id/tvTotalDonations"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12"
+                    android:text="0"
                     android:textColor="@color/primary"
-                    android:textSize="24sp"
+                    android:textSize="32sp"
                     android:fontFamily="sans-serif-bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total\nDonations"
+                    android:layout_marginTop="4dp"
+                    android:text="Total Donations"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:gravity="center" />
 
             </LinearLayout>
@@ -299,31 +112,39 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp"
+                android:padding="20dp"
                 android:gravity="center">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_heart"
+                    app:tint="@color/success"
+                    android:layout_marginBottom="8dp" />
 
                 <TextView
                     android:id="@+id/tvLivesSaved"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="36"
+                    android:text="0"
                     android:textColor="@color/success"
-                    android:textSize="24sp"
+                    android:textSize="32sp"
                     android:fontFamily="sans-serif-bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Lives\nSaved"
+                    android:layout_marginTop="4dp"
+                    android:text="Lives Saved"
                     android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:gravity="center" />
 
             </LinearLayout>

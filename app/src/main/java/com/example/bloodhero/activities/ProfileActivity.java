@@ -69,12 +69,35 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        
-        String name = prefs.getString("user_name", "User");
         String email = prefs.getString("user_email", "user@email.com");
-        String bloodType = prefs.getString("blood_type", "A+");
-        int donations = prefs.getInt("total_donations", 0);
-        int points = prefs.getInt("total_points", 0);
+        
+        // Sync from central UserStorage first
+        com.example.bloodhero.utils.UserStorage.UserData userData = 
+                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, email);
+        
+        String name, bloodType;
+        int donations, points;
+        
+        if (userData != null) {
+            name = userData.name;
+            bloodType = userData.bloodType;
+            donations = userData.donations;
+            points = userData.points;
+            // Update local prefs to stay in sync
+            prefs.edit()
+                .putString("user_name", name)
+                .putString("blood_type", bloodType)
+                .putInt("total_donations", donations)
+                .putInt("user_donations", donations)
+                .putInt("total_points", points)
+                .putInt("user_points", points)
+                .apply();
+        } else {
+            name = prefs.getString("user_name", "User");
+            bloodType = prefs.getString("blood_type", "A+");
+            donations = prefs.getInt("total_donations", 0);
+            points = prefs.getInt("total_points", 0);
+        }
         
         // Calculate badges based on donations
         int badges = calculateUnlockedBadges(donations);

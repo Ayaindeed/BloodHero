@@ -60,6 +60,9 @@ dependencies {
     // Maps (OpenStreetMap)
     implementation(libs.osmdroid)
     
+    // Charts
+    implementation(libs.mpandroidchart)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

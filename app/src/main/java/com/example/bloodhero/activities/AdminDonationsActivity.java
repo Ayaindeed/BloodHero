@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
+import com.example.bloodhero.utils.UserStorage;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -50,14 +51,22 @@ public class AdminDonationsActivity extends AppCompatActivity {
     }
 
     private void loadPendingDonations() {
-        // Mock data - appointments that need to be marked as donated
         List<PendingDonation> donations = new ArrayList<>();
-        donations.add(new PendingDonation("1", "Mohammed Alaoui", "B+", "Red Crescent Center", 
-                "Dec 19, 2024", "Confirmed"));
-        donations.add(new PendingDonation("2", "Ahmed El Fassi", "A+", "Blood Drive - Casablanca", 
-                "Dec 20, 2024", "Confirmed"));
-        donations.add(new PendingDonation("3", "Fatima Benali", "O-", "Hospital Ibn Sina", 
-                "Dec 20, 2024", "Confirmed"));
+        
+        // Load confirmed appointments that need to be marked as completed
+        List<UserStorage.AppointmentData> confirmedAppointments = 
+            UserStorage.getAppointmentsByStatus(this, "Confirmed");
+        
+        for (UserStorage.AppointmentData appt : confirmedAppointments) {
+            donations.add(new PendingDonation(
+                appt.id,
+                appt.userName,
+                appt.bloodType,
+                appt.campaignName,
+                appt.getFormattedDate(),
+                "Confirmed"
+            ));
+        }
 
         adapter.setDonations(donations);
         emptyState.setVisibility(donations.isEmpty() ? View.VISIBLE : View.GONE);
@@ -69,8 +78,10 @@ public class AdminDonationsActivity extends AppCompatActivity {
                 .setTitle("Confirm Donation")
                 .setMessage("Mark " + donation.donorName + "'s donation as completed?\n\nThis will:\n• Award 50 points\n• Update donation count\n• Unlock eligible badges")
                 .setPositiveButton("Confirm", (dialog, which) -> {
+                    // Update in UserStorage (this also increments user donation count and awards points)
+                    UserStorage.updateAppointmentStatus(this, donation.id, "Completed");
+                    
                     Toast.makeText(this, "Donation recorded! " + donation.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
-                    // In real app, update database and trigger badge check
                     loadPendingDonations(); // Refresh
                 })
                 .setNegativeButton("Cancel", null)

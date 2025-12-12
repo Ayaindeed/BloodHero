@@ -130,6 +130,27 @@
             android:exported="false"
             android:parentActivityName=".activities.AdminDashboardActivity" />
             
+        <activity
+            android:name=".activities.AdminAnalyticsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.AdminDashboardActivity" />
+            
+        <!-- New Features -->
+        <activity
+            android:name=".activities.RewardsActivity"
+            android:exported="false"
+            android:parentActivityName=".HomeActivity" />
+            
+        <activity
+            android:name=".activities.BloodRequestsActivity"
+            android:exported="false"
+            android:parentActivityName=".HomeActivity" />
+            
+        <activity
+            android:name=".activities.BloodJourneyActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.DonationHistoryActivity" />
+            
     </application>
 
 </manifest>

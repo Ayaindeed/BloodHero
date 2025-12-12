@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
+import com.example.bloodhero.utils.UserStorage;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 
@@ -77,18 +78,22 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
     }
 
     private void loadAppointments() {
-        // Mock data - in a real app, this would come from a database
         allAppointments = new ArrayList<>();
-        allAppointments.add(new Appointment("1", "Ahmed El Fassi", "A+", "Blood Drive - Casablanca", 
-                "Dec 20, 2024", "09:00 AM", "Pending"));
-        allAppointments.add(new Appointment("2", "Fatima Benali", "O-", "Hospital Ibn Sina", 
-                "Dec 20, 2024", "10:30 AM", "Pending"));
-        allAppointments.add(new Appointment("3", "Mohammed Alaoui", "B+", "Red Crescent Center", 
-                "Dec 19, 2024", "02:00 PM", "Confirmed"));
-        allAppointments.add(new Appointment("4", "Sara Idrissi", "AB+", "Blood Drive - Rabat", 
-                "Dec 18, 2024", "11:00 AM", "Completed"));
-        allAppointments.add(new Appointment("5", "Youssef Tazi", "O+", "CHU Mohammed VI", 
-                "Dec 17, 2024", "03:30 PM", "Completed"));
+        
+        // Load real appointments from UserStorage
+        List<UserStorage.AppointmentData> storedAppointments = UserStorage.getAllAppointments(this);
+        for (UserStorage.AppointmentData apptData : storedAppointments) {
+            allAppointments.add(new Appointment(
+                apptData.id,
+                apptData.userEmail,
+                apptData.userName,
+                apptData.bloodType,
+                apptData.campaignName,
+                apptData.getFormattedDate(),
+                apptData.time,
+                apptData.status
+            ));
+        }
 
         filterAppointments(0); // Show pending by default
     }
@@ -127,6 +132,8 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 .setTitle("Confirm Appointment")
                 .setMessage("Confirm appointment for " + appointment.donorName + "?")
                 .setPositiveButton("Confirm", (dialog, which) -> {
+                    // Update in UserStorage
+                    UserStorage.updateAppointmentStatus(this, appointment.id, "Confirmed");
                     appointment.status = "Confirmed";
                     filterAppointments(tabLayout.getSelectedTabPosition());
                     Toast.makeText(this, "Appointment confirmed", Toast.LENGTH_SHORT).show();
@@ -138,11 +145,19 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
     private void markAsCompleted(Appointment appointment) {
         new AlertDialog.Builder(this, R.style.AlertDialogTheme)
                 .setTitle("Mark as Completed")
-                .setMessage("Mark " + appointment.donorName + "'s donation as completed? This will unlock badges for the donor.")
+                .setMessage("Mark " + appointment.donorName + "'s donation as completed?\n\nThis will:\n• Award 50 points\n• Update donation count\n• Unlock eligible badges")
                 .setPositiveButton("Complete", (dialog, which) -> {
+                    // Update in UserStorage (this also increments donation count and unlocks badges)
+                    UserStorage.updateAppointmentStatus(this, appointment.id, "Completed");
+                    
+                    // Save as a completed donation record
+                    UserStorage.saveDonation(this, appointment.id, appointment.userEmail,
+                            appointment.donorName, appointment.bloodType, appointment.location,
+                            appointment.location, appointment.date, 50);
+                    
                     appointment.status = "Completed";
                     filterAppointments(tabLayout.getSelectedTabPosition());
-                    Toast.makeText(this, "Donation marked as completed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Donation marked as completed! " + appointment.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -151,6 +166,7 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
     // Inner class for Appointment data
     private static class Appointment {
         String id;
+        String userEmail;
         String donorName;
         String bloodType;
         String location;
@@ -158,9 +174,10 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
         String time;
         String status;
 
-        Appointment(String id, String donorName, String bloodType, String location,
+        Appointment(String id, String userEmail, String donorName, String bloodType, String location,
                    String date, String time, String status) {
             this.id = id;
+            this.userEmail = userEmail;
             this.donorName = donorName;
             this.bloodType = bloodType;
             this.location = location;

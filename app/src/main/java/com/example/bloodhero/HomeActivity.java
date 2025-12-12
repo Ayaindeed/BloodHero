@@ -12,10 +12,12 @@ import androidx.cardview.widget.CardView;
 
 import com.example.bloodhero.activities.AchievementsActivity;
 import com.example.bloodhero.activities.BloodCompatibilityActivity;
+import com.example.bloodhero.activities.BloodRequestsActivity;
 import com.example.bloodhero.activities.CampaignsActivity;
 import com.example.bloodhero.activities.DonationHistoryActivity;
 import com.example.bloodhero.activities.MyAppointmentsActivity;
 import com.example.bloodhero.activities.ProfileActivity;
+import com.example.bloodhero.activities.RewardsActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 
@@ -34,7 +36,7 @@ public class HomeActivity extends AppCompatActivity {
     private MaterialButton btnScheduleAppointment;
     private BottomNavigationView bottomNav;
     
-    private View menuSchedule, menuManageAppointments, menuBloodGuide, menuHistory;
+    private View menuSchedule, menuManageAppointments, menuBloodGuide, menuHistory, menuUrgentRequests, menuRewards;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +65,18 @@ public class HomeActivity extends AppCompatActivity {
         menuManageAppointments = findViewById(R.id.menuManageAppointments);
         menuBloodGuide = findViewById(R.id.menuBloodGuide);
         menuHistory = findViewById(R.id.menuHistory);
+        menuUrgentRequests = findViewById(R.id.menuUrgentRequests);
+        menuRewards = findViewById(R.id.menuRewards);
     }
 
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        
+        // Sync user data from central storage (may have been updated by admin)
+        String email = prefs.getString("user_email", "");
+        if (!email.isEmpty()) {
+            syncUserDataFromStorage(email, prefs);
+        }
         
         // Set greeting based on time of day
         Calendar calendar = Calendar.getInstance();
@@ -78,6 +88,9 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             tvGreeting.setText(R.string.greeting_evening);
         }
+        
+        // Reload prefs after sync
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         
         // Load user name
         String userName = prefs.getString(KEY_USER_NAME, "Hero");
@@ -96,6 +109,28 @@ public class HomeActivity extends AppCompatActivity {
         tvTotalDonations.setText(String.valueOf(totalDonations));
         tvTotalPoints.setText(String.valueOf(totalPoints));
         tvLivesSaved.setText(String.valueOf(livesSaved));
+    }
+    
+    /**
+     * Sync user data from central storage
+     */
+    private void syncUserDataFromStorage(String email, SharedPreferences prefs) {
+        com.example.bloodhero.utils.UserStorage.UserData userData = 
+                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, email);
+        if (userData != null) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putInt(KEY_TOTAL_POINTS, userData.points);
+            editor.putInt("user_points", userData.points);
+            editor.putInt(KEY_TOTAL_DONATIONS, userData.donations);
+            editor.putInt("user_donations", userData.donations);
+            if (userData.name != null && !userData.name.isEmpty()) {
+                editor.putString(KEY_USER_NAME, userData.name);
+            }
+            if (userData.bloodType != null && !userData.bloodType.isEmpty()) {
+                editor.putString(KEY_USER_BLOOD_TYPE, userData.bloodType);
+            }
+            editor.apply();
+        }
     }
 
     private void setupMenuItems() {
@@ -118,6 +153,16 @@ public class HomeActivity extends AppCompatActivity {
         setupMenuItem(menuHistory, R.drawable.ic_history,
                 "Donation History",
                 "View your past donations");
+        
+        // Urgent Blood Requests
+        setupMenuItem(menuUrgentRequests, R.drawable.ic_urgent,
+                "Urgent Blood Requests",
+                "Help those in critical need");
+        
+        // Rewards
+        setupMenuItem(menuRewards, R.drawable.ic_gift,
+                "Rewards",
+                "Redeem points for gifts");
     }
 
     private void setupMenuItem(View menuItem, int iconRes, String title, String subtitle) {
@@ -177,6 +222,14 @@ public class HomeActivity extends AppCompatActivity {
 
         menuHistory.setOnClickListener(v -> {
             startActivity(new Intent(this, DonationHistoryActivity.class));
+        });
+
+        menuUrgentRequests.setOnClickListener(v -> {
+            startActivity(new Intent(this, BloodRequestsActivity.class));
+        });
+
+        menuRewards.setOnClickListener(v -> {
+            startActivity(new Intent(this, RewardsActivity.class));
         });
 
         findViewById(R.id.ivProfile).setOnClickListener(v -> {

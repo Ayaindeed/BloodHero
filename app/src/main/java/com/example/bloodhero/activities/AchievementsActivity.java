@@ -1,5 +1,6 @@
 package com.example.bloodhero.activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -21,7 +22,7 @@ public class AchievementsActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "BloodHeroPrefs";
 
-    private ImageButton btnBack;
+    private ImageButton btnBack, btnShare;
     private TextView tvTotalPoints, tvBadgesUnlocked, tvBadgesRemaining;
     private RecyclerView rvBadges;
 
@@ -41,6 +42,7 @@ public class AchievementsActivity extends AppCompatActivity {
 
     private void initViews() {
         btnBack = findViewById(R.id.btnBack);
+        btnShare = findViewById(R.id.btnShare);
         tvTotalPoints = findViewById(R.id.tvTotalPoints);
         tvBadgesUnlocked = findViewById(R.id.tvBadgesUnlocked);
         tvBadgesRemaining = findViewById(R.id.tvBadgesRemaining);
@@ -49,13 +51,40 @@ public class AchievementsActivity extends AppCompatActivity {
 
     private void loadUserStats() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int totalPoints = prefs.getInt("total_points", 0);
+        String userEmail = prefs.getString("user_email", "");
+        
+        // Sync from central UserStorage first
+        com.example.bloodhero.utils.UserStorage.UserData userData = 
+                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, userEmail);
+        
+        int totalPoints;
+        if (userData != null) {
+            totalPoints = userData.points;
+            // Update local prefs to stay in sync
+            prefs.edit().putInt("total_points", totalPoints).apply();
+        } else {
+            totalPoints = prefs.getInt("total_points", 0);
+        }
+        
         tvTotalPoints.setText(String.format("%,d", totalPoints));
     }
 
     private void loadBadges() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        int totalDonations = prefs.getInt("total_donations", 0);
+        String userEmail = prefs.getString("user_email", "");
+        
+        // Sync donations from central UserStorage
+        com.example.bloodhero.utils.UserStorage.UserData userData = 
+                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, userEmail);
+        
+        int totalDonations;
+        if (userData != null) {
+            totalDonations = userData.donations;
+            prefs.edit().putInt("total_donations", totalDonations).apply();
+        } else {
+            totalDonations = prefs.getInt("total_donations", 0);
+        }
+        
         boolean hasProfileComplete = prefs.getBoolean("profile_complete", false);
 
         badgeList = new ArrayList<>();
@@ -194,5 +223,45 @@ public class AchievementsActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> onBackPressed());
+        
+        btnShare.setOnClickListener(v -> shareAchievements());
+    }
+    
+    private void shareAchievements() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int totalDonations = prefs.getInt("total_donations", 0);
+        int totalPoints = prefs.getInt("total_points", 0);
+        String userName = prefs.getString("user_name", "A Blood Donor");
+        
+        // Count unlocked badges
+        int unlockedBadges = 0;
+        StringBuilder badgeNames = new StringBuilder();
+        for (Badge badge : badgeList) {
+            if (badge.isUnlocked()) {
+                unlockedBadges++;
+                if (badgeNames.length() > 0) badgeNames.append(", ");
+                badgeNames.append(badge.getName());
+            }
+        }
+        
+        String shareText = "I'm a proud blood donor on BloodHero!\n\n" +
+                "My Stats:\n" +
+                "- Donations: " + totalDonations + "\n" +
+                "- Points: " + totalPoints + "\n" +
+                "- Badges Unlocked: " + unlockedBadges + "/" + badgeList.size() + "\n";
+        
+        if (unlockedBadges > 0) {
+            shareText += "\nMy Badges: " + badgeNames.toString() + "\n";
+        }
+        
+        shareText += "\nJoin me in saving lives! Download BloodHero and become a hero today.\n" +
+                "#BloodHero #DonateBlood #SaveLives";
+        
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My BloodHero Achievements");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+        
+        startActivity(Intent.createChooser(shareIntent, "Share your achievements"));
     }
 }

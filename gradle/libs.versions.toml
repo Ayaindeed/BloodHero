@@ -17,6 +17,7 @@ splashscreen = "1.0.1"
 fragment = "1.8.0"
 preference = "1.2.1"
 osmdroid = "6.1.18"
+mpandroidchart = "v3.1.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -36,6 +37,7 @@ splashscreen = { group = "androidx.core", name = "core-splashscreen", version.re
 fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
+mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

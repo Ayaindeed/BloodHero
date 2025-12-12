@@ -13,16 +13,20 @@ A blood donation mobile application for Android that connects donors with blood 
 - Track donation history and statistics
 - View blood compatibility information
 - Gamification system with points and achievement badges
+- Share achievements on social media
 - Leaderboard to encourage community participation
+- Urgent blood requests with compatibility matching
+- Rewards system to redeem points for vouchers and gifts
 - Light/Dark theme support
 
 ### Admin Panel
-- Separate admin dashboard
+- Separate admin dashboard (admin@contact.me / admin@@@)
 - View registered users and their blood types
 - Manage appointments
 - Track donations across the platform
 - Manage user badges
-- Campaign and reports management (coming soon)
+- Analytics dashboard with charts (blood type distribution, monthly donations, user growth)
+- Campaign management (coming soon)
 
 ### Additional Features
 - Moroccan cities support (Casablanca, Rabat, Marrakech, Fes, Tangier, etc.)
@@ -51,6 +55,7 @@ app/src/main/java/com/example/bloodhero/
 │   ├── AdminUsersActivity.java
 │   ├── AdminDonationsActivity.java
 │   ├── AdminBadgesActivity.java
+│   ├── AdminAnalyticsActivity.java
 │   ├── CampaignsActivity.java
 │   ├── CampaignMapActivity.java
 │   ├── DonationHistoryActivity.java
@@ -60,18 +65,24 @@ app/src/main/java/com/example/bloodhero/
 │   ├── SettingsActivity.java
 │   ├── MyAppointmentsActivity.java
 │   ├── BloodCompatibilityActivity.java
+│   ├── BloodRequestsActivity.java
+│   ├── RewardsActivity.java
 │   ├── HelpSupportActivity.java
 │   └── NotificationSettingsActivity.java
 ├── adapters/
 │   ├── CampaignAdapter.java
 │   ├── AchievementAdapter.java
-│   └── LeaderboardAdapter.java
+│   ├── LeaderboardAdapter.java
+│   ├── RewardAdapter.java
+│   └── BloodRequestAdapter.java
 ├── database/
 │   └── BloodHeroDatabaseHelper.java
 ├── models/
 │   ├── Campaign.java
 │   ├── Achievement.java
-│   └── LeaderboardEntry.java
+│   ├── LeaderboardEntry.java
+│   ├── Reward.java
+│   └── BloodRequest.java
 ├── utils/
 │   └── UserStorage.java
 ├── HomeActivity.java

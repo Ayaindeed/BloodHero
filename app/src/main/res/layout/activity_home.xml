@@ -385,6 +385,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
+                <include layout="@layout/item_menu_action"
+                    android:id="@+id/menuUrgentRequests"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include layout="@layout/item_menu_action"
+                    android:id="@+id/menuRewards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
                 <!-- Extra padding at bottom -->
                 <View
                     android:layout_width="match_parent"

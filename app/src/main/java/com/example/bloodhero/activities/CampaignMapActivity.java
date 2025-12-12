@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.bloodhero.R;
 import com.example.bloodhero.models.Campaign;
+import com.example.bloodhero.utils.UserStorage;
 import com.google.android.material.button.MaterialButton;
 
 import org.osmdroid.api.IMapController;
@@ -362,14 +363,25 @@ public class CampaignMapActivity extends AppCompatActivity {
                 .setTitle("Book Appointment")
                 .setMessage("Would you like to book an appointment at " + campaign.getName() + "?\n\nLocation: " + campaign.getLocation() + "\nDate: " + campaign.getDate())
                 .setPositiveButton("Book Now", (dialog, which) -> {
-                    // Save appointment to SharedPreferences
+                    // Get user data
                     SharedPreferences prefs = getSharedPreferences("BloodHeroPrefs", MODE_PRIVATE);
+                    String userName = prefs.getString("user_name", "Unknown");
+                    String userEmail = prefs.getString("user_email", "");
+                    String bloodType = prefs.getString("blood_type", "Unknown");
+                    
+                    // Save to UserStorage for admin sync and get appointment ID
+                    String appointmentId = UserStorage.saveAppointment(this, userEmail, userName, bloodType,
+                            campaign.getName(), campaign.getLocation(), campaign.getDate(), "09:00 AM");
+                    
+                    // Save appointment to SharedPreferences for user's view
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putBoolean("has_appointment", true);
+                    editor.putString("last_appointment_id", appointmentId);
                     editor.putString("last_appointment_campaign", campaign.getName());
                     editor.putString("last_appointment_location", campaign.getLocation());
                     editor.putString("last_appointment_date", campaign.getDate());
                     editor.putString("last_appointment_time", "09:00 AM");
+                    editor.putString("last_appointment_status", "Pending");
                     editor.apply();
                     
                     Toast.makeText(this, "Appointment booked successfully!", Toast.LENGTH_SHORT).show();

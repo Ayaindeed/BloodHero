@@ -82,7 +82,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
 
         cardReports.setOnClickListener(v -> {
-            Toast.makeText(this, "Reports coming soon!", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, AdminAnalyticsActivity.class));
         });
     }
 
@@ -92,9 +92,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // Add 1 for admin account if no users registered yet
         tvTotalUsers.setText(String.valueOf(Math.max(userCount, 1)));
         
-        // Mock data for pending and donations (would come from database in real app)
-        tvPendingAppointments.setText("0");
-        tvTotalDonations.setText("0");
+        // Get real pending appointments count
+        int pendingCount = UserStorage.getAppointmentsCountByStatus(this, "Pending");
+        tvPendingAppointments.setText(String.valueOf(pendingCount));
+        
+        // Get real donations count
+        int donationsCount = UserStorage.getTotalDonations(this);
+        tvTotalDonations.setText(String.valueOf(donationsCount));
     }
     
     private void showLogoutConfirmation() {

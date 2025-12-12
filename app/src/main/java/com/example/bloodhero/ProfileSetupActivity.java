@@ -99,9 +99,42 @@ public class ProfileSetupActivity extends AppCompatActivity {
 
     private void loadExistingData() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String email = prefs.getString(KEY_USER_EMAIL, "");
+        
+        // Load from local prefs first
         String name = prefs.getString(KEY_USER_NAME, "");
-        if (!TextUtils.isEmpty(name)) {
-            etName.setText(name);
+        String phone = prefs.getString("user_phone", "");
+        String location = prefs.getString("user_location", "");
+        String bloodType = prefs.getString(KEY_USER_BLOOD_TYPE, "");
+        
+        // Sync from UserStorage for phone/location/bloodType (may have been updated elsewhere)
+        if (!email.isEmpty()) {
+            com.example.bloodhero.utils.UserStorage.UserData userData = 
+                    com.example.bloodhero.utils.UserStorage.getUserByEmail(this, email);
+            if (userData != null) {
+                if (name.isEmpty() && userData.name != null) name = userData.name;
+                if (phone.isEmpty() && userData.phone != null) phone = userData.phone;
+                if (location.isEmpty() && userData.location != null) location = userData.location;
+                if ((bloodType.isEmpty() || "Unknown".equals(bloodType)) && userData.bloodType != null) {
+                    bloodType = userData.bloodType;
+                }
+            }
+        }
+        
+        // Populate fields
+        if (!TextUtils.isEmpty(name)) etName.setText(name);
+        if (!TextUtils.isEmpty(phone)) etPhone.setText(phone);
+        if (!TextUtils.isEmpty(location)) etLocation.setText(location);
+        
+        // Pre-select blood type button
+        if (!TextUtils.isEmpty(bloodType) && !"Unknown".equals(bloodType)) {
+            String[] bloodTypes = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
+            for (int i = 0; i < bloodTypes.length; i++) {
+                if (bloodTypes[i].equals(bloodType)) {
+                    selectBloodType(bloodTypeButtons[i], bloodType);
+                    break;
+                }
+            }
         }
     }
 
@@ -234,8 +267,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
             editor.putBoolean(KEY_PROFILE_COMPLETE, true);
             editor.apply();
 
-            // Sync user data to UserStorage for admin dashboard
-            UserStorage.saveUser(this, name, email, selectedBloodType);
+            // Sync user data to UserStorage for admin dashboard (with full profile)
+            UserStorage.saveUser(this, name, email, selectedBloodType, phone, location);
 
             Toast.makeText(this, "Profile saved successfully!", Toast.LENGTH_SHORT).show();
             navigateToHome();
