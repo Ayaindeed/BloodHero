@@ -20,7 +20,6 @@ A blood donation mobile application for Android that connects donors with blood 
 - Light/Dark theme support
 
 ### Admin Panel
-- Separate admin dashboard (admin@contact.me / admin@@@)
 - View registered users and their blood types
 - Manage appointments
 - Track donations across the platform
