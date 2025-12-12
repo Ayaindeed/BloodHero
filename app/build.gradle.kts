@@ -57,6 +57,9 @@ dependencies {
     // Preferences
     implementation(libs.preference)
     
+    // Maps (OpenStreetMap)
+    implementation(libs.osmdroid)
+    
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

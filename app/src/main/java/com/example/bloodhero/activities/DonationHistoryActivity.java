@@ -67,9 +67,9 @@ public class DonationHistoryActivity extends AppCompatActivity {
         int totalDonations = prefs.getInt("total_donations", 0);
         String bloodType = prefs.getString("blood_type", "A+");
 
-        // In production, donations would be loaded from BloodHeroDatabaseHelper
-        // For now, show empty state - users will see their actual donations
-        if (false && totalDonations > 0) {
+        // Load donations based on user's total donations count
+        // In production, these would come from BloodHeroDatabaseHelper
+        if (totalDonations > 0) {
             // Placeholder for database-loaded donations
             donationList.add(new Donation(
                     "1", "user1", "camp1",

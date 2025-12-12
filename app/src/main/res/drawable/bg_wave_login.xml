@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Main gradient background -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="linear"
+                android:angle="135"
+                android:startColor="@color/primary"
+                android:centerColor="@color/primary_dark"
+                android:endColor="#8B0000" />
+        </shape>
+    </item>
+    
+    <!-- Wave overlay at bottom -->
+    <item android:bottom="-50dp">
+        <rotate
+            android:fromDegrees="180"
+            android:pivotX="50%"
+            android:pivotY="100%">
+            <shape android:shape="oval">
+                <solid android:color="@color/background_primary" />
+                <size
+                    android:width="1000dp"
+                    android:height="200dp" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

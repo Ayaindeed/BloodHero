@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <!-- Person Icon -->
+    <ImageView
+        android:id="@+id/ivPersonIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_person_blood"
+        app:tint="@color/white_70" />
+
+    <!-- Blood Type Label -->
+    <TextView
+        android:id="@+id/tvBloodTypeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="A+"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:fontFamily="sans-serif-bold" />
+
+</LinearLayout>

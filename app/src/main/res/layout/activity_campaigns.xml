@@ -85,15 +85,55 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Section Title -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Section Title with Map Button -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="@string/nearby_campaigns"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:fontFamily="sans-serif-medium" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:id="@+id/tvLocationHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/nearby_campaigns"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <LinearLayout
+                    android:id="@+id/btnMapView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_rounded_primary"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_map"
+                        app:tint="@color/text_on_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Map"
+                        android:textColor="@color/text_on_primary"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <!-- Campaign Cards -->
             <androidx.recyclerview.widget.RecyclerView
@@ -101,11 +141,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
-
-            <!-- Sample Campaign Cards (these will be replaced by RecyclerView) -->
-            <include layout="@layout/item_campaign_card" />
-            <include layout="@layout/item_campaign_card" />
-            <include layout="@layout/item_campaign_card" />
 
         </LinearLayout>
 

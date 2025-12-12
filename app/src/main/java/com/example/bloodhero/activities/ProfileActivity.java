@@ -3,11 +3,11 @@ package com.example.bloodhero.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,7 +26,8 @@ public class ProfileActivity extends AppCompatActivity {
     private CircleImageView ivProfilePhoto;
     private TextView tvUserName, tvUserEmail, tvBloodType;
     private TextView tvDonations, tvPoints, tvBadges;
-    private LinearLayout menuEditProfile, menuNotifications, menuHelp;
+    private LinearLayout menuEditProfile, menuNotifications, menuHelp, menuAdmin;
+    private View cardAdmin;
     private Button btnLogout;
 
     @Override
@@ -52,7 +53,18 @@ public class ProfileActivity extends AppCompatActivity {
         menuEditProfile = findViewById(R.id.menuEditProfile);
         menuNotifications = findViewById(R.id.menuNotifications);
         menuHelp = findViewById(R.id.menuHelp);
+        menuAdmin = findViewById(R.id.menuAdmin);
+        cardAdmin = findViewById(R.id.cardAdmin);
         btnLogout = findViewById(R.id.btnLogout);
+        
+        // Only show admin panel for admin user
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String userEmail = prefs.getString("user_email", "");
+        if ("admin@contact.me".equals(userEmail)) {
+            cardAdmin.setVisibility(View.VISIBLE);
+        } else {
+            cardAdmin.setVisibility(View.GONE);
+        }
     }
 
     private void loadUserData() {
@@ -99,7 +111,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> onBackPressed());
 
         btnSettings.setOnClickListener(v -> {
-            Toast.makeText(this, "Settings coming soon", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, SettingsActivity.class));
         });
 
         menuEditProfile.setOnClickListener(v -> {
@@ -110,11 +122,15 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         menuNotifications.setOnClickListener(v -> {
-            Toast.makeText(this, "Notification settings coming soon", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, NotificationSettingsActivity.class));
         });
 
         menuHelp.setOnClickListener(v -> {
-            Toast.makeText(this, "Help & Support coming soon", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, HelpSupportActivity.class));
+        });
+
+        menuAdmin.setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminDashboardActivity.class));
         });
 
         btnLogout.setOnClickListener(v -> showLogoutDialog());

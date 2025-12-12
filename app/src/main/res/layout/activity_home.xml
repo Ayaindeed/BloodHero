@@ -195,13 +195,6 @@
                                     android:textSize="13sp"
                                     android:gravity="center" />
 
-                                <!-- Placeholder for image -->
-                                <View
-                                    android:layout_width="match_parent"
-                                    android:layout_height="120dp"
-                                    android:layout_marginTop="12dp"
-                                    android:background="@color/surface_tint" />
-
                             </LinearLayout>
 
                         </androidx.cardview.widget.CardView>
@@ -383,7 +376,7 @@
                     android:layout_height="wrap_content" />
 
                 <include layout="@layout/item_menu_action"
-                    android:id="@+id/menuDonorCard"
+                    android:id="@+id/menuBloodGuide"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 

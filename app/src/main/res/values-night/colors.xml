@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors - Dark Red Theme -->
+    <color name="primary">#FF4444</color>
+    <color name="primary_dark">#CC0000</color>
+    <color name="primary_light">#FF6666</color>
+    <color name="primary_variant">#DD2222</color>
+    
+    <!-- Secondary/Accent Colors -->
+    <color name="secondary">#FF5555</color>
+    <color name="secondary_dark">#CC3333</color>
+    <color name="secondary_light">#FF7777</color>
+    
+    <!-- Background Colors - Dark with warm red undertones -->
+    <color name="background">#1A0A0A</color>
+    <color name="background_primary">#1A0A0A</color>
+    <color name="background_secondary">#261414</color>
+    <color name="background_card">#321C1C</color>
+    <color name="background_dark">#0D0505</color>
+    
+    <!-- Surface Colors - Warmer dark tones -->
+    <color name="surface">#261414</color>
+    <color name="surface_variant">#321C1C</color>
+    <color name="surface_tint">#3E2424</color>
+    
+    <!-- Text Colors - Warm whites and rose tones -->
+    <color name="text_primary">#FFEAEA</color>
+    <color name="text_secondary">#CDB4B4</color>
+    <color name="text_hint">#8A7070</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_dark">#FFEAEA</color>
+    
+    <!-- White with opacity (warm tinted) -->
+    <color name="white_70">#B3FFEAEA</color>
+    <color name="white_50">#80FFEAEA</color>
+    <color name="white_30">#4DFFEAEA</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#66BB6A</color>
+    <color name="success_light">#1B3D1F</color>
+    <color name="warning">#FFA726</color>
+    <color name="warning_light">#3D2E1A</color>
+    <color name="error">#EF5350</color>
+    <color name="error_light">#3D1F1F</color>
+    <color name="info">#42A5F5</color>
+    <color name="info_light">#1A2D3D</color>
+    
+    <!-- Medal/Ranking Colors (same) -->
+    <color name="gold">#FFD700</color>
+    <color name="silver">#C0C0C0</color>
+    <color name="bronze">#CD7F32</color>
+    
+    <!-- Badge Colors (same) -->
+    <color name="badge_gold">#FFD700</color>
+    <color name="badge_silver">#C0C0C0</color>
+    <color name="badge_bronze">#CD7F32</color>
+    <color name="badge_locked">#4D4D4D</color>
+    
+    <!-- Blood Type Colors -->
+    <color name="blood_a">#FF5555</color>
+    <color name="blood_b">#EE4444</color>
+    <color name="blood_ab">#DD3333</color>
+    <color name="blood_o">#CC2222</color>
+    
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#CC0000</color>
+    <color name="gradient_center">#FF4444</color>
+    <color name="gradient_end">#FF6666</color>
+    
+    <!-- Divider and Border -->
+    <color name="divider">#3E2424</color>
+    <color name="border">#4E2C2C</color>
+    
+    <!-- Overlay -->
+    <color name="overlay_dark">#CC1A0A0A</color>
+    <color name="overlay_light">#30FFEAEA</color>
+    
+    <!-- Ripple -->
+    <color name="ripple_light">#40FF4444</color>
+    <color name="ripple_dark">#40FFEAEA</color>
+    
+    <!-- Status Bar -->
+    <color name="status_bar">#0D0505</color>
+    
+    <!-- Navigation Bar -->
+    <color name="nav_bar_selected">#FF4444</color>
+    <color name="nav_bar_unselected">#8A7070</color>
+</resources>

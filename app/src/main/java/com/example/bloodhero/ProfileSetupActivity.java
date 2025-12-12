@@ -1,19 +1,27 @@
 package com.example.bloodhero;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.bloodhero.utils.UserStorage;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 public class ProfileSetupActivity extends AppCompatActivity {
 
@@ -22,16 +30,23 @@ public class ProfileSetupActivity extends AppCompatActivity {
     private static final String KEY_USER_NAME = "user_name";
     private static final String KEY_USER_PHONE = "user_phone";
     private static final String KEY_USER_LOCATION = "user_location";
+    private static final String KEY_USER_EMAIL = "user_email";
+    private static final String KEY_USER_DOB = "user_dob";
+    private static final String KEY_USER_GENDER = "user_gender";
+    private static final String KEY_USER_WEIGHT = "user_weight";
     private static final String KEY_USER_BLOOD_TYPE = "blood_type";
 
-    private TextInputLayout tilName, tilPhone, tilLocation;
-    private TextInputEditText etName, etPhone, etLocation;
+    private TextInputLayout tilName, tilPhone, tilLocation, tilEmail, tilDateOfBirth, tilWeight;
+    private TextInputEditText etName, etPhone, etLocation, etEmail, etDateOfBirth, etWeight;
+    private RadioGroup rgGender;
+    private RadioButton rbMale, rbFemale;
     private MaterialButton btnSaveProfile, btnSkip;
     private ImageView ivProfilePhoto, ivAddPhoto;
     
     private MaterialButton[] bloodTypeButtons;
     private String selectedBloodType = null;
     private MaterialButton selectedButton = null;
+    private Calendar selectedDateOfBirth = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +63,20 @@ public class ProfileSetupActivity extends AppCompatActivity {
         tilName = findViewById(R.id.tilName);
         tilPhone = findViewById(R.id.tilPhone);
         tilLocation = findViewById(R.id.tilLocation);
+        tilEmail = findViewById(R.id.tilEmail);
+        tilDateOfBirth = findViewById(R.id.tilDateOfBirth);
+        tilWeight = findViewById(R.id.tilWeight);
         
         etName = findViewById(R.id.etName);
         etPhone = findViewById(R.id.etPhone);
         etLocation = findViewById(R.id.etLocation);
+        etEmail = findViewById(R.id.etEmail);
+        etDateOfBirth = findViewById(R.id.etDateOfBirth);
+        etWeight = findViewById(R.id.etWeight);
+        
+        rgGender = findViewById(R.id.rgGender);
+        rbMale = findViewById(R.id.rbMale);
+        rbFemale = findViewById(R.id.rbFemale);
         
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         btnSkip = findViewById(R.id.btnSkip);
@@ -113,9 +138,41 @@ public class ProfileSetupActivity extends AppCompatActivity {
             Toast.makeText(this, "Photo selection coming soon!", Toast.LENGTH_SHORT).show();
         });
 
+        // Date of Birth picker
+        etDateOfBirth.setOnClickListener(v -> showDatePickerDialog());
+
         btnSaveProfile.setOnClickListener(v -> saveProfile());
 
         btnSkip.setOnClickListener(v -> navigateToHome());
+    }
+
+    private void showDatePickerDialog() {
+        Calendar now = Calendar.getInstance();
+        int year = now.get(Calendar.YEAR) - 25; // Default to 25 years old
+        int month = now.get(Calendar.MONTH);
+        int day = now.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, selectedYear, selectedMonth, selectedDay) -> {
+                    selectedDateOfBirth.set(selectedYear, selectedMonth, selectedDay);
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                    etDateOfBirth.setText(sdf.format(selectedDateOfBirth.getTime()));
+                },
+                year, month, day
+        );
+        
+        // Set max date to 18 years ago (minimum age for blood donation)
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.YEAR, -18);
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
+        
+        // Set min date to 65 years ago (maximum age for blood donation)
+        Calendar minDate = Calendar.getInstance();
+        minDate.add(Calendar.YEAR, -65);
+        datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
+        
+        datePickerDialog.show();
     }
 
     private void saveProfile() {
@@ -123,10 +180,18 @@ public class ProfileSetupActivity extends AppCompatActivity {
         tilName.setError(null);
         tilPhone.setError(null);
         tilLocation.setError(null);
+        tilWeight.setError(null);
 
         String name = etName.getText() != null ? etName.getText().toString().trim() : "";
         String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
         String location = etLocation.getText() != null ? etLocation.getText().toString().trim() : "";
+        String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
+        String dob = etDateOfBirth.getText() != null ? etDateOfBirth.getText().toString().trim() : "";
+        String weightStr = etWeight.getText() != null ? etWeight.getText().toString().trim() : "";
+        
+        String gender = "";
+        if (rbMale.isChecked()) gender = "Male";
+        else if (rbFemale.isChecked()) gender = "Female";
 
         boolean isValid = true;
 
@@ -139,6 +204,20 @@ public class ProfileSetupActivity extends AppCompatActivity {
             Toast.makeText(this, "Please select your blood type", Toast.LENGTH_SHORT).show();
             isValid = false;
         }
+        
+        // Validate weight if provided
+        if (!TextUtils.isEmpty(weightStr)) {
+            try {
+                double weight = Double.parseDouble(weightStr);
+                if (weight < 50) {
+                    tilWeight.setError("Minimum weight is 50kg for blood donation");
+                    isValid = false;
+                }
+            } catch (NumberFormatException e) {
+                tilWeight.setError("Invalid weight");
+                isValid = false;
+            }
+        }
 
         if (isValid) {
             // Save profile data
@@ -147,9 +226,16 @@ public class ProfileSetupActivity extends AppCompatActivity {
             editor.putString(KEY_USER_NAME, name);
             editor.putString(KEY_USER_PHONE, phone);
             editor.putString(KEY_USER_LOCATION, location);
+            editor.putString(KEY_USER_EMAIL, email);
+            editor.putString(KEY_USER_DOB, dob);
+            editor.putString(KEY_USER_GENDER, gender);
+            editor.putString(KEY_USER_WEIGHT, weightStr);
             editor.putString(KEY_USER_BLOOD_TYPE, selectedBloodType);
             editor.putBoolean(KEY_PROFILE_COMPLETE, true);
             editor.apply();
+
+            // Sync user data to UserStorage for admin dashboard
+            UserStorage.saveUser(this, name, email, selectedBloodType);
 
             Toast.makeText(this, "Profile saved successfully!", Toast.LENGTH_SHORT).show();
             navigateToHome();

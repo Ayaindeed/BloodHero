@@ -77,10 +77,14 @@ public class DateSlotAdapter extends RecyclerView.Adapter<DateSlotAdapter.DateSl
                     holder.itemView.getContext().getColor(R.color.text_secondary));
         }
 
-        holder.itemView.setOnClickListener(v -> {
+        // Set click listener on the CardView directly (not itemView)
+        // to handle clicks properly since CardView has clickable=true
+        holder.dateCard.setOnClickListener(v -> {
             int previousSelected = selectedPosition;
             selectedPosition = holder.getAdapterPosition();
-            notifyItemChanged(previousSelected);
+            if (previousSelected >= 0) {
+                notifyItemChanged(previousSelected);
+            }
             notifyItemChanged(selectedPosition);
             if (listener != null) {
                 listener.onDateSelected(date, selectedPosition);

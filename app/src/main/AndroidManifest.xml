@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -53,11 +55,6 @@
             android:parentActivityName=".HomeActivity" />
             
         <activity
-            android:name=".activities.BookingActivity"
-            android:exported="false"
-            android:parentActivityName=".activities.CampaignsActivity" />
-            
-        <activity
             android:name=".activities.DonationHistoryActivity"
             android:exported="false"
             android:parentActivityName=".HomeActivity" />
@@ -76,6 +73,62 @@
             android:name=".activities.ProfileActivity"
             android:exported="false"
             android:parentActivityName=".HomeActivity" />
+            
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.ProfileActivity" />
+            
+        <activity
+            android:name=".activities.NotificationSettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.ProfileActivity" />
+            
+        <activity
+            android:name=".activities.HelpSupportActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.ProfileActivity" />
+            
+        <activity
+            android:name=".activities.CampaignMapActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.CampaignsActivity" />
+            
+        <activity
+            android:name=".activities.BloodCompatibilityActivity"
+            android:exported="false"
+            android:parentActivityName=".HomeActivity" />
+            
+        <activity
+            android:name=".activities.MyAppointmentsActivity"
+            android:exported="false"
+            android:parentActivityName=".HomeActivity" />
+            
+        <!-- Admin Activities -->
+        <activity
+            android:name=".activities.AdminDashboardActivity"
+            android:exported="false"
+            android:parentActivityName=".HomeActivity" />
+            
+        <activity
+            android:name=".activities.AdminAppointmentsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.AdminDashboardActivity" />
+            
+        <activity
+            android:name=".activities.AdminUsersActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.AdminDashboardActivity" />
+            
+        <activity
+            android:name=".activities.AdminDonationsActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.AdminDashboardActivity" />
+            
+        <activity
+            android:name=".activities.AdminBadgesActivity"
+            android:exported="false"
+            android:parentActivityName=".activities.AdminDashboardActivity" />
             
     </application>
 

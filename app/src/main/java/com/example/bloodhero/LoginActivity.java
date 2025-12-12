@@ -98,27 +98,55 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void performLogin(String email, String password) {
+        // Admin credentials check
+        final String ADMIN_EMAIL = "admin@contact.me";
+        final String ADMIN_PASSWORD = "admin@@@";
+        
         // Show loading state
         btnLogin.setEnabled(false);
         btnLogin.setText("Signing in...");
 
         // Simulate login - In production, connect to Firebase Auth
         btnLogin.postDelayed(() -> {
-            // For demo, accept any valid email/password format
+            // Check for admin login
+            if (email.equals(ADMIN_EMAIL)) {
+                if (!password.equals(ADMIN_PASSWORD)) {
+                    btnLogin.setEnabled(true);
+                    btnLogin.setText("Sign In");
+                    Toast.makeText(this, "Invalid admin password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            
+            // For regular users, accept any valid email/password format
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(KEY_IS_LOGGED_IN, true);
             editor.putString(KEY_USER_EMAIL, email);
+            
+            // Mark admin user
+            if (email.equals(ADMIN_EMAIL)) {
+                editor.putBoolean("is_admin", true);
+                editor.putString("user_name", "Admin");
+                editor.putBoolean(KEY_PROFILE_COMPLETE, true);
+            }
             editor.apply();
 
-            // Check if profile is complete
-            boolean profileComplete = prefs.getBoolean(KEY_PROFILE_COMPLETE, false);
+            // Check if admin login
+            boolean isAdmin = email.equals(ADMIN_EMAIL);
             
             Intent intent;
-            if (profileComplete) {
-                intent = new Intent(LoginActivity.this, HomeActivity.class);
+            if (isAdmin) {
+                // Admin goes directly to Admin Dashboard
+                intent = new Intent(LoginActivity.this, com.example.bloodhero.activities.AdminDashboardActivity.class);
             } else {
-                intent = new Intent(LoginActivity.this, ProfileSetupActivity.class);
+                // Regular users check if profile is complete
+                boolean profileComplete = prefs.getBoolean(KEY_PROFILE_COMPLETE, false);
+                if (profileComplete) {
+                    intent = new Intent(LoginActivity.this, HomeActivity.class);
+                } else {
+                    intent = new Intent(LoginActivity.this, ProfileSetupActivity.class);
+                }
             }
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

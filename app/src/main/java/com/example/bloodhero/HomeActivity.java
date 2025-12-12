@@ -11,8 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.example.bloodhero.activities.AchievementsActivity;
+import com.example.bloodhero.activities.BloodCompatibilityActivity;
 import com.example.bloodhero.activities.CampaignsActivity;
 import com.example.bloodhero.activities.DonationHistoryActivity;
+import com.example.bloodhero.activities.MyAppointmentsActivity;
 import com.example.bloodhero.activities.ProfileActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
@@ -32,7 +34,7 @@ public class HomeActivity extends AppCompatActivity {
     private MaterialButton btnScheduleAppointment;
     private BottomNavigationView bottomNav;
     
-    private View menuSchedule, menuManageAppointments, menuDonorCard, menuHistory;
+    private View menuSchedule, menuManageAppointments, menuBloodGuide, menuHistory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         
         menuSchedule = findViewById(R.id.menuSchedule);
         menuManageAppointments = findViewById(R.id.menuManageAppointments);
-        menuDonorCard = findViewById(R.id.menuDonorCard);
+        menuBloodGuide = findViewById(R.id.menuBloodGuide);
         menuHistory = findViewById(R.id.menuHistory);
     }
 
@@ -107,10 +109,10 @@ public class HomeActivity extends AppCompatActivity {
                 "Manage Appointments",
                 "Reschedule, cancel and share");
         
-        // Donor Card
-        setupMenuItem(menuDonorCard, R.drawable.ic_verified,
-                "Donor Card",
-                "Your digital donor card");
+        // Blood Compatibility Guide
+        setupMenuItem(menuBloodGuide, R.drawable.ic_blood_drop,
+                "Blood Compatibility Guide",
+                "See who your blood can help");
         
         // Donation History
         setupMenuItem(menuHistory, R.drawable.ic_history,
@@ -166,11 +168,11 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         menuManageAppointments.setOnClickListener(v -> {
-            startActivity(new Intent(this, CampaignsActivity.class));
+            startActivity(new Intent(this, MyAppointmentsActivity.class));
         });
 
-        menuDonorCard.setOnClickListener(v -> {
-            startActivity(new Intent(this, ProfileActivity.class));
+        menuBloodGuide.setOnClickListener(v -> {
+            startActivity(new Intent(this, BloodCompatibilityActivity.class));
         });
 
         menuHistory.setOnClickListener(v -> {

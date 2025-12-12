@@ -48,6 +48,29 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
     
+    <!-- Date Picker Theme Overlay -->
+    <style name="ThemeOverlay.BloodHero.DatePicker" parent="ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/text_on_primary</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+    </style>
+    
+    <!-- Alert Dialog Theme -->
+    <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+    </style>
+    
+    <style name="PositiveButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/error</item>
+    </style>
+    
+    <style name="NegativeButtonStyle" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+    
     <!-- Button Styles -->
     <style name="Widget.BloodHero.Button.Primary" parent="Widget.Material3.Button">
         <item name="android:backgroundTint">@color/primary</item>

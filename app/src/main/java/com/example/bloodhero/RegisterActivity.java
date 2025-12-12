@@ -5,12 +5,12 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.bloodhero.utils.UserStorage;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -26,7 +26,6 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputEditText etName, etEmail, etPassword, etConfirmPassword;
     private MaterialButton btnRegister, btnGoogle, btnFacebook;
     private TextView tvLogin;
-    private ImageView btnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,15 +51,9 @@ public class RegisterActivity extends AppCompatActivity {
         btnGoogle = findViewById(R.id.btnGoogle);
         btnFacebook = findViewById(R.id.btnFacebook);
         tvLogin = findViewById(R.id.tvLogin);
-        btnBack = findViewById(R.id.btnBack);
     }
 
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> {
-            finish();
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        });
-
         btnRegister.setOnClickListener(v -> attemptRegister());
 
         tvLogin.setOnClickListener(v -> {
@@ -139,13 +132,16 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Simulate registration - In production, connect to Firebase Auth
         btnRegister.postDelayed(() -> {
-            // Save user data
+            // Save user data to local preferences
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(KEY_IS_LOGGED_IN, true);
             editor.putString(KEY_USER_EMAIL, email);
             editor.putString(KEY_USER_NAME, name);
             editor.apply();
+
+            // Save to UserStorage for admin sync
+            UserStorage.saveUser(this, name, email, null);
 
             Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
 

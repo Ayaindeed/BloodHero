@@ -16,6 +16,7 @@ lottie = "6.4.0"
 splashscreen = "1.0.1"
 fragment = "1.8.0"
 preference = "1.2.1"
+osmdroid = "6.1.18"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -34,6 +35,7 @@ lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie"
 splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

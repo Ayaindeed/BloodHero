@@ -108,6 +108,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/surface"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -124,14 +125,43 @@
                         android:textSize="16sp"
                         android:fontFamily="sans-serif-medium" />
 
-                    <!-- Date Options -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvDates"
+                    <!-- Date Picker Button -->
+                    <LinearLayout
+                        android:id="@+id/datePickerButton"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:layout_marginTop="12dp"
                         android:orientation="horizontal"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:background="@drawable/bg_date_picker_button"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="@color/primary" />
+
+                        <TextView
+                            android:id="@+id/tvSelectedDate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:text="Tap to select a date"
+                            android:textColor="@color/text_hint"
+                            android:textSize="15sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="@color/text_hint" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -143,6 +173,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/surface"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -222,6 +253,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/surface"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -281,6 +313,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp"
+                app:cardBackgroundColor="@color/surface"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout

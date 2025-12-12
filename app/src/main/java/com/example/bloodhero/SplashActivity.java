@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.splashscreen.SplashScreen;
 
 @SuppressLint("CustomSplashScreen")
@@ -27,6 +29,9 @@ public class SplashActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "BloodHeroPrefs";
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
     private static final String KEY_PROFILE_COMPLETE = "profile_complete";
+    private static final String KEY_THEME_MODE = "theme_mode";
+    private static final int THEME_LIGHT = 0;
+    private static final int THEME_DARK_RED = 1;
 
     private ImageView ivLogo;
     private TextView tvAppName;
@@ -35,6 +40,9 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Apply saved theme before anything else
+        applyTheme();
+        
         // Handle the splash screen transition
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         
@@ -117,10 +125,14 @@ public class SplashActivity extends AppCompatActivity {
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             boolean isLoggedIn = prefs.getBoolean(KEY_IS_LOGGED_IN, false);
             boolean profileComplete = prefs.getBoolean(KEY_PROFILE_COMPLETE, false);
+            boolean isAdmin = prefs.getBoolean("is_admin", false);
 
             Intent intent;
             if (isLoggedIn) {
-                if (profileComplete) {
+                if (isAdmin) {
+                    // Admin goes directly to Admin Dashboard
+                    intent = new Intent(SplashActivity.this, com.example.bloodhero.activities.AdminDashboardActivity.class);
+                } else if (profileComplete) {
                     intent = new Intent(SplashActivity.this, HomeActivity.class);
                 } else {
                     intent = new Intent(SplashActivity.this, ProfileSetupActivity.class);
@@ -130,8 +142,24 @@ public class SplashActivity extends AppCompatActivity {
             }
 
             startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, android.R.anim.fade_in, android.R.anim.fade_out);
+            } else {
+                //noinspection deprecation
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
             finish();
         }, SPLASH_DELAY);
+    }
+    
+    private void applyTheme() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int themeMode = prefs.getInt(KEY_THEME_MODE, THEME_LIGHT);
+        
+        if (themeMode == THEME_DARK_RED) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
     }
 }
