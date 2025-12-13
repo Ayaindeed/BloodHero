@@ -26,6 +26,23 @@ public class UserStorage {
     private static final String KEY_DONATIONS = "completed_donations";
 
     /**
+     * Clear all user data (for fresh start)
+     * Keeps campaigns and other app settings intact
+     */
+    public static void clearAllUsers(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit()
+            .putString(KEY_USERS, "[]")
+            .putString(KEY_APPOINTMENTS, "[]")
+            .putString(KEY_DONATIONS, "[]")
+            .apply();
+        
+        // Also clear the session prefs
+        SharedPreferences sessionPrefs = context.getSharedPreferences("BloodHeroPrefs", Context.MODE_PRIVATE);
+        sessionPrefs.edit().clear().apply();
+    }
+
+    /**
      * Clear login session (logout user)
      */
     public static void clearSession(Context context) {
@@ -35,6 +52,51 @@ public class UserStorage {
             .putBoolean("is_admin", false)
             .remove("user_email")
             .apply();
+    }
+
+    /**
+     * Update user's password in central storage
+     */
+    public static void updateUserPassword(Context context, String email, String newPassword) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String usersJson = prefs.getString(KEY_USERS, "[]");
+        
+        try {
+            JSONArray usersArray = new JSONArray(usersJson);
+            for (int i = 0; i < usersArray.length(); i++) {
+                JSONObject user = usersArray.getJSONObject(i);
+                if (user.getString("email").equals(email)) {
+                    // In production, hash the password before storing
+                    user.put("password", newPassword);
+                    prefs.edit().putString(KEY_USERS, usersArray.toString()).apply();
+                    return;
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Verify user password
+     */
+    public static boolean verifyPassword(Context context, String email, String password) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String usersJson = prefs.getString(KEY_USERS, "[]");
+        
+        try {
+            JSONArray usersArray = new JSONArray(usersJson);
+            for (int i = 0; i < usersArray.length(); i++) {
+                JSONObject user = usersArray.getJSONObject(i);
+                if (user.getString("email").equals(email)) {
+                    String storedPassword = user.optString("password", "");
+                    return password.equals(storedPassword);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**

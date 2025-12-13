@@ -8,7 +8,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bloodhero.R;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.UserRepository;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.charts.PieChart;
@@ -28,6 +29,7 @@ import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,12 +40,16 @@ public class AdminAnalyticsActivity extends AppCompatActivity {
     private PieChart pieChartBloodTypes;
     private BarChart barChartMonthly;
     private LineChart lineChartUsers;
+    
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_analytics);
 
+        userRepository = UserRepository.getInstance(this);
+        
         initViews();
         loadStats();
         setupPieChart();
@@ -63,12 +69,16 @@ public class AdminAnalyticsActivity extends AppCompatActivity {
     }
 
     private void loadStats() {
-        // Load real user count
-        int userCount = UserStorage.getUserCount(this);
-        tvTotalUsers.setText(String.valueOf(Math.max(userCount, 0)));
+        // Load real user count from SQLite (exclude admin)
+        List<User> allUsers = userRepository.getAllUsers();
+        int userCount = Math.max(allUsers.size() - 1, 0); // Exclude admin
+        tvTotalUsers.setText(String.valueOf(userCount));
         
         // Load real donation count from all users
-        int totalDonations = UserStorage.getTotalDonations(this);
+        int totalDonations = 0;
+        for (User user : allUsers) {
+            totalDonations += user.getTotalDonations();
+        }
         tvTotalDonations.setText(String.valueOf(totalDonations));
         
         // Count active campaigns (mock value since campaigns are hardcoded)
@@ -77,7 +87,15 @@ public class AdminAnalyticsActivity extends AppCompatActivity {
 
     private void setupPieChart() {
         // Get actual blood type distribution from registered users
-        Map<String, Integer> bloodTypeStats = UserStorage.getBloodTypeStats(this);
+        List<User> allUsers = userRepository.getAllUsers();
+        Map<String, Integer> bloodTypeStats = new HashMap<>();
+        
+        for (User user : allUsers) {
+            if (user.getBloodType() != null && !user.getBloodType().isEmpty()) {
+                bloodTypeStats.put(user.getBloodType(), 
+                    bloodTypeStats.getOrDefault(user.getBloodType(), 0) + 1);
+            }
+        }
         
         ArrayList<PieEntry> entries = new ArrayList<>();
         

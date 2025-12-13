@@ -1,6 +1,5 @@
 package com.example.bloodhero.activities;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -12,15 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bloodhero.R;
 import com.example.bloodhero.adapters.LeaderboardAdapter;
 import com.example.bloodhero.models.LeaderboardEntry;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.UserRepository;
+import com.example.bloodhero.utils.UserHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class LeaderboardActivity extends AppCompatActivity {
-
-    private static final String PREFS_NAME = "BloodHeroPrefs";
 
     private ImageButton btnBack;
     private TextView tvFirstName, tvFirstPoints;
@@ -31,12 +30,17 @@ public class LeaderboardActivity extends AppCompatActivity {
 
     private LeaderboardAdapter leaderboardAdapter;
     private List<LeaderboardEntry> leaderboardList;
+    private UserRepository userRepository;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
 
+        userRepository = UserRepository.getInstance(this);
+        currentUser = UserHelper.getCurrentUser(this);
+        
         initViews();
         loadLeaderboard();
         setupClickListeners();
@@ -58,14 +62,11 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     private void loadLeaderboard() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String userEmail = prefs.getString("user_email", "");
-
-        // Load ALL users from UserStorage and sort by points
-        List<UserStorage.UserData> allUsers = UserStorage.getAllUsers(this);
+        // Load ALL users from SQLite and sort by points
+        List<User> allUsers = userRepository.getAllUsers();
         
         // Sort by points descending
-        Collections.sort(allUsers, (a, b) -> Integer.compare(b.points, a.points));
+        Collections.sort(allUsers, (a, b) -> Integer.compare(b.getPoints(), a.getPoints()));
         
         leaderboardList = new ArrayList<>();
         int userRank = 0;
@@ -74,19 +75,20 @@ public class LeaderboardActivity extends AppCompatActivity {
         int userDonations = 0;
         
         for (int i = 0; i < allUsers.size(); i++) {
-            UserStorage.UserData user = allUsers.get(i);
+            User user = allUsers.get(i);
             // Skip admin users from leaderboard
-            if ("admin@contact.me".equals(user.email)) continue;
+            if ("admin@contact.me".equals(user.getEmail())) continue;
             
             LeaderboardEntry entry = new LeaderboardEntry(
-                leaderboardList.size() + 1, user.id, user.name, user.bloodType, user.points, user.donations);
+                leaderboardList.size() + 1, user.getId(), user.getName(), user.getBloodType(), 
+                user.getPoints(), user.getTotalDonations());
             
-            if (user.email.equals(userEmail)) {
+            if (currentUser != null && user.getId().equals(currentUser.getId())) {
                 entry.setCurrentUser(true);
                 userRank = leaderboardList.size() + 1;
-                userName = user.name;
-                userPoints = user.points;
-                userDonations = user.donations;
+                userName = user.getName();
+                userPoints = user.getPoints();
+                userDonations = user.getTotalDonations();
             }
             leaderboardList.add(entry);
         }

@@ -1,7 +1,6 @@
 package com.example.bloodhero.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -16,23 +15,33 @@ import androidx.cardview.widget.CardView;
 
 import com.example.bloodhero.HomeActivity;
 import com.example.bloodhero.R;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.Appointment;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.AppointmentRepository;
+import com.example.bloodhero.utils.UserHelper;
+
+import java.util.List;
 
 public class MyAppointmentsActivity extends AppCompatActivity {
-
-    private static final String PREFS_NAME = "BloodHeroPrefs";
 
     private ImageButton btnBack;
     private LinearLayout emptyState;
     private CardView cardAppointment;
     private TextView tvCampaignName, tvAppointmentDate, tvAppointmentTime, tvLocation, tvStatus;
     private Button btnCancelAppointment, btnReschedule;
+    
+    private AppointmentRepository appointmentRepository;
+    private User currentUser;
+    private Appointment currentAppointment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_appointments);
 
+        currentUser = UserHelper.getCurrentUser(this);
+        appointmentRepository = AppointmentRepository.getInstance(this);
+        
         initViews();
         loadAppointment();
         setupClickListeners();
@@ -52,63 +61,55 @@ public class MyAppointmentsActivity extends AppCompatActivity {
     }
 
     private void loadAppointment() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String campaignName = prefs.getString("last_appointment_campaign", null);
-        String appointmentDate = prefs.getString("last_appointment_date", null);
-        String appointmentTime = prefs.getString("last_appointment_time", null);
-        String location = prefs.getString("last_appointment_location", null);
-        String appointmentId = prefs.getString("last_appointment_id", null);
+        if (currentUser == null) {
+            emptyState.setVisibility(View.VISIBLE);
+            cardAppointment.setVisibility(View.GONE);
+            return;
+        }
         
-        // Get status from UserStorage (admin may have updated it)
-        String status = prefs.getString("last_appointment_status", "Pending");
-        if (appointmentId != null) {
-            java.util.List<UserStorage.AppointmentData> allAppointments = UserStorage.getAllAppointments(this);
-            for (UserStorage.AppointmentData appt : allAppointments) {
-                if (appt.id.equals(appointmentId)) {
-                    status = appt.status;
-                    // Sync back to local prefs
-                    prefs.edit().putString("last_appointment_status", status).apply();
-                    break;
-                }
+        // Get user's appointments from SQLite, ordered by date descending
+        List<Appointment> appointments = appointmentRepository.getAppointmentsByUserId(currentUser.getId());
+        
+        // Find the most recent non-cancelled appointment
+        currentAppointment = null;
+        for (Appointment appt : appointments) {
+            if (appt.getStatus() != Appointment.Status.CANCELLED) {
+                currentAppointment = appt;
+                break;
             }
         }
 
-        if (campaignName != null && appointmentDate != null) {
+        if (currentAppointment != null) {
             // Show appointment
             emptyState.setVisibility(View.GONE);
             cardAppointment.setVisibility(View.VISIBLE);
 
-            tvCampaignName.setText(campaignName);
-            tvAppointmentDate.setText(formatDate(appointmentDate));
-            tvAppointmentTime.setText(appointmentTime);
-            tvLocation.setText(location != null ? location : "Location not specified");
-            tvStatus.setText(status);
+            tvCampaignName.setText(currentAppointment.getCampaignName() != null ? 
+                currentAppointment.getCampaignName() : "Blood Donation");
+            tvAppointmentDate.setText(formatDate(currentAppointment.getDate()));
+            tvAppointmentTime.setText(currentAppointment.getTime());
+            tvLocation.setText(currentAppointment.getLocation() != null ? 
+                currentAppointment.getLocation() : "Location not specified");
+            tvStatus.setText(currentAppointment.getStatus().toString());
             
             // Reset button visibility
             btnCancelAppointment.setVisibility(View.VISIBLE);
             btnReschedule.setVisibility(View.VISIBLE);
 
             // Set status color and button visibility based on status
-            switch (status) {
-                case "Confirmed":
-                    tvStatus.setTextColor(getColor(R.color.success));
-                    tvStatus.setBackgroundResource(R.drawable.bg_status_confirmed);
-                    break;
-                case "Completed":
-                    tvStatus.setTextColor(getColor(R.color.info));
+            switch (currentAppointment.getStatus()) {
+                case COMPLETED:
                     tvStatus.setBackgroundResource(R.drawable.bg_status_completed);
                     btnCancelAppointment.setVisibility(View.GONE);
                     btnReschedule.setVisibility(View.GONE);
                     break;
-                case "Cancelled":
-                    tvStatus.setTextColor(getColor(R.color.error));
+                case CANCELLED:
                     tvStatus.setBackgroundResource(R.drawable.bg_status_cancelled);
                     btnCancelAppointment.setVisibility(View.GONE);
                     btnReschedule.setVisibility(View.GONE);
                     break;
-                case "Pending":
+                case SCHEDULED:
                 default:
-                    tvStatus.setTextColor(getColor(R.color.warning));
                     tvStatus.setBackgroundResource(R.drawable.bg_status_pending);
                     break;
             }
@@ -161,19 +162,14 @@ public class MyAppointmentsActivity extends AppCompatActivity {
     }
 
     private void cancelAppointment() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        
-        // Get appointment ID and update in UserStorage
-        String appointmentId = prefs.getString("last_appointment_id", null);
-        if (appointmentId != null) {
-            UserStorage.updateAppointmentStatus(this, appointmentId, "Cancelled");
+        if (currentAppointment == null) {
+            Toast.makeText(this, "No appointment to cancel", Toast.LENGTH_SHORT).show();
+            return;
         }
         
-        // Update local status
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("last_appointment_status", "Cancelled");
-        editor.apply();
-
+        // Update appointment status in SQLite
+        appointmentRepository.updateStatus(currentAppointment.getId(), Appointment.Status.CANCELLED);
+        
         Toast.makeText(this, "Appointment cancelled successfully", Toast.LENGTH_SHORT).show();
         loadAppointment(); // Refresh UI
     }

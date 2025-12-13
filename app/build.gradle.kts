@@ -62,6 +62,9 @@ dependencies {
     
     // Charts
     implementation(libs.mpandroidchart)
+    
+    // FlexboxLayout
+    implementation(libs.flexbox)
 
     // Testing
     testImplementation(libs.junit)

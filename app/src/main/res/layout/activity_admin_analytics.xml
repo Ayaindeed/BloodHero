@@ -113,7 +113,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="#4CAF50"
+                        android:textColor="@color/success"
                         android:textSize="28sp"
                         android:fontFamily="sans-serif-bold" />
 
@@ -149,7 +149,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="#FF9800"
+                        android:textColor="@color/warning"
                         android:textSize="28sp"
                         android:fontFamily="sans-serif-bold" />
 

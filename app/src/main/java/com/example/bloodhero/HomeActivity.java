@@ -1,7 +1,8 @@
 package com.example.bloodhero;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,19 +19,21 @@ import com.example.bloodhero.activities.DonationHistoryActivity;
 import com.example.bloodhero.activities.MyAppointmentsActivity;
 import com.example.bloodhero.activities.ProfileActivity;
 import com.example.bloodhero.activities.RewardsActivity;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.utils.UserHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 
+import java.io.File;
 import java.util.Calendar;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "BloodHeroPrefs";
-    private static final String KEY_USER_NAME = "user_name";
-    private static final String KEY_USER_BLOOD_TYPE = "blood_type";
-    private static final String KEY_TOTAL_DONATIONS = "total_donations";
-    private static final String KEY_TOTAL_POINTS = "total_points";
+    private User currentUser;
 
+    private CircleImageView ivProfile;
     private TextView tvGreeting, tvUserName, tvBloodType, tvUnitsDonated;
     private TextView tvTotalDonations, tvTotalPoints, tvLivesSaved;
     private MaterialButton btnScheduleAppointment;
@@ -43,6 +46,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        currentUser = UserHelper.getCurrentUser(this);
+
         initViews();
         loadUserData();
         setupMenuItems();
@@ -51,6 +56,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        ivProfile = findViewById(R.id.ivProfile);
         tvGreeting = findViewById(R.id.tvGreeting);
         tvUserName = findViewById(R.id.tvUserName);
         tvBloodType = findViewById(R.id.tvBloodType);
@@ -70,14 +76,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        
-        // Sync user data from central storage (may have been updated by admin)
-        String email = prefs.getString("user_email", "");
-        if (!email.isEmpty()) {
-            syncUserDataFromStorage(email, prefs);
+        if (currentUser == null) {
+            tvUserName.setText("Hero");
+            tvBloodType.setText("--");
+            return;
         }
-        
+
         // Set greeting based on time of day
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -89,47 +93,37 @@ public class HomeActivity extends AppCompatActivity {
             tvGreeting.setText(R.string.greeting_evening);
         }
         
-        // Reload prefs after sync
-        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        
-        // Load user name
-        String userName = prefs.getString(KEY_USER_NAME, "Hero");
+        // Load user data from SQLite
+        String userName = currentUser.getName() != null ? currentUser.getName() : "Hero";
         tvUserName.setText(userName);
         
-        // Load blood type
-        String bloodType = prefs.getString(KEY_USER_BLOOD_TYPE, "--");
+        String bloodType = currentUser.getBloodType() != null ? currentUser.getBloodType() : "--";
         tvBloodType.setText(bloodType);
         
-        // Load donation stats
-        int totalDonations = prefs.getInt(KEY_TOTAL_DONATIONS, 0);
-        int totalPoints = prefs.getInt(KEY_TOTAL_POINTS, 0);
-        int livesSaved = totalDonations * 3; // Each donation saves up to 3 lives
+        // Load donation stats from SQLite
+        int totalDonations = currentUser.getTotalDonations();
+        int totalPoints = currentUser.getTotalPoints();
+        int livesSaved = currentUser.getLivesSaved();
         
         tvUnitsDonated.setText(String.valueOf(totalDonations));
         tvTotalDonations.setText(String.valueOf(totalDonations));
         tvTotalPoints.setText(String.valueOf(totalPoints));
         tvLivesSaved.setText(String.valueOf(livesSaved));
+        
+        // Load profile image
+        loadProfileImage();
     }
     
-    /**
-     * Sync user data from central storage
-     */
-    private void syncUserDataFromStorage(String email, SharedPreferences prefs) {
-        com.example.bloodhero.utils.UserStorage.UserData userData = 
-                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, email);
-        if (userData != null) {
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putInt(KEY_TOTAL_POINTS, userData.points);
-            editor.putInt("user_points", userData.points);
-            editor.putInt(KEY_TOTAL_DONATIONS, userData.donations);
-            editor.putInt("user_donations", userData.donations);
-            if (userData.name != null && !userData.name.isEmpty()) {
-                editor.putString(KEY_USER_NAME, userData.name);
+    private void loadProfileImage() {
+        if (currentUser != null && currentUser.getProfileImageUrl() != null) {
+            String photoPath = currentUser.getProfileImageUrl();
+            File photoFile = new File(photoPath);
+            if (photoFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(photoPath);
+                if (bitmap != null) {
+                    ivProfile.setImageBitmap(bitmap);
+                }
             }
-            if (userData.bloodType != null && !userData.bloodType.isEmpty()) {
-                editor.putString(KEY_USER_BLOOD_TYPE, userData.bloodType);
-            }
-            editor.apply();
         }
     }
 
@@ -240,6 +234,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Reload user from database to get latest data
+        currentUser = UserHelper.getCurrentUser(this);
         bottomNav.setSelectedItemId(R.id.nav_home);
         loadUserData();
     }

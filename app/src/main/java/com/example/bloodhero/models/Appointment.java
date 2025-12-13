@@ -67,6 +67,10 @@ public class Appointment {
 
     public String getTimeSlot() { return timeSlot; }
     public void setTimeSlot(String timeSlot) { this.timeSlot = timeSlot; }
+    
+    // Alias for getTimeSlot
+    public String getTime() { return timeSlot; }
+    public void setTime(String time) { this.timeSlot = time; }
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }

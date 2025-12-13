@@ -1,4 +1,4 @@
-@startuml DonorFlow Activity Diagram - User Registration and First Donation
+@startuml BloodHero Activity Diagram - User Registration to Donation
 
 start
 
@@ -6,7 +6,9 @@ start
 
 if (User has account?) then (yes)
   :Enter credentials;
-  :Login;
+  :Login via LoginActivity;
+  :UserRepository.getUserByEmail();
+  :Save to UserHelper.saveCurrentUser();
 else (no)
   :Click Register;
   :Enter email and password;
@@ -15,21 +17,24 @@ else (no)
     :Show error message;
     stop
   else (yes)
-    :Create user account;
+    :UserRepository.createUser();
+    :Insert into SQLite users table;
   endif
   
   :Navigate to profile setup;
   :Enter name, blood type, location;
-  :Save profile;
+  :UserRepository.updateUser();
+  :Save profile to SQLite;
   :Unlock "Profile Complete" badge;
 endif
 
 :Navigate to Home Dashboard;
-:View stats and options;
+:UserHelper.getCurrentUser();
+:Display stats from SQLite;
 
 :Click "Find Campaigns";
-:Allow location access;
-:Load nearby campaigns;
+:CampaignsActivity loads campaigns;
+:Display campaign list;
 
 if (Campaigns available?) then (no)
   :Show "No campaigns found";
@@ -41,28 +46,65 @@ endif
 :Select campaign;
 :View campaign details;
 :Click "Book Appointment";
-:Choose date and time slot;
+:Choose date and time;
 
 if (Slot available?) then (no)
   :Show unavailable message;
   stop
 else (yes)
   :Confirm booking;
-  :Save appointment to database;
-  :Award booking points;
-  :Schedule notification reminder;
+  partition "Appointment Booking" {
+    :Create Appointment object;
+    :AppointmentRepository.createAppointment();
+    :INSERT INTO appointments table;
+    :Status = SCHEDULED;
+  }
   :Display confirmation;
+  :Navigate to MyAppointmentsActivity;
 endif
 
-:Navigate to Appointments;
-:View upcoming appointment;
+:View appointment in MyAppointments;
+:AppointmentRepository.getAppointmentsByUserId();
 
 note right
-  After actual donation,
-  system marks as completed,
-  awards points, and unlocks badges
+  User donates blood at campaign location
+  (Physical donation happens offline)
+end note
+
+partition "Admin Marks Donation Complete" {
+  :Admin opens AdminAppointmentsActivity;
+  :AppointmentRepository.getAllAppointments();
+  :Admin clicks "Mark Completed";
+  :AppointmentRepository.updateStatus(COMPLETED);
+  :DonationRepository.saveDonation();
+  :UserRepository.incrementDonations(+50 points);
+  :All saved to SQLite database;
+}
+
+:User opens app;
+:Appointment status = COMPLETED;
+:Donation appears in DonationHistoryActivity;
+:Points automatically updated;
+:Leaderboard rank updated;
+:Check for unlocked badges;
+
+if (First donation?) then (yes)
+  :Unlock "First Drop" badge;
+  :Award badge points;
+endif
+
+if (5 donations?) then (yes)
+  :Unlock "Regular Donor" badge;
+endif
+
+note right
+  All data synchronized automatically
+  via SQLite - single source of truth
+  No UserStorage, no SharedPreferences
+  for user data
 end note
 
 stop
 
 @enduml
+

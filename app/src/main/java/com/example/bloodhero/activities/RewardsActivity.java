@@ -14,6 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bloodhero.R;
 import com.example.bloodhero.adapters.RewardAdapter;
 import com.example.bloodhero.models.Reward;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.UserRepository;
+import com.example.bloodhero.utils.UserHelper;
 import com.google.android.material.tabs.TabLayout;
 
 import java.text.SimpleDateFormat;
@@ -35,12 +38,18 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
     private List<Reward> allRewards;
     private List<Reward> filteredRewards;
     private int userPoints;
+    
+    private UserRepository userRepository;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rewards);
 
+        userRepository = UserRepository.getInstance(this);
+        currentUser = UserHelper.getCurrentUser(this);
+        
         initViews();
         loadUserPoints();
         setupRewards();
@@ -56,19 +65,10 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
     }
 
     private void loadUserPoints() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String userEmail = prefs.getString("user_email", "");
-        
-        // Sync from central UserStorage first
-        com.example.bloodhero.utils.UserStorage.UserData userData = 
-                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, userEmail);
-        
-        if (userData != null) {
-            userPoints = userData.points;
-            // Update local prefs to stay in sync
-            prefs.edit().putInt("total_points", userPoints).apply();
+        if (currentUser != null) {
+            userPoints = currentUser.getPoints();
         } else {
-            userPoints = prefs.getInt("total_points", 0);
+            userPoints = 0;
         }
         
         tvPointsBalance.setText(String.format(Locale.getDefault(), "%,d", userPoints));
@@ -197,16 +197,15 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
                     // Deduct points
                     userPoints -= reward.getPointsCost();
                     
-                    // Save to SharedPreferences
+                    // Save to SharedPreferences (for local reward tracking)
                     SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putInt("total_points", userPoints);
-                    editor.putInt("user_points", userPoints);
                     editor.putBoolean("reward_redeemed_" + reward.getId(), true);
                     
-                    // Sync points to central UserStorage
-                    String userEmail = prefs.getString("user_email", "");
-                    com.example.bloodhero.utils.UserStorage.updateUserPoints(this, userEmail, userPoints);
+                    // Update user points in SQLite
+                    if (currentUser != null) {
+                        userRepository.updatePoints(currentUser.getId(), userPoints);
+                    }
                     
                     // Set expiry date (30 days from now)
                     Calendar calendar = Calendar.getInstance();

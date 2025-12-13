@@ -1,4 +1,4 @@
-@startuml DonorFlow Use Cases
+@startuml BloodHero Use Cases - SQLite Architecture
 
 left to right direction
 skinparam packageStyle rectangle
@@ -6,83 +6,81 @@ skinparam packageStyle rectangle
 actor "Blood Donor" as donor
 actor "Admin" as admin
 actor "System" as system
-actor "Notification Service" as notification
 
-rectangle "DonorFlow App" {
+rectangle "BloodHero App - SQLite Architecture" {
   
-  usecase "Register Account" as UC1
-  usecase "Login" as UC2
-  usecase "Create Profile" as UC3
-  usecase "Update Profile" as UC4
+  package "Authentication & Profile" {
+    usecase "Register Account\n(SQLite)" as UC1
+    usecase "Login\n(SQLite)" as UC2
+    usecase "Create Profile\n(SQLite)" as UC3
+    usecase "Update Profile\n(SQLite)" as UC4
+    usecase "Reset Password\n(SQLite)" as UC19
+  }
   
-  usecase "Search Donation Campaigns" as UC5
-  usecase "View Campaign Details" as UC6
-  usecase "Book Appointment" as UC7
-  usecase "Cancel Appointment" as UC8
-  usecase "View Upcoming Appointments" as UC9
+  package "Campaign & Appointments" {
+    usecase "Search Campaigns" as UC5
+    usecase "View Campaign Details" as UC6
+    usecase "Book Appointment\n(AppointmentRepository)" as UC7
+    usecase "Cancel Appointment\n(AppointmentRepository)" as UC8
+    usecase "View My Appointments\n(AppointmentRepository)" as UC9
+  }
   
-  usecase "View Donation History" as UC10
-  usecase "View Statistics" as UC11
+  package "Donation Management" {
+    usecase "View Donation History\n(DonationRepository)" as UC10
+    usecase "View Statistics\n(SQLite)" as UC11
+  }
   
-  usecase "Earn Points" as UC12
-  usecase "Unlock Badges" as UC13
-  usecase "View Achievements" as UC14
+  package "Gamification" {
+    usecase "Earn Points\n(auto via SQLite)" as UC12
+    usecase "Unlock Badges\n(auto via SQLite)" as UC13
+    usecase "View Achievements" as UC14
+    usecase "Redeem Rewards" as UC15
+  }
   
-  usecase "View Leaderboard" as UC15
-  usecase "Compare Rankings" as UC16
+  package "Social Features" {
+    usecase "View Leaderboard\n(UserRepository)" as UC16
+    usecase "Compare Rankings\n(SQLite)" as UC17
+    usecase "Share Achievements" as UC18
+  }
   
-  usecase "Receive Notifications" as UC17
-  usecase "Configure Notification Settings" as UC18
+  package "Admin Operations" {
+    usecase "View All Appointments\n(AppointmentRepository)" as UC20
+    usecase "Mark Donation Complete\n(Creates Donation in SQLite)" as UC21
+    usecase "Update User Points\n(UserRepository)" as UC22
+    usecase "Manage Users\n(UserRepository)" as UC23
+    usecase "View Analytics\n(SQLite aggregates)" as UC24
+    usecase "Manage Badges\n(BadgeRepository)" as UC25
+  }
   
-  usecase "Logout" as UC19
-  
-  ' Admin Use Cases
-  usecase "Create Campaign" as UC20
-  usecase "Edit Campaign" as UC21
-  usecase "Delete Campaign" as UC22
-  usecase "View All Appointments" as UC23
-  usecase "Confirm Donation" as UC24
-  usecase "Manage Users" as UC25
-  usecase "View Reports" as UC26
-  usecase "Send Notifications" as UC27
+  package "Data Layer" {
+    usecase "UserRepository\n(Singleton)" as DATA1
+    usecase "AppointmentRepository" as DATA2
+    usecase "DonationRepository" as DATA3
+    usecase "BloodHeroDatabaseHelper\n(SQLite)" as DATA4
+  }
   
 }
 
-' Authentication and Profile Management
+' Donor Flows
 donor --> UC1
 donor --> UC2
 donor --> UC3
 donor --> UC4
-
-' Campaign and Appointment Management
 donor --> UC5
 donor --> UC6
 donor --> UC7
 donor --> UC8
 donor --> UC9
-
-' History and Statistics
 donor --> UC10
 donor --> UC11
-
-' Gamification
 donor --> UC14
-system --> UC12
-system --> UC13
-
-' Leaderboard
 donor --> UC15
 donor --> UC16
-
-' Notifications
 donor --> UC17
 donor --> UC18
-notification --> UC17
-
-' Session Management
 donor --> UC19
 
-' Admin Operations
+' Admin Flows
 admin --> UC2
 admin --> UC20
 admin --> UC21
@@ -90,17 +88,67 @@ admin --> UC22
 admin --> UC23
 admin --> UC24
 admin --> UC25
-admin --> UC26
-admin --> UC27
-admin --> UC19
 
-' Relationships
-UC1 ..> UC3 : <<include>>
-UC2 ..> UC4 : <<extend>>
-UC5 ..> UC6 : <<include>>
+' System automated flows
+system --> UC12
+system --> UC13
+
+' Data layer dependencies
+UC1 ..> DATA1 : uses
+UC2 ..> DATA1 : uses
+UC3 ..> DATA1 : uses
+UC4 ..> DATA1 : uses
+UC19 ..> DATA1 : uses
+
+UC7 ..> DATA2 : uses
+UC8 ..> DATA2 : uses
+UC9 ..> DATA2 : uses
+UC20 ..> DATA2 : uses
+
+UC10 ..> DATA3 : uses
+UC21 ..> DATA3 : creates donation
+
+UC11 ..> DATA1 : reads stats
+UC16 ..> DATA1 : reads all users
+UC23 ..> DATA1 : manages
+UC22 ..> DATA1 : updates
+
+DATA1 ..> DATA4 : delegates to
+DATA2 ..> DATA4 : delegates to
+DATA3 ..> DATA4 : delegates to
+
+' Key relationships
+UC7 ..> UC12 : triggers
+UC21 ..> UC12 : triggers
+UC21 ..> UC13 : may trigger
+UC12 ..> UC13 : may trigger
+
+note right of UC21
+  Critical Flow:
+  1. Admin marks appointment COMPLETED
+  2. Donation created in SQLite
+  3. User points incremented
+  4. User donation count updated
+  5. All synchronized automatically
+  6. No UserStorage, no sync issues
+end note
+
+note bottom of DATA4
+  Single Source of Truth
+  Tables:
+  - users
+  - appointments  
+  - donations
+  - campaigns
+  - badges
+  - user_badges
+end note
+
 UC6 ..> UC7 : <<extend>>
 UC7 ..> UC12 : <<include>>
 UC7 ..> UC13 : <<include>>
+
+@enduml
 UC10 ..> UC11 : <<include>>
 UC15 ..> UC16 : <<extend>>
 UC24 ..> UC12 : <<include>>

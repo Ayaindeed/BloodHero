@@ -7,7 +7,8 @@
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/card_background">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -115,7 +116,7 @@
             android:id="@+id/redeemOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#80FFFFFF"
+            android:background="@color/overlay_light"
             android:visibility="gone" />
 
     </FrameLayout>

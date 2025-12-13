@@ -1,40 +1,54 @@
 package com.example.bloodhero;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.UserRepository;
+import com.example.bloodhero.utils.UserHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class ProfileSetupActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "BloodHeroPrefs";
-    private static final String KEY_PROFILE_COMPLETE = "profile_complete";
-    private static final String KEY_USER_NAME = "user_name";
-    private static final String KEY_USER_PHONE = "user_phone";
-    private static final String KEY_USER_LOCATION = "user_location";
-    private static final String KEY_USER_EMAIL = "user_email";
-    private static final String KEY_USER_DOB = "user_dob";
-    private static final String KEY_USER_GENDER = "user_gender";
-    private static final String KEY_USER_WEIGHT = "user_weight";
-    private static final String KEY_USER_BLOOD_TYPE = "blood_type";
+    private static final int PERMISSION_REQUEST_CAMERA = 100;
+
+    private UserRepository userRepository;
+    private User currentUser;
 
     private TextInputLayout tilName, tilPhone, tilLocation, tilEmail, tilDateOfBirth, tilWeight;
     private TextInputEditText etName, etPhone, etLocation, etEmail, etDateOfBirth, etWeight;
@@ -47,16 +61,71 @@ public class ProfileSetupActivity extends AppCompatActivity {
     private String selectedBloodType = null;
     private MaterialButton selectedButton = null;
     private Calendar selectedDateOfBirth = Calendar.getInstance();
+    
+    private String currentPhotoPath;
+    private Uri photoUri;
+    
+    // Activity Result Launchers for photo selection
+    private ActivityResultLauncher<Intent> cameraLauncher;
+    private ActivityResultLauncher<Intent> galleryLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_setup);
 
+        userRepository = UserRepository.getInstance(this);
+        currentUser = UserHelper.getCurrentUser(this);
+
+        setupPhotoLaunchers();
         initViews();
         loadExistingData();
         setupBloodTypeButtons();
         setupListeners();
+    }
+    
+    private void setupPhotoLaunchers() {
+        // Camera launcher
+        cameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    // Photo was taken, load from file
+                    if (currentPhotoPath != null) {
+                        Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
+                        if (bitmap != null) {
+                            // Compress and save
+                            Bitmap compressed = compressImage(bitmap, 500);
+                            ivProfilePhoto.setImageBitmap(compressed);
+                            savePhotoToPrefs(compressed);
+                        }
+                    }
+                }
+            }
+        );
+        
+        // Gallery launcher
+        galleryLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri selectedImageUri = result.getData().getData();
+                    if (selectedImageUri != null) {
+                        try {
+                            InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
+                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            if (bitmap != null) {
+                                Bitmap compressed = compressImage(bitmap, 500);
+                                ivProfilePhoto.setImageBitmap(compressed);
+                                savePhotoToPrefs(compressed);
+                            }
+                        } catch (IOException e) {
+                            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+            }
+        );
     }
 
     private void initViews() {
@@ -98,35 +167,27 @@ public class ProfileSetupActivity extends AppCompatActivity {
     }
 
     private void loadExistingData() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String email = prefs.getString(KEY_USER_EMAIL, "");
+        if (currentUser == null) return;
         
-        // Load from local prefs first
-        String name = prefs.getString(KEY_USER_NAME, "");
-        String phone = prefs.getString("user_phone", "");
-        String location = prefs.getString("user_location", "");
-        String bloodType = prefs.getString(KEY_USER_BLOOD_TYPE, "");
+        // Load saved photo
+        loadSavedPhoto();
         
-        // Sync from UserStorage for phone/location/bloodType (may have been updated elsewhere)
-        if (!email.isEmpty()) {
-            com.example.bloodhero.utils.UserStorage.UserData userData = 
-                    com.example.bloodhero.utils.UserStorage.getUserByEmail(this, email);
-            if (userData != null) {
-                if (name.isEmpty() && userData.name != null) name = userData.name;
-                if (phone.isEmpty() && userData.phone != null) phone = userData.phone;
-                if (location.isEmpty() && userData.location != null) location = userData.location;
-                if ((bloodType.isEmpty() || "Unknown".equals(bloodType)) && userData.bloodType != null) {
-                    bloodType = userData.bloodType;
-                }
-            }
+        // Populate fields from SQLite
+        if (!TextUtils.isEmpty(currentUser.getName())) {
+            etName.setText(currentUser.getName());
+        }
+        if (!TextUtils.isEmpty(currentUser.getPhoneNumber())) {
+            etPhone.setText(currentUser.getPhoneNumber());
+        }
+        if (!TextUtils.isEmpty(currentUser.getLocation())) {
+            etLocation.setText(currentUser.getLocation());
+        }
+        if (!TextUtils.isEmpty(currentUser.getEmail())) {
+            etEmail.setText(currentUser.getEmail());
         }
         
-        // Populate fields
-        if (!TextUtils.isEmpty(name)) etName.setText(name);
-        if (!TextUtils.isEmpty(phone)) etPhone.setText(phone);
-        if (!TextUtils.isEmpty(location)) etLocation.setText(location);
-        
         // Pre-select blood type button
+        String bloodType = currentUser.getBloodType();
         if (!TextUtils.isEmpty(bloodType) && !"Unknown".equals(bloodType)) {
             String[] bloodTypes = {"A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"};
             for (int i = 0; i < bloodTypes.length; i++) {
@@ -167,9 +228,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        ivAddPhoto.setOnClickListener(v -> {
-            Toast.makeText(this, "Photo selection coming soon!", Toast.LENGTH_SHORT).show();
-        });
+        ivAddPhoto.setOnClickListener(v -> showPhotoSelectionDialog());
+        ivProfilePhoto.setOnClickListener(v -> showPhotoSelectionDialog());
 
         // Date of Birth picker
         etDateOfBirth.setOnClickListener(v -> showDatePickerDialog());
@@ -177,6 +237,133 @@ public class ProfileSetupActivity extends AppCompatActivity {
         btnSaveProfile.setOnClickListener(v -> saveProfile());
 
         btnSkip.setOnClickListener(v -> navigateToHome());
+    }
+    
+    private void showPhotoSelectionDialog() {
+        String[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
+        
+        new AlertDialog.Builder(this)
+            .setTitle("Select Profile Photo")
+            .setItems(options, (dialog, which) -> {
+                switch (which) {
+                    case 0: // Take Photo
+                        if (checkCameraPermission()) {
+                            openCamera();
+                        }
+                        break;
+                    case 1: // Choose from Gallery
+                        openGallery();
+                        break;
+                    case 2: // Cancel
+                        dialog.dismiss();
+                        break;
+                }
+            })
+            .show();
+    }
+    
+    private boolean checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) 
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, 
+                new String[]{Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
+            return false;
+        }
+        return true;
+    }
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, 
+            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CAMERA) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera();
+            } else {
+                Toast.makeText(this, "Camera permission is required to take photos", 
+                    Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
+    private void openCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File photoFile = createImageFile();
+            if (photoFile != null) {
+                photoUri = FileProvider.getUriForFile(this,
+                    getPackageName() + ".fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                cameraLauncher.launch(takePictureIntent);
+            }
+        }
+    }
+    
+    private File createImageFile() {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+            .format(new java.util.Date());
+        String imageFileName = "PROFILE_" + timeStamp;
+        File storageDir = getFilesDir();
+        try {
+            File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+            currentPhotoPath = image.getAbsolutePath();
+            return image;
+        } catch (IOException e) {
+            Toast.makeText(this, "Failed to create image file", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+    
+    private void openGallery() {
+        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, 
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickPhotoIntent.setType("image/*");
+        galleryLauncher.launch(pickPhotoIntent);
+    }
+    
+    private Bitmap compressImage(Bitmap original, int maxSize) {
+        int width = original.getWidth();
+        int height = original.getHeight();
+        
+        float ratio = Math.min((float) maxSize / width, (float) maxSize / height);
+        if (ratio >= 1) return original;
+        
+        int newWidth = Math.round(width * ratio);
+        int newHeight = Math.round(height * ratio);
+        
+        return Bitmap.createScaledBitmap(original, newWidth, newHeight, true);
+    }
+    
+    private void savePhotoToPrefs(Bitmap bitmap) {
+        try {
+            // Save to internal storage
+            String fileName = "profile_photo_" + currentUser.getId() + ".jpg";
+            FileOutputStream fos = openFileOutput(fileName, MODE_PRIVATE);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+            fos.close();
+            
+            // Store the path in user profile
+            String photoPath = getFilesDir() + "/" + fileName;
+            currentUser.setProfileImageUrl(photoPath);
+            userRepository.updateUser(currentUser);
+            
+            Toast.makeText(this, "Photo saved!", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    private void loadSavedPhoto() {
+        if (currentUser != null && currentUser.getProfileImageUrl() != null) {
+            String photoPath = currentUser.getProfileImageUrl();
+            File photoFile = new File(photoPath);
+            if (photoFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(photoPath);
+                if (bitmap != null) {
+                    ivProfilePhoto.setImageBitmap(bitmap);
+                }
+            }
+        }
     }
 
     private void showDatePickerDialog() {
@@ -253,25 +440,26 @@ public class ProfileSetupActivity extends AppCompatActivity {
         }
 
         if (isValid) {
-            // Save profile data
-            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(KEY_USER_NAME, name);
-            editor.putString(KEY_USER_PHONE, phone);
-            editor.putString(KEY_USER_LOCATION, location);
-            editor.putString(KEY_USER_EMAIL, email);
-            editor.putString(KEY_USER_DOB, dob);
-            editor.putString(KEY_USER_GENDER, gender);
-            editor.putString(KEY_USER_WEIGHT, weightStr);
-            editor.putString(KEY_USER_BLOOD_TYPE, selectedBloodType);
-            editor.putBoolean(KEY_PROFILE_COMPLETE, true);
-            editor.apply();
+            if (currentUser == null) {
+                Toast.makeText(this, "Error: User not found", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            // Sync user data to UserStorage for admin dashboard (with full profile)
-            UserStorage.saveUser(this, name, email, selectedBloodType, phone, location);
+            // Update user object
+            currentUser.setName(name);
+            currentUser.setPhoneNumber(phone);
+            currentUser.setLocation(location);
+            currentUser.setBloodType(selectedBloodType);
 
-            Toast.makeText(this, "Profile saved successfully!", Toast.LENGTH_SHORT).show();
-            navigateToHome();
+            // Save to SQLite
+            boolean success = userRepository.updateUser(currentUser);
+            
+            if (success) {
+                Toast.makeText(this, "Profile saved successfully!", Toast.LENGTH_SHORT).show();
+                navigateToHome();
+            } else {
+                Toast.makeText(this, "Failed to save profile", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

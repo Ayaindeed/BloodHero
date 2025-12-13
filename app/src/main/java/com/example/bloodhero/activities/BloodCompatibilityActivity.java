@@ -1,287 +1,137 @@
 package com.example.bloodhero.activities;
 
-import android.content.SharedPreferences;
-import android.graphics.Color;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.example.bloodhero.R;
-import com.example.bloodhero.views.BloodCompatibilityView;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.utils.UserHelper;
+import com.example.bloodhero.views.FlowingBloodCompatibilityView;
+import com.google.android.material.button.MaterialButton;
 
 public class BloodCompatibilityActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "BloodHeroPrefs";
-
-    // Blood type full names
-    private static final Map<String, String> BLOOD_TYPE_NAMES = new HashMap<>();
-    private static final Map<String, String> BLOOD_TYPE_DESCRIPTIONS = new HashMap<>();
-    
-    static {
-        BLOOD_TYPE_NAMES.put("O-", "O Negative");
-        BLOOD_TYPE_NAMES.put("O+", "O Positive");
-        BLOOD_TYPE_NAMES.put("A-", "A Negative");
-        BLOOD_TYPE_NAMES.put("A+", "A Positive");
-        BLOOD_TYPE_NAMES.put("B-", "B Negative");
-        BLOOD_TYPE_NAMES.put("B+", "B Positive");
-        BLOOD_TYPE_NAMES.put("AB-", "AB Negative");
-        BLOOD_TYPE_NAMES.put("AB+", "AB Positive");
-        
-        BLOOD_TYPE_DESCRIPTIONS.put("O-", "Universal Donor - Can donate to everyone!");
-        BLOOD_TYPE_DESCRIPTIONS.put("O+", "Most common blood type (37% of population)");
-        BLOOD_TYPE_DESCRIPTIONS.put("A-", "Rare type - Only 6% of population");
-        BLOOD_TYPE_DESCRIPTIONS.put("A+", "Second most common (34% of population)");
-        BLOOD_TYPE_DESCRIPTIONS.put("B-", "Very rare - Only 2% of population");
-        BLOOD_TYPE_DESCRIPTIONS.put("B+", "Common type (9% of population)");
-        BLOOD_TYPE_DESCRIPTIONS.put("AB-", "Rarest type - Less than 1% of population");
-        BLOOD_TYPE_DESCRIPTIONS.put("AB+", "Universal Recipient - Can receive from anyone!");
-    }
-
-    // Blood compatibility chart
-    private static final Map<String, List<String>> CAN_DONATE_TO = new HashMap<>();
-    private static final Map<String, List<String>> CAN_RECEIVE_FROM = new HashMap<>();
-
-    static {
-        // Who can each blood type DONATE to?
-        CAN_DONATE_TO.put("O-", Arrays.asList("O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"));
-        CAN_DONATE_TO.put("O+", Arrays.asList("O+", "A+", "B+", "AB+"));
-        CAN_DONATE_TO.put("A-", Arrays.asList("A-", "A+", "AB-", "AB+"));
-        CAN_DONATE_TO.put("A+", Arrays.asList("A+", "AB+"));
-        CAN_DONATE_TO.put("B-", Arrays.asList("B-", "B+", "AB-", "AB+"));
-        CAN_DONATE_TO.put("B+", Arrays.asList("B+", "AB+"));
-        CAN_DONATE_TO.put("AB-", Arrays.asList("AB-", "AB+"));
-        CAN_DONATE_TO.put("AB+", Arrays.asList("AB+"));
-
-        // Who can each blood type RECEIVE from?
-        CAN_RECEIVE_FROM.put("O-", Arrays.asList("O-"));
-        CAN_RECEIVE_FROM.put("O+", Arrays.asList("O-", "O+"));
-        CAN_RECEIVE_FROM.put("A-", Arrays.asList("O-", "A-"));
-        CAN_RECEIVE_FROM.put("A+", Arrays.asList("O-", "O+", "A-", "A+"));
-        CAN_RECEIVE_FROM.put("B-", Arrays.asList("O-", "B-"));
-        CAN_RECEIVE_FROM.put("B+", Arrays.asList("O-", "O+", "B-", "B+"));
-        CAN_RECEIVE_FROM.put("AB-", Arrays.asList("O-", "A-", "B-", "AB-"));
-        CAN_RECEIVE_FROM.put("AB+", Arrays.asList("O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"));
-    }
-
     private ImageButton btnBack;
-    private TextView tvBloodBagType;
-    private TextView tvUserBloodTypeDisplay, tvBloodTypeName, tvBloodTypeDesc;
-    private TextView tvCanDonateTo, tvCanReceiveFrom;
-    private TextView tvDonateToList, tvReceiveFromList;
-    private CardView cardSpecialInfo;
-    private TextView tvSpecialTitle, tvSpecialDesc;
-    private BloodCompatibilityView compatibilityView;
-    private LinearLayout bloodBagContainer;
+    private FlowingBloodCompatibilityView flowingCompatibilityView;
 
-    // Blood type icon views
-    private View bloodTypeApos, bloodTypeAneg, bloodTypeBpos, bloodTypeBneg;
-    private View bloodTypeOpos, bloodTypeOneg, bloodTypeABpos, bloodTypeABneg;
+    // Blood type buttons
+    private MaterialButton btnBloodAPos, btnBloodANeg, btnBloodBPos, btnBloodBNeg;
+    private MaterialButton btnBloodABPos, btnBloodABNeg, btnBloodOPos, btnBloodONeg;
 
-    private String userBloodType;
-    private Handler animationHandler = new Handler(Looper.getMainLooper());
+    private String currentBloodType;
+    private MaterialButton selectedButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_blood_compatibility);
+        setContentView(R.layout.activity_blood_compatibility_flowing);
 
         loadUserBloodType();
         initViews();
         setupClickListeners();
-        setupBloodTypeIcons();
-        setupCompatibilityDisplay();
-        setupConnectionLines();
+        updateCompatibilityDisplay(currentBloodType);
     }
 
     private void loadUserBloodType() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        userBloodType = prefs.getString("blood_type", "O+");
+        User user = UserHelper.getCurrentUser(this);
+        if (user != null && user.getBloodType() != null && !user.getBloodType().isEmpty()) {
+            currentBloodType = user.getBloodType();
+        } else {
+            currentBloodType = "O+";
+        }
     }
 
     private void initViews() {
         btnBack = findViewById(R.id.btnBack);
-        tvBloodBagType = findViewById(R.id.tvBloodBagType);
-        tvUserBloodTypeDisplay = findViewById(R.id.tvUserBloodTypeDisplay);
-        tvBloodTypeName = findViewById(R.id.tvBloodTypeName);
-        tvBloodTypeDesc = findViewById(R.id.tvBloodTypeDesc);
-        tvCanDonateTo = findViewById(R.id.tvCanDonateTo);
-        tvCanReceiveFrom = findViewById(R.id.tvCanReceiveFrom);
-        tvDonateToList = findViewById(R.id.tvDonateToList);
-        tvReceiveFromList = findViewById(R.id.tvReceiveFromList);
-        cardSpecialInfo = findViewById(R.id.cardSpecialInfo);
-        tvSpecialTitle = findViewById(R.id.tvSpecialTitle);
-        tvSpecialDesc = findViewById(R.id.tvSpecialDesc);
-        compatibilityView = findViewById(R.id.compatibilityView);
-        bloodBagContainer = findViewById(R.id.bloodBagContainer);
+        flowingCompatibilityView = findViewById(R.id.flowingCompatibilityView);
 
-        // Blood type icons
-        bloodTypeApos = findViewById(R.id.bloodTypeApos);
-        bloodTypeAneg = findViewById(R.id.bloodTypeAneg);
-        bloodTypeBpos = findViewById(R.id.bloodTypeBpos);
-        bloodTypeBneg = findViewById(R.id.bloodTypeBneg);
-        bloodTypeOpos = findViewById(R.id.bloodTypeOpos);
-        bloodTypeOneg = findViewById(R.id.bloodTypeOneg);
-        bloodTypeABpos = findViewById(R.id.bloodTypeABpos);
-        bloodTypeABneg = findViewById(R.id.bloodTypeABneg);
+        // Blood type buttons
+        btnBloodAPos = findViewById(R.id.btnBloodAPos);
+        btnBloodANeg = findViewById(R.id.btnBloodANeg);
+        btnBloodBPos = findViewById(R.id.btnBloodBPos);
+        btnBloodBNeg = findViewById(R.id.btnBloodBNeg);
+        btnBloodABPos = findViewById(R.id.btnBloodABPos);
+        btnBloodABNeg = findViewById(R.id.btnBloodABNeg);
+        btnBloodOPos = findViewById(R.id.btnBloodOPos);
+        btnBloodONeg = findViewById(R.id.btnBloodONeg);
     }
 
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> onBackPressed());
+
+        btnBloodAPos.setOnClickListener(v -> selectBloodType("A+", btnBloodAPos));
+        btnBloodANeg.setOnClickListener(v -> selectBloodType("A-", btnBloodANeg));
+        btnBloodBPos.setOnClickListener(v -> selectBloodType("B+", btnBloodBPos));
+        btnBloodBNeg.setOnClickListener(v -> selectBloodType("B-", btnBloodBNeg));
+        btnBloodABPos.setOnClickListener(v -> selectBloodType("AB+", btnBloodABPos));
+        btnBloodABNeg.setOnClickListener(v -> selectBloodType("AB-", btnBloodABNeg));
+        btnBloodOPos.setOnClickListener(v -> selectBloodType("O+", btnBloodOPos));
+        btnBloodONeg.setOnClickListener(v -> selectBloodType("O-", btnBloodONeg));
     }
 
-    private void setupBloodTypeIcons() {
-        // Set blood type labels
-        setBloodTypeLabel(bloodTypeApos, "A+");
-        setBloodTypeLabel(bloodTypeAneg, "A-");
-        setBloodTypeLabel(bloodTypeBpos, "B+");
-        setBloodTypeLabel(bloodTypeBneg, "B-");
-        setBloodTypeLabel(bloodTypeOpos, "O+");
-        setBloodTypeLabel(bloodTypeOneg, "O-");
-        setBloodTypeLabel(bloodTypeABpos, "AB+");
-        setBloodTypeLabel(bloodTypeABneg, "AB-");
-    }
-
-    private void setBloodTypeLabel(View container, String bloodType) {
-        if (container == null) return;
-        TextView tvLabel = container.findViewById(R.id.tvBloodTypeLabel);
-        ImageView ivIcon = container.findViewById(R.id.ivPersonIcon);
+    private void selectBloodType(String bloodType, MaterialButton button) {
+        currentBloodType = bloodType;
         
-        if (tvLabel != null) {
-            tvLabel.setText(bloodType);
+        // Reset previous selection
+        if (selectedButton != null) {
+            resetButtonStyle(selectedButton);
         }
+        
+        // Highlight new selection
+        selectedButton = button;
+        highlightSelectedButton(button);
+        
+        // Update flowing view
+        updateCompatibilityDisplay(bloodType);
+    }
 
-        // Highlight if user can donate to this type
-        List<String> canDonateTo = CAN_DONATE_TO.getOrDefault(userBloodType, new ArrayList<>());
-        boolean canDonate = canDonateTo.contains(bloodType);
-
-        if (ivIcon != null) {
-            if (canDonate) {
-                ivIcon.setColorFilter(Color.parseColor("#4CAF50")); // Green for compatible
-            } else {
-                ivIcon.setColorFilter(Color.parseColor("#666666")); // Gray for incompatible
+    private void updateCompatibilityDisplay(String bloodType) {
+        currentBloodType = bloodType;
+        
+        // Update the flowing compatibility view
+        flowingCompatibilityView.setBloodType(bloodType);
+        
+        // Highlight the button for user's blood type on first load
+        if (selectedButton == null) {
+            MaterialButton button = getButtonForBloodType(bloodType);
+            if (button != null) {
+                selectedButton = button;
+                highlightSelectedButton(button);
             }
         }
-        if (tvLabel != null) {
-            if (canDonate) {
-                tvLabel.setTextColor(Color.parseColor("#4CAF50"));
-            } else {
-                tvLabel.setTextColor(Color.parseColor("#666666"));
-            }
+    }
+
+    private MaterialButton getButtonForBloodType(String bloodType) {
+        switch (bloodType) {
+            case "A+": return btnBloodAPos;
+            case "A-": return btnBloodANeg;
+            case "B+": return btnBloodBPos;
+            case "B-": return btnBloodBNeg;
+            case "AB+": return btnBloodABPos;
+            case "AB-": return btnBloodABNeg;
+            case "O+": return btnBloodOPos;
+            case "O-": return btnBloodONeg;
+            default: return null;
         }
     }
 
-    private void setupCompatibilityDisplay() {
-        // Set blood bag type
-        tvBloodBagType.setText(userBloodType);
-        tvUserBloodTypeDisplay.setText(userBloodType);
-        tvBloodTypeName.setText(BLOOD_TYPE_NAMES.getOrDefault(userBloodType, userBloodType));
-        tvBloodTypeDesc.setText(BLOOD_TYPE_DESCRIPTIONS.getOrDefault(userBloodType, ""));
-
-        // Get compatibility lists
-        List<String> canDonateTo = CAN_DONATE_TO.getOrDefault(userBloodType, new ArrayList<>());
-        List<String> canReceiveFrom = CAN_RECEIVE_FROM.getOrDefault(userBloodType, new ArrayList<>());
-
-        // Update stats
-        tvCanDonateTo.setText(String.valueOf(canDonateTo.size()));
-        tvCanReceiveFrom.setText(String.valueOf(canReceiveFrom.size()));
-
-        // Update lists
-        tvDonateToList.setText(String.join(", ", canDonateTo));
-        tvReceiveFromList.setText(String.join(", ", canReceiveFrom));
-
-        // Show special info for universal donor/recipient
-        if (userBloodType.equals("O-")) {
-            cardSpecialInfo.setVisibility(View.VISIBLE);
-            tvSpecialTitle.setText("🌟 Universal Donor");
-            tvSpecialDesc.setText("Your blood type can be given to anyone! You are incredibly valuable to blood banks.");
-        } else if (userBloodType.equals("AB+")) {
-            cardSpecialInfo.setVisibility(View.VISIBLE);
-            tvSpecialTitle.setText("🌟 Universal Recipient");
-            tvSpecialDesc.setText("You can receive blood from anyone! This is very helpful in emergencies.");
-        } else {
-            cardSpecialInfo.setVisibility(View.GONE);
-        }
+    private void resetButtonStyle(MaterialButton button) {
+        if (button == null) return;
+        button.setBackgroundTintList(ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.surface)));
+        button.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        button.setStrokeColor(ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.divider)));
     }
 
-    private void setupConnectionLines() {
-        // Wait for layout to be complete before calculating positions
-        compatibilityView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        compatibilityView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                        drawConnectionLines();
-                    }
-                });
-    }
-
-    private void drawConnectionLines() {
-        List<BloodCompatibilityView.ConnectionLine> lines = new ArrayList<>();
-        List<String> canDonateTo = CAN_DONATE_TO.getOrDefault(userBloodType, new ArrayList<>());
-
-        // Get blood bag center position
-        int[] bagLocation = new int[2];
-        bloodBagContainer.getLocationInWindow(bagLocation);
-        int[] viewLocation = new int[2];
-        compatibilityView.getLocationInWindow(viewLocation);
-
-        float bagCenterX = bagLocation[0] - viewLocation[0] + bloodBagContainer.getWidth() / 2f;
-        float bagBottomY = bagLocation[1] - viewLocation[1] + bloodBagContainer.getHeight();
-
-        // Create lines to each compatible blood type
-        addConnectionLine(lines, bloodTypeApos, "A+", canDonateTo, bagCenterX, bagBottomY, viewLocation);
-        addConnectionLine(lines, bloodTypeAneg, "A-", canDonateTo, bagCenterX, bagBottomY, viewLocation);
-        addConnectionLine(lines, bloodTypeBpos, "B+", canDonateTo, bagCenterX, bagBottomY, viewLocation);
-        addConnectionLine(lines, bloodTypeBneg, "B-", canDonateTo, bagCenterX, bagBottomY, viewLocation);
-        addConnectionLine(lines, bloodTypeOpos, "O+", canDonateTo, bagCenterX, bagBottomY, viewLocation);
-        addConnectionLine(lines, bloodTypeOneg, "O-", canDonateTo, bagCenterX, bagBottomY, viewLocation);
-        addConnectionLine(lines, bloodTypeABpos, "AB+", canDonateTo, bagCenterX, bagBottomY, viewLocation);
-        addConnectionLine(lines, bloodTypeABneg, "AB-", canDonateTo, bagCenterX, bagBottomY, viewLocation);
-
-        compatibilityView.setConnectionLines(lines);
-
-        // Animate after a short delay
-        animationHandler.postDelayed(() -> compatibilityView.animateLines(), 500);
-    }
-
-    private void addConnectionLine(List<BloodCompatibilityView.ConnectionLine> lines,
-                                   View targetView, String bloodType, List<String> canDonateTo,
-                                   float startX, float startY, int[] viewLocation) {
-        if (targetView == null) return;
-
-        int[] targetLocation = new int[2];
-        targetView.getLocationInWindow(targetLocation);
-
-        float endX = targetLocation[0] - viewLocation[0] + targetView.getWidth() / 2f;
-        float endY = targetLocation[1] - viewLocation[1];
-
-        boolean isActive = canDonateTo.contains(bloodType);
-        int lineColor = isActive ? Color.parseColor("#4CAF50") : Color.parseColor("#333333");
-        int glowColor = isActive ? Color.parseColor("#404CAF50") : Color.parseColor("#20333333");
-
-        lines.add(new BloodCompatibilityView.ConnectionLine(
-                startX, startY, endX, endY, lineColor, glowColor, isActive, bloodType
-        ));
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        animationHandler.removeCallbacksAndMessages(null);
+    private void highlightSelectedButton(MaterialButton button) {
+        if (button == null) return;
+        button.setBackgroundTintList(ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.primary)));
+        button.setTextColor(ContextCompat.getColor(this, android.R.color.white));
     }
 }

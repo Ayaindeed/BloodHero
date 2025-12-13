@@ -1,49 +1,58 @@
-@startuml DonorFlow Class Diagram
+@startuml BloodHero Class Diagram - SQLite Architecture
 
+' Data Models
 class User {
-  - userId: String
+  - id: String
   - email: String
   - password: String
   - name: String
   - bloodType: String
-  - location: Location
-  - phoneNumber: String
-  - totalPoints: int
-  - createdAt: Date
-  + register()
-  + login()
-  + updateProfile()
-  + logout()
+  - location: String
+  - phone: String
+  - points: int
+  - totalDonations: int
+  - livesSaved: int
+  - createdAt: String
+  + User()
+  + getId(): String
+  + getEmail(): String
+  + getPoints(): int
+  + getTotalDonations(): int
 }
 
 class Campaign {
-  - campaignId: String
+  - id: String
   - name: String
-  - location: Location
-  - date: Date
-  - timeSlots: List<TimeSlot>
-  - bloodTypesNeeded: List<String>
+  - location: String
+  - city: String
+  - date: String
+  - bloodTypesNeeded: String
   - organizerName: String
   - description: String
-  + getCampaignDetails()
-  + getAvailableSlots()
+  - latitude: double
+  - longitude: double
+  + Campaign()
+  + getName(): String
+  + getLocation(): String
 }
 
 class Appointment {
-  - appointmentId: String
+  - id: String
   - userId: String
   - campaignId: String
-  - scheduledDate: Date
-  - timeSlot: TimeSlot
-  - status: AppointmentStatus
-  - createdAt: Date
-  + book()
-  + cancel()
-  + reschedule()
-  + getDetails()
+  - campaignName: String
+  - location: String
+  - date: String
+  - time: String
+  - status: Status
+  + Appointment()
+  + getId(): String
+  + getUserId(): String
+  + getStatus(): Status
+  + setStatus(Status): void
 }
 
-enum AppointmentStatus {
+enum Status {
   SCHEDULED
   COMPLETED
   CANCELLED
@@ -51,89 +60,192 @@ enum AppointmentStatus {
 }
 
 class Donation {
-  - donationId: String
+  - id: String
   - userId: String
-  - appointmentId: String
-  - donationDate: Date
-  - bloodType: String
+  - campaignId: String
+  - campaignName: String
   - location: String
-  - pointsEarned: int
-  + recordDonation()
-  + getDonationHistory()
+  - date: String
+  - bloodType: String
+  - points: int
+  - status: String
+  + Donation()
+  + getId(): String
+  + getUserId(): String
+  + getPoints(): int
 }
 
 class Badge {
-  - badgeId: String
+  - id: String
   - name: String
   - description: String
-  - iconUrl: String
-  - unlockCriteria: String
+  - iconResId: int
   - pointValue: int
-  + checkUnlockCondition()
+  - requirement: String
+  - isUnlocked: boolean
+  + Badge()
+  + isUnlocked(): boolean
+  + setUnlocked(boolean): void
 }
 
-class UserBadge {
-  - userBadgeId: String
-  - userId: String
-  - badgeId: String
-  - unlockedAt: Date
-  + unlock()
-  + getEarnedBadges()
+' Database Layer
+class BloodHeroDatabaseHelper {
+  - DATABASE_NAME: String = "bloodhero.db"
+  - DATABASE_VERSION: int = 2
+  + BloodHeroDatabaseHelper(Context)
+  + onCreate(SQLiteDatabase): void
+  + onUpgrade(SQLiteDatabase, int, int): void
+  ' User CRUD
+  + insertUser(User): long
+  + getUserByEmail(String): User
+  + getUserById(String): User
+  + getAllUsers(): List<User>
+  + updateUser(User): int
+  + updateUserPoints(String, int): int
+  + incrementDonations(String, int): int
+  ' Appointment CRUD
+  + insertAppointment(Appointment): long
+  + getAppointmentsByUserId(String): List<Appointment>
+  + getAllAppointments(): List<Appointment>
+  + updateAppointmentStatus(String, Status): int
+  + deleteAppointment(String): int
+  ' Donation CRUD
+  + insertDonation(Donation): long
+  + getDonationsByUserId(String): List<Donation>
+  + getTotalDonationsCount(String): int
+  + deleteDonation(String): int
+  ' Campaign & Badge CRUD
+  + insertCampaign(Campaign): long
+  + getCampaignById(String): Campaign
+  + insertBadge(Badge): long
+  + getUserBadges(String): List<Badge>
 }
 
-class Points {
-  - pointsId: String
-  - userId: String
-  - amount: int
-  - source: String
-  - earnedAt: Date
-  + addPoints()
-  + getTotalPoints()
+' Repository Layer
+class UserRepository {
+  - dbHelper: BloodHeroDatabaseHelper
+  - {static} instance: UserRepository
+  - UserRepository(Context)
+  + {static} getInstance(Context): UserRepository
+  + createUser(User): boolean
+  + getUserByEmail(String): User
+  + getUserById(String): User
+  + getAllUsers(): List<User>
+  + updateUser(User): boolean
+  + updatePassword(String, String): boolean
+  + updatePoints(String, int): boolean
+  + incrementDonations(String, int): void
 }
 
-class Leaderboard {
-  - leaderboardId: String
-  - timeframe: String
-  + getRankings()
-  + getUserRank()
-  + getTopDonors()
+class AppointmentRepository {
+  - dbHelper: BloodHeroDatabaseHelper
+  + AppointmentRepository(Context)
+  + createAppointment(Appointment): boolean
+  + getAppointmentsByUserId(String): List<Appointment>
+  + getAllAppointments(): List<Appointment>
+  + getAppointmentsByStatus(String): List<Appointment>
+  + getAppointmentById(String): Appointment
+  + updateStatus(String, Status): boolean
+  + deleteAppointment(String): boolean
 }
 
-class Notification {
-  - notificationId: String
-  - userId: String
-  - title: String
-  - message: String
-  - type: NotificationType
-  - sentAt: Date
-  - isRead: boolean
-  + send()
-  + markAsRead()
+class DonationRepository {
+  - dbHelper: BloodHeroDatabaseHelper
+  + DonationRepository(Context)
+  + saveDonation(Donation): boolean
+  + getDonationsByUserId(String): List<Donation>
+  + getDonationCount(String): int
+  + deleteDonation(String): boolean
 }
 
-enum NotificationType {
-  APPOINTMENT_REMINDER
-  CAMPAIGN_ALERT
-  BADGE_UNLOCKED
-  LEADERBOARD_UPDATE
+' Activities
+class HomeActivity {
+  - currentUser: User
+  - userRepository: UserRepository
+  + onCreate(Bundle): void
+  - loadUserData(): void
+  - setupMenuItems(): void
+}
+
+class CampaignsActivity {
+  - currentUser: User
+  - appointmentRepository: AppointmentRepository
+  + onCreate(Bundle): void
+  - loadAllCampaigns(): void
+  - showBookingDialog(Campaign): void
+}
+
+class AdminAppointmentsActivity {
+  - userRepository: UserRepository
+  - appointmentRepository: AppointmentRepository
+  - donationRepository: DonationRepository
+  + onCreate(Bundle): void
+  - loadAppointments(): void
+  - confirmAppointment(AppointmentDisplay): void
+  - markAsCompleted(AppointmentDisplay): void
+}
+
+class DonationHistoryActivity {
+  - currentUser: User
+  - donationRepository: DonationRepository
+  + onCreate(Bundle): void
+  - loadDonations(): void
+  - loadUserStats(): void
+}
+
+' Utilities
+class UserHelper {
+  + {static} getCurrentUser(Context): User
+  + {static} saveCurrentUser(Context, User): void
+  + {static} clearCurrentUser(Context): void
 }
 
 ' Relationships
 User "1" -- "0..*" Appointment : books
 User "1" -- "0..*" Donation : makes
-User "1" -- "0..*" UserBadge : earns
-User "1" -- "0..*" Points : accumulates
-User "1" -- "0..*" Notification : receives
-
-Campaign "1" -- "0..*" Appointment : has
+Appointment --> Status : has
 Appointment "1" -- "0..1" Donation : results in
-Appointment --> AppointmentStatus
 
-Badge "1" -- "0..*" UserBadge : unlocked as
-UserBadge --> Badge
-UserBadge --> User
+BloodHeroDatabaseHelper "1" -- "1" UserRepository : used by
+BloodHeroDatabaseHelper "1" -- "1" AppointmentRepository : used by
+BloodHeroDatabaseHelper "1" -- "1" DonationRepository : used by
 
-Notification --> NotificationType
-Leaderboard --> User : ranks
+UserRepository "1" -- "0..*" User : manages
+AppointmentRepository "1" -- "0..*" Appointment : manages
+DonationRepository "1" -- "0..*" Donation : manages
+
+HomeActivity --> UserRepository : uses
+HomeActivity --> User : displays
+
+CampaignsActivity --> AppointmentRepository : uses
+CampaignsActivity --> User : uses
+CampaignsActivity --> Campaign : displays
+
+AdminAppointmentsActivity --> UserRepository : uses
+AdminAppointmentsActivity --> AppointmentRepository : uses
+AdminAppointmentsActivity --> DonationRepository : uses
+
+DonationHistoryActivity --> DonationRepository : uses
+DonationHistoryActivity --> User : displays
+
+UserHelper ..> User : provides
+
+note right of BloodHeroDatabaseHelper
+  Single source of truth
+  SQLite database with tables:
+  - users
+  - appointments
+  - donations
+  - campaigns
+  - badges
+  - user_badges
+end note
+
+note right of UserRepository
+  Singleton pattern
+  Handles all user data operations
+  No SharedPreferences for user data
+end note
 
 @enduml
+

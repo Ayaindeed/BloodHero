@@ -13,7 +13,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.bloodhero.R;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.Appointment;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.AppointmentRepository;
+import com.example.bloodhero.utils.UserHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
@@ -47,12 +50,18 @@ public class BloodJourneyActivity extends AppCompatActivity {
     
     // Stage views
     private View stage1, stage2, stage3, stage4, stage5;
+    
+    private AppointmentRepository appointmentRepository;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blood_journey);
 
+        currentUser = UserHelper.getCurrentUser(this);
+        appointmentRepository = AppointmentRepository.getInstance(this);
+        
         // Get donation ID from intent
         donationId = getIntent().getStringExtra("donation_id");
         currentStage = getIntent().getIntExtra("current_stage", 5);
@@ -106,19 +115,25 @@ public class BloodJourneyActivity extends AppCompatActivity {
         String date = getIntent().getStringExtra("date");
         String time = getIntent().getStringExtra("time");
         
-        if (campaignName == null) {
+        if (campaignName == null && currentUser != null) {
             // Load from last completed appointment
-            String userEmail = prefs.getString("user_email", "");
-            List<UserStorage.AppointmentData> appointments = UserStorage.getAppointmentsByStatus(this, "Completed");
+            List<Appointment> appointments = appointmentRepository.getAppointmentsByUserId(currentUser.getId());
             
             if (!appointments.isEmpty()) {
-                UserStorage.AppointmentData lastDonation = appointments.get(appointments.size() - 1);
-                campaignName = lastDonation.campaignName;
-                location = lastDonation.location;
-                date = lastDonation.date;
-                time = lastDonation.time;
-                donationId = lastDonation.id;
-            } else {
+                // Get the most recent completed appointment
+                for (Appointment appt : appointments) {
+                    if (appt.getStatus() == Appointment.Status.COMPLETED) {
+                        campaignName = appt.getCampaignName();
+                        location = appt.getLocation();
+                        date = appt.getDate();
+                        time = appt.getTime();
+                        donationId = appt.getId();
+                        break;
+                    }
+                }
+            }
+            
+            if (campaignName == null) {
                 // Fallback to mock data
                 campaignName = "Centre de Transfusion Sanguine";
                 location = "CHU Ibn Sina, Rabat";

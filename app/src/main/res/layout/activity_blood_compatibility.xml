@@ -5,203 +5,244 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#0D1F12">
+    android:background="@color/background_secondary">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Toolbar -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="16dp">
-
-            <ImageButton
-                android:id="@+id/btnBack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_back"
-                app:tint="@android:color/white"
-                android:contentDescription="Back" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="12dp"
-                android:text="Blood Donation Guide"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                android:fontFamily="sans-serif-medium" />
-
-        </LinearLayout>
-
-        <!-- Title -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:text="Your Blood Type Compatibility"
-            android:textColor="@color/white_70"
-            android:textSize="14sp" />
-
-        <!-- Main Visual Container - Blood Bag Diagram -->
-        <FrameLayout
-            android:id="@+id/bloodDonationDiagram"
-            android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:layout_marginTop="16dp">
-
-            <!-- Custom View for Drawing Connection Lines -->
-            <com.example.bloodhero.views.BloodCompatibilityView
-                android:id="@+id/compatibilityView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <!-- Blood Bag at Center Top -->
-            <LinearLayout
-                android:id="@+id/bloodBagContainer"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <!-- Bag Tube -->
-                <View
-                    android:layout_width="16dp"
-                    android:layout_height="30dp"
-                    android:background="@color/primary_dark" />
-
-                <!-- Blood Bag Shape -->
-                <FrameLayout
-                    android:id="@+id/bloodBag"
-                    android:layout_width="110dp"
-                    android:layout_height="130dp"
-                    android:background="@drawable/bg_blood_bag_shape">
-
-                    <!-- Blood Type Display -->
-                    <TextView
-                        android:id="@+id/tvBloodBagType"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:text="O+"
-                        android:textColor="@android:color/white"
-                        android:textSize="40sp"
-                        android:fontFamily="sans-serif-bold" />
-
-                </FrameLayout>
-
-            </LinearLayout>
-
-            <!-- Left Side Recipients -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="60dp"
-                android:orientation="vertical">
-
-                <!-- A+ -->
-                <include
-                    android:id="@+id/bloodTypeApos"
-                    layout="@layout/item_blood_type_icon"
-                    android:layout_width="56dp"
-                    android:layout_height="70dp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- A- -->
-                <include
-                    android:id="@+id/bloodTypeAneg"
-                    layout="@layout/item_blood_type_icon"
-                    android:layout_width="56dp"
-                    android:layout_height="70dp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- B+ -->
-                <include
-                    android:id="@+id/bloodTypeBpos"
-                    layout="@layout/item_blood_type_icon"
-                    android:layout_width="56dp"
-                    android:layout_height="70dp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- B- -->
-                <include
-                    android:id="@+id/bloodTypeBneg"
-                    layout="@layout/item_blood_type_icon"
-                    android:layout_width="56dp"
-                    android:layout_height="70dp" />
-
-            </LinearLayout>
-
-            <!-- Right Side Recipients -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center_vertical"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="60dp"
-                android:orientation="vertical">
-
-                <!-- O+ -->
-                <include
-                    android:id="@+id/bloodTypeOpos"
-                    layout="@layout/item_blood_type_icon"
-                    android:layout_width="56dp"
-                    android:layout_height="70dp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- O- -->
-                <include
-                    android:id="@+id/bloodTypeOneg"
-                    layout="@layout/item_blood_type_icon"
-                    android:layout_width="56dp"
-                    android:layout_height="70dp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- AB+ -->
-                <include
-                    android:id="@+id/bloodTypeABpos"
-                    layout="@layout/item_blood_type_icon"
-                    android:layout_width="56dp"
-                    android:layout_height="70dp"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- AB- -->
-                <include
-                    android:id="@+id/bloodTypeABneg"
-                    layout="@layout/item_blood_type_icon"
-                    android:layout_width="56dp"
-                    android:layout_height="70dp" />
-
-            </LinearLayout>
-
-        </FrameLayout>
-
-        <!-- Info Section -->
+        <!-- Header with Gradient -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp"
-            android:background="#0D1F12">
+            android:background="@drawable/bg_gradient_primary"
+            android:paddingBottom="32dp">
 
-            <!-- User Blood Type Info Card -->
+            <!-- Toolbar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_back"
+                    app:tint="@android:color/white"
+                    android:contentDescription="Back" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:text="Blood Compatibility Guide"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+
+            <!-- Your Blood Type Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@color/card_background">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:gravity="center_vertical">
+
+                    <!-- Blood Type Badge -->
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/bg_blood_type_circle">
+
+                        <TextView
+                            android:id="@+id/tvUserBloodTypeDisplay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="O+"
+                            android:textColor="@android:color/white"
+                            android:textSize="28sp"
+                            android:fontFamily="sans-serif-bold" />
+
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Your Blood Type"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/tvBloodTypeName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="O Positive"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:fontFamily="sans-serif-bold" />
+
+                        <TextView
+                            android:id="@+id/tvBloodTypeDesc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Most common blood type"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+        <!-- Main Content -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp"
+            android:background="@color/background_secondary">
+
+            <!-- Quick Stats Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Can Donate To -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/success_light">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/ic_arrow_right"
+                            android:rotation="-45"
+                            app:tint="@color/success" />
+
+                        <TextView
+                            android:id="@+id/tvCanDonateTo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="4"
+                            android:textColor="@color/success"
+                            android:textSize="32sp"
+                            android:fontFamily="sans-serif-bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Can Donate To"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Can Receive From -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/info_light">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:src="@drawable/ic_arrow_right"
+                            android:rotation="135"
+                            app:tint="@color/info" />
+
+                        <TextView
+                            android:id="@+id/tvCanReceiveFrom"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="2"
+                            android:textColor="@color/info"
+                            android:textSize="32sp"
+                            android:fontFamily="sans-serif-bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Can Receive From"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+            <!-- Compatibility Details Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#1A2F1E">
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/card_background">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -212,246 +253,100 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Your Blood Type"
-                        android:textColor="@color/white_70"
-                        android:textSize="14sp" />
+                        android:text="Your Compatibility"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-bold" />
 
+                    <!-- Donate To Section -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:id="@+id/tvUserBloodTypeDisplay"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="O+"
-                            android:textColor="@color/primary"
-                            android:textSize="48sp"
-                            android:fontFamily="sans-serif-bold" />
+                        android:layout_marginTop="20dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_rounded_success"
+                        android:padding="16dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="20dp"
-                            android:orientation="vertical">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
 
-                            <TextView
-                                android:id="@+id/tvBloodTypeName"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="O Positive"
-                                android:textColor="@android:color/white"
-                                android:textSize="18sp"
-                                android:fontFamily="sans-serif-medium" />
-
-                            <TextView
-                                android:id="@+id/tvBloodTypeDesc"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="Most common blood type"
-                                android:textColor="@color/white_70"
-                                android:textSize="13sp" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Stats Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardBackgroundColor="#1F3D25">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvCanDonateTo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="4"
-                            android:textColor="@color/success"
-                            android:textSize="32sp"
-                            android:fontFamily="sans-serif-bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Can Donate To"
-                            android:textColor="@color/white_70"
-                            android:textSize="12sp" />
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardBackgroundColor="#3D1F1F">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvCanReceiveFrom"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="2"
-                            android:textColor="@color/primary"
-                            android:textSize="32sp"
-                            android:fontFamily="sans-serif-bold" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Can Receive From"
-                            android:textColor="@color/white_70"
-                            android:textSize="12sp" />
-
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
-
-            </LinearLayout>
-
-            <!-- Detailed Compatibility -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="#1A2F1E">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Compatibility Details"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
-
-                    <!-- Donate To List -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_arrow_right"
-                            app:tint="@color/success"
-                            android:rotation="270" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="12dp"
-                            android:orientation="vertical">
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_arrow_right"
+                                android:rotation="-45"
+                                app:tint="@color/success" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="You Can Donate To:"
+                                android:layout_marginStart="8dp"
+                                android:text="YOU CAN DONATE TO"
                                 android:textColor="@color/success"
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
-
-                            <TextView
-                                android:id="@+id/tvDonateToList"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="O+, A+, B+, AB+"
-                                android:textColor="@android:color/white"
-                                android:textSize="16sp" />
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-bold"
+                                android:letterSpacing="0.1" />
 
                         </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvDonateToList"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="O+, A+, B+, AB+"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-medium" />
 
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="16dp"
-                        android:background="#2D4D32" />
-
-                    <!-- Receive From List -->
+                    <!-- Receive From Section -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_arrow_right"
-                            app:tint="@color/primary"
-                            android:rotation="90" />
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_rounded_info"
+                        android:padding="16dp">
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="12dp"
-                            android:orientation="vertical">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_arrow_right"
+                                android:rotation="135"
+                                app:tint="@color/info" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="You Can Receive From:"
-                                android:textColor="@color/primary"
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
-
-                            <TextView
-                                android:id="@+id/tvReceiveFromList"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="O+, O-"
-                                android:textColor="@android:color/white"
-                                android:textSize="16sp" />
+                                android:layout_marginStart="8dp"
+                                android:text="YOU CAN RECEIVE FROM"
+                                android:textColor="@color/info"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-bold"
+                                android:letterSpacing="0.1" />
 
                         </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvReceiveFromList"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="O+, O-"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:fontFamily="sans-serif-medium" />
 
                     </LinearLayout>
 
@@ -459,14 +354,15 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Universal Donor/Recipient Info -->
+            <!-- Special Info Card (Universal Donor/Recipient) -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardSpecialInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:cardCornerRadius="16dp"
-                app:cardBackgroundColor="#3D2F1F"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/warning_light"
                 android:visibility="gone">
 
                 <LinearLayout
@@ -478,10 +374,10 @@
 
                     <ImageView
                         android:id="@+id/ivSpecialIcon"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/ic_notification"
-                        app:tint="@color/gold" />
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:src="@drawable/ic_star"
+                        app:tint="@color/warning" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -495,9 +391,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Universal Donor"
-                            android:textColor="@color/gold"
+                            android:textColor="@color/text_primary"
                             android:textSize="16sp"
-                            android:fontFamily="sans-serif-medium" />
+                            android:fontFamily="sans-serif-bold" />
 
                         <TextView
                             android:id="@+id/tvSpecialDesc"
@@ -505,7 +401,230 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="Your blood can be given to anyone!"
-                            android:textColor="@color/white_70"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Blood Types Grid Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="All Blood Types"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Tap any blood type to see its compatibility"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <!-- Blood Types Grid -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/card_background">
+
+                <GridLayout
+                    android:id="@+id/gridBloodTypes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="4"
+                    android:rowCount="2"
+                    android:padding="12dp"
+                    android:useDefaultMargins="true">
+
+                    <!-- Row 1 -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBloodAPos"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_columnWeight="1"
+                        android:text="A+"
+                        android:textSize="16sp"
+                        app:strokeColor="@color/divider"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBloodANeg"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_columnWeight="1"
+                        android:text="A-"
+                        android:textSize="16sp"
+                        app:strokeColor="@color/divider"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBloodBPos"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_columnWeight="1"
+                        android:text="B+"
+                        android:textSize="16sp"
+                        app:strokeColor="@color/divider"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBloodBNeg"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_columnWeight="1"
+                        android:text="B-"
+                        android:textSize="16sp"
+                        app:strokeColor="@color/divider"
+                        app:cornerRadius="12dp" />
+
+                    <!-- Row 2 -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBloodABPos"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_columnWeight="1"
+                        android:text="AB+"
+                        android:textSize="16sp"
+                        app:strokeColor="@color/divider"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBloodABNeg"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_columnWeight="1"
+                        android:text="AB-"
+                        android:textSize="16sp"
+                        app:strokeColor="@color/divider"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBloodOPos"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_columnWeight="1"
+                        android:text="O+"
+                        android:textSize="16sp"
+                        app:strokeColor="@color/divider"
+                        app:cornerRadius="12dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBloodONeg"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_columnWeight="1"
+                        android:text="O-"
+                        android:textSize="16sp"
+                        app:strokeColor="@color/divider"
+                        app:cornerRadius="12dp" />
+
+                </GridLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quick Reference Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="@color/card_background">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Did You Know?"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:background="@drawable/bg_circle_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="O- is the universal donor (can donate to all)"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:background="@drawable/bg_circle_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="AB+ is the universal recipient (can receive from all)"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:background="@drawable/bg_circle_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="O+ is the most common blood type"
+                            android:textColor="@color/text_secondary"
                             android:textSize="13sp" />
 
                     </LinearLayout>

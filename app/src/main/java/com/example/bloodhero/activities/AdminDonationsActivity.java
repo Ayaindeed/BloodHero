@@ -15,11 +15,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.Appointment;
+import com.example.bloodhero.models.Donation;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.AppointmentRepository;
+import com.example.bloodhero.repository.DonationRepository;
+import com.example.bloodhero.repository.UserRepository;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class AdminDonationsActivity extends AppCompatActivity {
 
@@ -28,12 +34,19 @@ public class AdminDonationsActivity extends AppCompatActivity {
     private View emptyState;
     
     private DonationAdapter adapter;
+    private UserRepository userRepository;
+    private AppointmentRepository appointmentRepository;
+    private DonationRepository donationRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_donations);
 
+        userRepository = UserRepository.getInstance(this);
+        appointmentRepository = AppointmentRepository.getInstance(this);
+        donationRepository = DonationRepository.getInstance(this);
+        
         initViews();
         loadPendingDonations();
     }
@@ -53,18 +66,28 @@ public class AdminDonationsActivity extends AppCompatActivity {
     private void loadPendingDonations() {
         List<PendingDonation> donations = new ArrayList<>();
         
-        // Load confirmed appointments that need to be marked as completed
-        List<UserStorage.AppointmentData> confirmedAppointments = 
-            UserStorage.getAppointmentsByStatus(this, "Confirmed");
+        // Load COMPLETED status appointments (admin-confirmed, awaiting final completion)
+        List<Appointment> completedAppointments = appointmentRepository.getAppointmentsByStatus("COMPLETED");
         
-        for (UserStorage.AppointmentData appt : confirmedAppointments) {
+        for (Appointment appt : completedAppointments) {
+            // Get the user from SQLite database
+            User user = userRepository.getUserById(appt.getUserId());
+            String donorName = "Unknown";
+            String bloodType = "Unknown";
+            
+            if (user != null) {
+                donorName = user.getName() != null ? user.getName() : "Unknown";
+                bloodType = user.getBloodType() != null ? user.getBloodType() : "Unknown";
+            }
+            
             donations.add(new PendingDonation(
-                appt.id,
-                appt.userName,
-                appt.bloodType,
-                appt.campaignName,
-                appt.getFormattedDate(),
-                "Confirmed"
+                appt.getId(),
+                user != null ? user.getId() : "",
+                donorName,
+                bloodType,
+                appt.getLocation(),
+                appt.getDate(),
+                appt.getStatus().toString()
             ));
         }
 
@@ -78,8 +101,26 @@ public class AdminDonationsActivity extends AppCompatActivity {
                 .setTitle("Confirm Donation")
                 .setMessage("Mark " + donation.donorName + "'s donation as completed?\n\nThis will:\n• Award 50 points\n• Update donation count\n• Unlock eligible badges")
                 .setPositiveButton("Confirm", (dialog, which) -> {
-                    // Update in UserStorage (this also increments user donation count and awards points)
-                    UserStorage.updateAppointmentStatus(this, donation.id, "Completed");
+                    // Get user to update their donation count
+                    User user = userRepository.getUserById(donation.userId);
+                    if (user != null) {
+                        // Create and save donation record
+                        Donation completedDonation = new Donation(
+                                UUID.randomUUID().toString(),
+                                user.getId(),
+                                "",
+                                donation.location,
+                                donation.location,
+                                donation.date,
+                                user.getBloodType(),
+                                50,
+                                "COMPLETED"
+                        );
+                        donationRepository.saveDonation(completedDonation);
+                        
+                        // Update user points and donation count
+                        userRepository.incrementDonations(user.getId(), 50);
+                    }
                     
                     Toast.makeText(this, "Donation recorded! " + donation.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
                     loadPendingDonations(); // Refresh
@@ -90,10 +131,11 @@ public class AdminDonationsActivity extends AppCompatActivity {
 
     // Data class
     private static class PendingDonation {
-        String id, donorName, bloodType, location, date, status;
+        String id, userId, donorName, bloodType, location, date, status;
 
-        PendingDonation(String id, String donorName, String bloodType, String location, String date, String status) {
+        PendingDonation(String id, String userId, String donorName, String bloodType, String location, String date, String status) {
             this.id = id;
+            this.userId = userId;
             this.donorName = donorName;
             this.bloodType = bloodType;
             this.location = location;

@@ -1,7 +1,8 @@
 package com.example.bloodhero.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -15,12 +16,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.bloodhero.LoginActivity;
 import com.example.bloodhero.ProfileSetupActivity;
 import com.example.bloodhero.R;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.UserRepository;
+import com.example.bloodhero.utils.SessionManager;
+import com.example.bloodhero.utils.UserHelper;
+
+import java.io.File;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "BloodHeroPrefs";
+    private UserRepository userRepository;
+    private SessionManager sessionManager;
+    private User currentUser;
 
     private ImageButton btnBack, btnSettings;
     private CircleImageView ivProfilePhoto;
@@ -34,6 +43,10 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
+        userRepository = UserRepository.getInstance(this);
+        sessionManager = SessionManager.getInstance(this);
+        currentUser = UserHelper.getCurrentUser(this);
 
         initViews();
         loadUserData();
@@ -58,9 +71,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnLogout = findViewById(R.id.btnLogout);
         
         // Only show admin panel for admin user
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String userEmail = prefs.getString("user_email", "");
-        if ("admin@contact.me".equals(userEmail)) {
+        if (sessionManager.isAdmin()) {
             cardAdmin.setVisibility(View.VISIBLE);
         } else {
             cardAdmin.setVisibility(View.GONE);
@@ -68,54 +79,48 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String email = prefs.getString("user_email", "user@email.com");
-        
-        // Sync from central UserStorage first
-        com.example.bloodhero.utils.UserStorage.UserData userData = 
-                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, email);
-        
-        String name, bloodType;
-        int donations, points;
-        
-        if (userData != null) {
-            name = userData.name;
-            bloodType = userData.bloodType;
-            donations = userData.donations;
-            points = userData.points;
-            // Update local prefs to stay in sync
-            prefs.edit()
-                .putString("user_name", name)
-                .putString("blood_type", bloodType)
-                .putInt("total_donations", donations)
-                .putInt("user_donations", donations)
-                .putInt("total_points", points)
-                .putInt("user_points", points)
-                .apply();
-        } else {
-            name = prefs.getString("user_name", "User");
-            bloodType = prefs.getString("blood_type", "A+");
-            donations = prefs.getInt("total_donations", 0);
-            points = prefs.getInt("total_points", 0);
+        if (currentUser == null) {
+            currentUser = UserHelper.getCurrentUser(this);
         }
         
-        // Calculate badges based on donations
-        int badges = calculateUnlockedBadges(donations);
+        if (currentUser != null) {
+            String name = currentUser.getName() != null ? currentUser.getName() : "User";
+            String email = currentUser.getEmail() != null ? currentUser.getEmail() : "";
+            String bloodType = currentUser.getBloodType() != null ? currentUser.getBloodType() : "Unknown";
+            int donations = currentUser.getTotalDonations();
+            int points = currentUser.getTotalPoints();
+            int badges = calculateUnlockedBadges(donations);
 
-        tvUserName.setText(name);
-        tvUserEmail.setText(email);
-        tvBloodType.setText(bloodType);
-        tvDonations.setText(String.valueOf(donations));
-        tvPoints.setText(String.format("%,d", points));
-        tvBadges.setText(String.valueOf(badges));
+            tvUserName.setText(name);
+            tvUserEmail.setText(email);
+            tvBloodType.setText(bloodType);
+            tvDonations.setText(String.valueOf(donations));
+            tvPoints.setText(String.format("%,d", points));
+            tvBadges.setText(String.valueOf(badges));
+            
+            // Load profile image
+            loadProfileImage();
+        }
+    }
+    
+    private void loadProfileImage() {
+        if (currentUser != null && currentUser.getProfileImageUrl() != null) {
+            String photoPath = currentUser.getProfileImageUrl();
+            File photoFile = new File(photoPath);
+            if (photoFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(photoPath);
+                if (bitmap != null) {
+                    ivProfilePhoto.setImageBitmap(bitmap);
+                }
+            }
+        }
     }
 
     private int calculateUnlockedBadges(int donations) {
         int badges = 0;
         
         // Profile complete badge
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        if (prefs.getBoolean("profile_complete", false)) {
+        if (currentUser != null && currentUser.getBloodType() != null && !currentUser.getBloodType().equals("Unknown")) {
             badges++;
         }
         
@@ -169,11 +174,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void performLogout() {
-        // Clear login state but keep user data
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean("is_logged_in", false);
-        editor.apply();
+        // Use SessionManager to logout
+        sessionManager.logout();
 
         // Navigate to login
         Intent intent = new Intent(this, LoginActivity.class);
@@ -185,7 +187,8 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Reload data in case profile was edited
+        // Reload user from database in case profile was edited
+        currentUser = UserHelper.getCurrentUser(this);
         loadUserData();
     }
 }

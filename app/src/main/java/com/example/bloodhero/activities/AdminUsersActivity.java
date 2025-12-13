@@ -1,6 +1,7 @@
 package com.example.bloodhero.activities;
 
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.database.BloodHeroDatabaseHelper;
+import com.example.bloodhero.models.User;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -22,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AdminUsersActivity extends AppCompatActivity {
-
-    private static final String PREFS_NAME = "BloodHeroPrefs";
     
     private ImageButton btnBack;
     private RecyclerView rvUsers;
@@ -32,11 +32,14 @@ public class AdminUsersActivity extends AppCompatActivity {
     
     private UserAdapter adapter;
     private List<User> allUsers;
+    private BloodHeroDatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_users);
+
+        dbHelper = BloodHeroDatabaseHelper.getInstance(this);
 
         initViews();
         loadUsers();
@@ -72,26 +75,27 @@ public class AdminUsersActivity extends AppCompatActivity {
     private void loadUsers() {
         allUsers = new ArrayList<>();
         
-        // Add admin account
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String adminName = prefs.getString("user_name", "Admin");
-        String adminEmail = prefs.getString("user_email", "admin@contact.me");
-        allUsers.add(new User("admin", adminName, adminEmail, "Admin", 0, true));
+        // Load real users from SQLite
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM users ORDER BY created_at DESC", null);
         
-        // Load real users from UserStorage
-        List<UserStorage.UserData> registeredUsers = UserStorage.getAllUsers(this);
-        for (UserStorage.UserData userData : registeredUsers) {
-            // Skip if it's the admin email
-            if (!userData.email.equals(adminEmail)) {
-                allUsers.add(new User(
-                    userData.id,
-                    userData.name,
-                    userData.email,
-                    userData.bloodType,
-                    userData.donations,
-                    userData.verified
-                ));
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                User user = new User();
+                user.setId(cursor.getString(cursor.getColumnIndexOrThrow("id")));
+                user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow("email")));
+                user.setName(cursor.getString(cursor.getColumnIndexOrThrow("name")));
+                user.setBloodType(cursor.getString(cursor.getColumnIndexOrThrow("blood_type")));
+                user.setLocation(cursor.getString(cursor.getColumnIndexOrThrow("location")));
+                user.setPhoneNumber(cursor.getString(cursor.getColumnIndexOrThrow("phone")));
+                user.setTotalDonations(cursor.getInt(cursor.getColumnIndexOrThrow("total_donations")));
+                user.setTotalPoints(cursor.getInt(cursor.getColumnIndexOrThrow("total_points")));
+                user.setProfileImageUrl(cursor.getString(cursor.getColumnIndexOrThrow("profile_image_url")));
+                user.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow("created_at")));
+                
+                allUsers.add(user);
             }
+            cursor.close();
         }
 
         adapter.setUsers(allUsers);
@@ -102,30 +106,14 @@ public class AdminUsersActivity extends AppCompatActivity {
         List<User> filtered = new ArrayList<>();
         for (User user : allUsers) {
             if (filter.equals("All") || 
-                (filter.equals("Active Donors") && user.totalDonations > 0) ||
-                (filter.equals("New Users") && user.totalDonations == 0) ||
-                filter.equals(user.bloodType)) {
+                (filter.equals("Active Donors") && user.getTotalDonations() > 0) ||
+                (filter.equals("New Users") && user.getTotalDonations() == 0) ||
+                filter.equals(user.getBloodType())) {
                 filtered.add(user);
             }
         }
         adapter.setUsers(filtered);
         tvUserCount.setText(filtered.size() + " users");
-    }
-
-    // User data class
-    private static class User {
-        String id, name, email, bloodType;
-        int totalDonations;
-        boolean isVerified;
-
-        User(String id, String name, String email, String bloodType, int totalDonations, boolean isVerified) {
-            this.id = id;
-            this.name = name;
-            this.email = email;
-            this.bloodType = bloodType;
-            this.totalDonations = totalDonations;
-            this.isVerified = isVerified;
-        }
     }
 
     // Adapter
@@ -168,11 +156,11 @@ public class AdminUsersActivity extends AppCompatActivity {
             }
 
             void bind(User user) {
-                tvName.setText(user.name);
-                tvEmail.setText(user.email);
-                tvBloodType.setText(user.bloodType);
-                tvDonations.setText(user.totalDonations + " donations");
-                tvVerified.setVisibility(user.isVerified ? View.VISIBLE : View.GONE);
+                tvName.setText(user.getName() != null ? user.getName() : "Unknown");
+                tvEmail.setText(user.getEmail() != null ? user.getEmail() : "No email");
+                tvBloodType.setText(user.getBloodType() != null ? user.getBloodType() : "--");
+                tvDonations.setText(user.getTotalDonations() + " donations");
+                tvVerified.setVisibility(View.GONE); // Remove verified badge
             }
         }
     }

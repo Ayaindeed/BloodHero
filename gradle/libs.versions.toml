@@ -18,6 +18,7 @@ fragment = "1.8.0"
 preference = "1.2.1"
 osmdroid = "6.1.18"
 mpandroidchart = "v3.1.0"
+flexbox = "3.0.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -38,6 +39,7 @@ fragment = { group = "androidx.fragment", name = "fragment", version.ref = "frag
 preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
+flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

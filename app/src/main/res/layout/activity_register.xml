@@ -106,7 +106,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E0E0E0" />
+                    android:background="@color/divider" />
 
                 <!-- Email Input -->
                 <TextView
@@ -146,7 +146,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E0E0E0" />
+                    android:background="@color/divider" />
 
                 <!-- Password Input -->
                 <TextView
@@ -188,7 +188,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E0E0E0" />
+                    android:background="@color/divider" />
 
                 <!-- Confirm Password Input -->
                 <TextView
@@ -230,7 +230,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E0E0E0" />
+                    android:background="@color/divider" />
 
                 <!-- Sign Up Button -->
                 <com.google.android.material.button.MaterialButton
@@ -260,7 +260,7 @@
                     android:textAllCaps="false"
                     android:fontFamily="sans-serif-medium"
                     app:cornerRadius="28dp"
-                    app:strokeColor="#E0E0E0"
+                    app:strokeColor="@color/divider"
                     app:strokeWidth="1dp"
                     app:icon="@drawable/ic_google"
                     app:iconGravity="textStart"

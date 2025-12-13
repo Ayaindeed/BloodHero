@@ -1,5 +1,7 @@
 package com.example.bloodhero.activities;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +19,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
+import com.example.bloodhero.database.BloodHeroDatabaseHelper;
+import com.example.bloodhero.models.User;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdminBadgesActivity extends AppCompatActivity {
+
+    private BloodHeroDatabaseHelper dbHelper;
 
     private ImageButton btnBack;
     private RecyclerView rvBadges, rvUsers;
@@ -36,6 +42,7 @@ public class AdminBadgesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_badges);
 
+        dbHelper = BloodHeroDatabaseHelper.getInstance(this);
         initViews();
         loadBadges();
         loadUsers();
@@ -72,13 +79,25 @@ public class AdminBadgesActivity extends AppCompatActivity {
     }
 
     private void loadUsers() {
-        // Mock users who might be eligible for badges
         List<UserBadge> users = new ArrayList<>();
-        users.add(new UserBadge("1", "Youssef Tazi", "O+", 12, true));
-        users.add(new UserBadge("2", "Mohammed Alaoui", "B+", 8, true));
-        users.add(new UserBadge("3", "Ahmed El Fassi", "A+", 5, false));
-        users.add(new UserBadge("4", "Fatima Benali", "O-", 3, false));
-        users.add(new UserBadge("5", "Amina Berrada", "A-", 2, false));
+        
+        // Load real users from SQLite database
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT id, name, email, blood_type, total_donations FROM users WHERE email != ? ORDER BY total_donations DESC", 
+                                   new String[]{"admin@contact.me"});
+        
+        if (cursor.moveToFirst()) {
+            do {
+                String id = cursor.getString(0);
+                String name = cursor.getString(1);
+                String bloodType = cursor.getString(3);
+                int donations = cursor.getInt(4);
+                boolean hasBadge = donations >= 1; // Has at least first donation badge
+                
+                users.add(new UserBadge(id, name, bloodType, donations, hasBadge));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
 
         userAdapter.setUsers(users);
     }

@@ -16,14 +16,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.Appointment;
+import com.example.bloodhero.models.Donation;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.AppointmentRepository;
+import com.example.bloodhero.repository.DonationRepository;
+import com.example.bloodhero.repository.UserRepository;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class AdminAppointmentsActivity extends AppCompatActivity {
+
+    private UserRepository userRepository;
+    private AppointmentRepository appointmentRepository;
+    private DonationRepository donationRepository;
 
     private ImageButton btnBack;
     private TabLayout tabLayout;
@@ -31,14 +41,17 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
     private View emptyState;
     
     private AppointmentAdapter adapter;
-    private List<Appointment> allAppointments;
-    private List<Appointment> filteredAppointments;
+    private List<AppointmentDisplay> allAppointments;
+    private List<AppointmentDisplay> filteredAppointments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_appointments);
 
+        userRepository = UserRepository.getInstance(this);
+        appointmentRepository = AppointmentRepository.getInstance(this);
+        donationRepository = DonationRepository.getInstance(this);
         initViews();
         setupTabs();
         loadAppointments();
@@ -80,22 +93,44 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
     private void loadAppointments() {
         allAppointments = new ArrayList<>();
         
-        // Load real appointments from UserStorage
-        List<UserStorage.AppointmentData> storedAppointments = UserStorage.getAllAppointments(this);
-        for (UserStorage.AppointmentData apptData : storedAppointments) {
-            allAppointments.add(new Appointment(
-                apptData.id,
-                apptData.userEmail,
-                apptData.userName,
-                apptData.bloodType,
-                apptData.campaignName,
-                apptData.getFormattedDate(),
-                apptData.time,
-                apptData.status
+        // Load all appointments from SQLite
+        List<Appointment> storedAppointments = appointmentRepository.getAllAppointments();
+        for (Appointment appt : storedAppointments) {
+            // Get actual user data from SQLite
+            User user = userRepository.getUserById(appt.getUserId());
+            String donorName = "Unknown";
+            String bloodType = "Unknown";
+            
+            if (user != null) {
+                donorName = user.getName() != null ? user.getName() : "Unknown";
+                bloodType = user.getBloodType() != null ? user.getBloodType() : "Unknown";
+            }
+            
+            allAppointments.add(new AppointmentDisplay(
+                appt.getId(),
+                appt.getUserId(),
+                donorName,
+                bloodType,
+                appt.getCampaignName(),
+                formatDate(appt.getDate()),
+                appt.getTimeSlot(),
+                appt.getStatus().name()
             ));
         }
 
         filterAppointments(0); // Show pending by default
+    }
+
+    private String formatDate(String dateStr) {
+        try {
+            String[] parts = dateStr.split("-");
+            String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+            int monthIndex = Integer.parseInt(parts[1]) - 1;
+            return months[monthIndex] + " " + parts[2] + ", " + parts[0];
+        } catch (Exception e) {
+            return dateStr;
+        }
     }
 
     private void filterAppointments(int tabPosition) {
@@ -104,19 +139,19 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
         String filter;
         switch (tabPosition) {
             case 0:
-                filter = "Pending";
+                filter = "SCHEDULED";
                 break;
             case 1:
-                filter = "Confirmed";
+                filter = "COMPLETED";
                 break;
             case 2:
-                filter = "Completed";
+                filter = "CANCELLED";
                 break;
             default:
                 filter = null; // Show all
         }
 
-        for (Appointment appointment : allAppointments) {
+        for (AppointmentDisplay appointment : allAppointments) {
             if (filter == null || appointment.status.equals(filter)) {
                 filteredAppointments.add(appointment);
             }
@@ -127,14 +162,14 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
         rvAppointments.setVisibility(filteredAppointments.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
-    private void confirmAppointment(Appointment appointment) {
+    private void confirmAppointment(AppointmentDisplay appointmentDisplay) {
         new AlertDialog.Builder(this, R.style.AlertDialogTheme)
                 .setTitle("Confirm Appointment")
-                .setMessage("Confirm appointment for " + appointment.donorName + "?")
+                .setMessage("Confirm appointment for " + appointmentDisplay.donorName + "?")
                 .setPositiveButton("Confirm", (dialog, which) -> {
-                    // Update in UserStorage
-                    UserStorage.updateAppointmentStatus(this, appointment.id, "Confirmed");
-                    appointment.status = "Confirmed";
+                    // Update in SQLite
+                    appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.COMPLETED);
+                    appointmentDisplay.status = "COMPLETED";
                     filterAppointments(tabLayout.getSelectedTabPosition());
                     Toast.makeText(this, "Appointment confirmed", Toast.LENGTH_SHORT).show();
                 })
@@ -142,31 +177,46 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void markAsCompleted(Appointment appointment) {
+    private void markAsCompleted(AppointmentDisplay appointmentDisplay) {
         new AlertDialog.Builder(this, R.style.AlertDialogTheme)
                 .setTitle("Mark as Completed")
-                .setMessage("Mark " + appointment.donorName + "'s donation as completed?\n\nThis will:\n• Award 50 points\n• Update donation count\n• Unlock eligible badges")
+                .setMessage("Mark " + appointmentDisplay.donorName + "'s donation as completed?\n\nThis will:\n• Award 50 points\n• Update donation count\n• Unlock eligible badges")
                 .setPositiveButton("Complete", (dialog, which) -> {
-                    // Update in UserStorage (this also increments donation count and unlocks badges)
-                    UserStorage.updateAppointmentStatus(this, appointment.id, "Completed");
+                    // Update appointment status in SQLite
+                    appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.COMPLETED);
                     
-                    // Save as a completed donation record
-                    UserStorage.saveDonation(this, appointment.id, appointment.userEmail,
-                            appointment.donorName, appointment.bloodType, appointment.location,
-                            appointment.location, appointment.date, 50);
+                    // Create and save donation record in SQLite
+                    User user = userRepository.getUserById(appointmentDisplay.userId);
+                    if (user != null) {
+                        Donation donation = new Donation(
+                                UUID.randomUUID().toString(),
+                                user.getId(),
+                                "",
+                                appointmentDisplay.location,
+                                appointmentDisplay.location,
+                                appointmentDisplay.date,
+                                user.getBloodType(),
+                                50,
+                                "COMPLETED"
+                        );
+                        donationRepository.saveDonation(donation);
+                        
+                        // Update user points and donations count
+                        userRepository.incrementDonations(user.getId(), 50);
+                    }
                     
-                    appointment.status = "Completed";
+                    appointmentDisplay.status = "COMPLETED";
                     filterAppointments(tabLayout.getSelectedTabPosition());
-                    Toast.makeText(this, "Donation marked as completed! " + appointment.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Donation marked as completed! " + appointmentDisplay.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    // Inner class for Appointment data
-    private static class Appointment {
+    // Inner class for displaying appointment data
+    private static class AppointmentDisplay {
         String id;
-        String userEmail;
+        String userId;
         String donorName;
         String bloodType;
         String location;
@@ -174,10 +224,10 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
         String time;
         String status;
 
-        Appointment(String id, String userEmail, String donorName, String bloodType, String location,
+        AppointmentDisplay(String id, String userId, String donorName, String bloodType, String location,
                    String date, String time, String status) {
             this.id = id;
-            this.userEmail = userEmail;
+            this.userId = userId;
             this.donorName = donorName;
             this.bloodType = bloodType;
             this.location = location;
@@ -189,9 +239,9 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
 
     // RecyclerView Adapter
     private class AppointmentAdapter extends RecyclerView.Adapter<AppointmentAdapter.ViewHolder> {
-        private List<Appointment> appointments = new ArrayList<>();
+        private List<AppointmentDisplay> appointments = new ArrayList<>();
 
-        void setAppointments(List<Appointment> appointments) {
+        void setAppointments(List<AppointmentDisplay> appointments) {
             this.appointments = appointments;
             notifyDataSetChanged();
         }
@@ -206,7 +256,7 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Appointment appointment = appointments.get(position);
+            AppointmentDisplay appointment = appointments.get(position);
             holder.bind(appointment);
         }
 
@@ -230,7 +280,7 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 btnSecondaryAction = itemView.findViewById(R.id.btnSecondaryAction);
             }
 
-            void bind(Appointment appointment) {
+            void bind(AppointmentDisplay appointment) {
                 tvDonorName.setText(appointment.donorName);
                 tvBloodType.setText(appointment.bloodType);
                 tvLocation.setText(appointment.location);
@@ -240,20 +290,20 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 // Set status color
                 int statusBg;
                 switch (appointment.status) {
-                    case "Confirmed":
-                        statusBg = R.drawable.bg_status_confirmed;
-                        break;
-                    case "Completed":
+                    case "COMPLETED":
                         statusBg = R.drawable.bg_status_completed;
                         break;
-                    default:
+                    case "CANCELLED":
                         statusBg = R.drawable.bg_status_pending;
+                        break;
+                    default:
+                        statusBg = R.drawable.bg_status_confirmed;
                 }
                 tvStatus.setBackgroundResource(statusBg);
 
                 // Configure action buttons based on status
                 switch (appointment.status) {
-                    case "Pending":
+                    case "SCHEDULED":
                         btnAction.setText("Confirm");
                         btnAction.setVisibility(View.VISIBLE);
                         btnSecondaryAction.setText("Reject");
@@ -261,16 +311,19 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                         btnAction.setOnClickListener(v -> confirmAppointment(appointment));
                         btnSecondaryAction.setOnClickListener(v -> {
                             // Reject logic
+                            appointmentRepository.updateStatus(appointment.id, Appointment.Status.CANCELLED);
+                            appointment.status = "CANCELLED";
+                            filterAppointments(tabLayout.getSelectedTabPosition());
                             Toast.makeText(itemView.getContext(), "Appointment rejected", Toast.LENGTH_SHORT).show();
                         });
                         break;
-                    case "Confirmed":
+                    case "CONFIRMED":
                         btnAction.setText("Mark Completed");
                         btnAction.setVisibility(View.VISIBLE);
                         btnSecondaryAction.setVisibility(View.GONE);
                         btnAction.setOnClickListener(v -> markAsCompleted(appointment));
                         break;
-                    case "Completed":
+                    case "COMPLETED":
                         btnAction.setVisibility(View.GONE);
                         btnSecondaryAction.setVisibility(View.GONE);
                         break;

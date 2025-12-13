@@ -19,8 +19,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.bloodhero.R;
+import com.example.bloodhero.models.Appointment;
 import com.example.bloodhero.models.Campaign;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.AppointmentRepository;
+import com.example.bloodhero.utils.UserHelper;
 import com.google.android.material.button.MaterialButton;
 
 import org.osmdroid.api.IMapController;
@@ -35,10 +38,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class CampaignMapActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "BloodHeroPrefs";
     private static final int PERMISSION_REQUEST_CODE = 1;
 
     private MapView mapView;
@@ -47,6 +50,9 @@ public class CampaignMapActivity extends AppCompatActivity {
     private TextView tvCampaignName, tvCampaignOrganizer, tvCampaignLocation, tvCampaignDate, tvCampaignBloodTypes;
     private MaterialButton btnBookNow;
     private LinearLayout btnListView;
+    
+    private AppointmentRepository appointmentRepository;
+    private User currentUser;
 
     private List<Campaign> campaigns;
     private Map<String, GeoPoint> cityCoordinates;
@@ -62,6 +68,9 @@ public class CampaignMapActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_campaign_map);
 
+        currentUser = UserHelper.getCurrentUser(this);
+        appointmentRepository = AppointmentRepository.getInstance(this);
+        
         initCityCoordinates();
         initViews();
         setupToolbar();
@@ -121,7 +130,7 @@ public class CampaignMapActivity extends AppCompatActivity {
     }
 
     private void loadUserLocation() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("BloodHeroPrefs", MODE_PRIVATE);
         String location = prefs.getString("user_location", "").toLowerCase();
         
         if (location.contains("casablanca") || location.contains("casa")) {
@@ -359,30 +368,28 @@ public class CampaignMapActivity extends AppCompatActivity {
     }
     
     private void showBookingDialog(Campaign campaign) {
+        if (currentUser == null) {
+            Toast.makeText(this, "Please log in to book an appointment", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
         new AlertDialog.Builder(this)
                 .setTitle("Book Appointment")
                 .setMessage("Would you like to book an appointment at " + campaign.getName() + "?\n\nLocation: " + campaign.getLocation() + "\nDate: " + campaign.getDate())
                 .setPositiveButton("Book Now", (dialog, which) -> {
-                    // Get user data
-                    SharedPreferences prefs = getSharedPreferences("BloodHeroPrefs", MODE_PRIVATE);
-                    String userName = prefs.getString("user_name", "Unknown");
-                    String userEmail = prefs.getString("user_email", "");
-                    String bloodType = prefs.getString("blood_type", "Unknown");
+                    // Create appointment and save to SQLite
+                    Appointment appointment = new Appointment(
+                            UUID.randomUUID().toString(),
+                            currentUser.getId(),
+                            campaign.getId(),
+                            campaign.getName(),
+                            campaign.getLocation(),
+                            campaign.getDate(),
+                            "09:00 AM",
+                            Appointment.Status.SCHEDULED
+                    );
                     
-                    // Save to UserStorage for admin sync and get appointment ID
-                    String appointmentId = UserStorage.saveAppointment(this, userEmail, userName, bloodType,
-                            campaign.getName(), campaign.getLocation(), campaign.getDate(), "09:00 AM");
-                    
-                    // Save appointment to SharedPreferences for user's view
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("has_appointment", true);
-                    editor.putString("last_appointment_id", appointmentId);
-                    editor.putString("last_appointment_campaign", campaign.getName());
-                    editor.putString("last_appointment_location", campaign.getLocation());
-                    editor.putString("last_appointment_date", campaign.getDate());
-                    editor.putString("last_appointment_time", "09:00 AM");
-                    editor.putString("last_appointment_status", "Pending");
-                    editor.apply();
+                    appointmentRepository.createAppointment(appointment);
                     
                     Toast.makeText(this, "Appointment booked successfully!", Toast.LENGTH_SHORT).show();
                     

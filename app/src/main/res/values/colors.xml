@@ -27,8 +27,11 @@
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
     <color name="text_hint">#9E9E9E</color>
+    <color name="text_disabled">#BDBDBD</color>
     <color name="text_on_primary">#FFFFFF</color>
     <color name="text_on_dark">#FFFFFF</color>
+    <color name="header_text_primary">#1A1A2E</color>
+    <color name="header_text_secondary">#60FFFFFF</color>
     
     <!-- White with opacity -->
     <color name="white_70">#B3FFFFFF</color>
@@ -85,4 +88,8 @@
     <!-- Navigation Bar -->
     <color name="nav_bar_selected">#E31837</color>
     <color name="nav_bar_unselected">#9E9E9E</color>
+    
+    <!-- Card Background for consistency -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
 </resources>

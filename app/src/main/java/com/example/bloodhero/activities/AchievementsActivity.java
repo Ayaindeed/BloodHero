@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bloodhero.R;
 import com.example.bloodhero.adapters.BadgeAdapter;
 import com.example.bloodhero.models.Badge;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.utils.UserHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +30,15 @@ public class AchievementsActivity extends AppCompatActivity {
 
     private BadgeAdapter badgeAdapter;
     private List<Badge> badgeList;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_achievements);
 
+        currentUser = UserHelper.getCurrentUser(this);
+        
         initViews();
         loadUserStats();
         loadBadges();
@@ -50,41 +55,14 @@ public class AchievementsActivity extends AppCompatActivity {
     }
 
     private void loadUserStats() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String userEmail = prefs.getString("user_email", "");
-        
-        // Sync from central UserStorage first
-        com.example.bloodhero.utils.UserStorage.UserData userData = 
-                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, userEmail);
-        
-        int totalPoints;
-        if (userData != null) {
-            totalPoints = userData.points;
-            // Update local prefs to stay in sync
-            prefs.edit().putInt("total_points", totalPoints).apply();
-        } else {
-            totalPoints = prefs.getInt("total_points", 0);
-        }
-        
+        int totalPoints = currentUser != null ? currentUser.getPoints() : 0;
         tvTotalPoints.setText(String.format("%,d", totalPoints));
     }
 
     private void loadBadges() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String userEmail = prefs.getString("user_email", "");
         
-        // Sync donations from central UserStorage
-        com.example.bloodhero.utils.UserStorage.UserData userData = 
-                com.example.bloodhero.utils.UserStorage.getUserByEmail(this, userEmail);
-        
-        int totalDonations;
-        if (userData != null) {
-            totalDonations = userData.donations;
-            prefs.edit().putInt("total_donations", totalDonations).apply();
-        } else {
-            totalDonations = prefs.getInt("total_donations", 0);
-        }
-        
+        int totalDonations = currentUser != null ? currentUser.getTotalDonations() : 0;
         boolean hasProfileComplete = prefs.getBoolean("profile_complete", false);
 
         badgeList = new ArrayList<>();

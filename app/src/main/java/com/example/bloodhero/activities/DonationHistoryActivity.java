@@ -15,14 +15,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bloodhero.R;
 import com.example.bloodhero.adapters.DonationAdapter;
 import com.example.bloodhero.models.Donation;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.DonationRepository;
+import com.example.bloodhero.utils.UserHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DonationHistoryActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "BloodHeroPrefs";
+    private User currentUser;
+    private DonationRepository donationRepository;
 
     private ImageButton btnBack;
     private TextView tvTotalDonations, tvLivesSaved;
@@ -36,6 +39,9 @@ public class DonationHistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_donation_history);
+
+        currentUser = UserHelper.getCurrentUser(this);
+        donationRepository = DonationRepository.getInstance(this);
 
         initViews();
         loadUserStats();
@@ -52,57 +58,30 @@ public class DonationHistoryActivity extends AppCompatActivity {
     }
 
     private void loadUserStats() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String userEmail = prefs.getString("user_email", "");
-        
-        // Sync from central UserStorage first
-        UserStorage.UserData userData = UserStorage.getUserByEmail(this, userEmail);
-        int totalDonations;
-        
-        if (userData != null) {
-            totalDonations = userData.donations;
-            // Update local prefs to stay in sync
-            prefs.edit()
-                .putInt("total_donations", totalDonations)
-                .putInt("user_donations", totalDonations)
-                .apply();
-        } else {
-            totalDonations = prefs.getInt("total_donations", 0);
+        if (currentUser == null) {
+            currentUser = UserHelper.getCurrentUser(this);
         }
         
-        // Also count from actual donation records as fallback
-        List<UserStorage.DonationData> donations = UserStorage.getDonationsByEmail(this, userEmail);
-        if (donations.size() > totalDonations) {
-            totalDonations = donations.size();
-        }
-        
-        int livesSaved = totalDonations * 3; // Each donation can save up to 3 lives
+        if (currentUser != null) {
+            int totalDonations = currentUser.getTotalDonations();
+            int livesSaved = totalDonations * 3; // Each donation can save up to 3 lives
 
-        tvTotalDonations.setText(String.valueOf(totalDonations));
-        tvLivesSaved.setText(String.valueOf(livesSaved));
+            tvTotalDonations.setText(String.valueOf(totalDonations));
+            tvLivesSaved.setText(String.valueOf(livesSaved));
+        }
     }
 
     private void loadDonations() {
         donationList = new ArrayList<>();
 
-        // Load real donations from UserStorage
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String userEmail = prefs.getString("user_email", "");
+        if (currentUser == null) {
+            currentUser = UserHelper.getCurrentUser(this);
+        }
         
-        List<UserStorage.DonationData> savedDonations = UserStorage.getDonationsByEmail(this, userEmail);
-        
-        for (UserStorage.DonationData donationData : savedDonations) {
-            donationList.add(new Donation(
-                    donationData.id,
-                    donationData.userEmail,
-                    donationData.campaignName,
-                    donationData.campaignName,
-                    donationData.location,
-                    donationData.date,
-                    donationData.bloodType,
-                    donationData.pointsEarned,
-                    "COMPLETED"
-            ));
+        if (currentUser != null) {
+            // Load real donations from SQLite for this specific user
+            List<Donation> savedDonations = donationRepository.getDonationsByUserId(currentUser.getId());
+            donationList.addAll(savedDonations);
         }
 
         if (donationList.isEmpty()) {
@@ -136,7 +115,8 @@ public class DonationHistoryActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Refresh stats when returning to this screen
+        // Refresh user from database and reload stats
+        currentUser = UserHelper.getCurrentUser(this);
         loadUserStats();
     }
 }

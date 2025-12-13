@@ -1,7 +1,6 @@
 package com.example.bloodhero;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -10,27 +9,30 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.UserRepository;
+import com.example.bloodhero.utils.SessionManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "BloodHeroPrefs";
-    private static final String KEY_IS_LOGGED_IN = "is_logged_in";
-    private static final String KEY_USER_EMAIL = "user_email";
-    private static final String KEY_USER_NAME = "user_name";
-
     private TextInputLayout tilName, tilEmail, tilPassword, tilConfirmPassword;
     private TextInputEditText etName, etEmail, etPassword, etConfirmPassword;
     private MaterialButton btnRegister, btnGoogle, btnFacebook;
     private TextView tvLogin;
 
+    private UserRepository userRepository;
+    private SessionManager sessionManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        userRepository = UserRepository.getInstance(this);
+        sessionManager = SessionManager.getInstance(this);
 
         initViews();
         setupListeners();
@@ -130,35 +132,19 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister.setEnabled(false);
         btnRegister.setText("Creating Account...");
 
-        // Simulate registration - In production, connect to Firebase Auth
         btnRegister.postDelayed(() -> {
-            // Clear any previous user data first (important for fresh account)
-            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.clear(); // Clear all previous data
+            // Register user in SQLite
+            User user = userRepository.registerUser(email, password, name, "Unknown");
             
-            // Set new user data with fresh values
-            editor.putBoolean(KEY_IS_LOGGED_IN, true);
-            editor.putString(KEY_USER_EMAIL, email);
-            editor.putString(KEY_USER_NAME, name);
-            editor.putInt("total_points", 0);
-            editor.putInt("user_points", 0);
-            editor.putInt("total_donations", 0);
-            editor.putInt("user_donations", 0);
-            editor.putBoolean("profile_complete", false);
-            editor.putBoolean("is_admin", false);
-            // Clear all badges
-            editor.putBoolean("badge_first_drop", false);
-            editor.putBoolean("badge_regular_donor", false);
-            editor.putBoolean("badge_lifesaver", false);
-            editor.putBoolean("badge_hero_status", false);
-            editor.putBoolean("badge_marathon_donor", false);
-            editor.putBoolean("badge_blood_legend", false);
-            editor.putBoolean("badge_platinum_donor", false);
-            editor.apply();
+            if (user == null) {
+                btnRegister.setEnabled(true);
+                btnRegister.setText("Create Account");
+                Toast.makeText(this, "Account already exists with this email", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            // Save to UserStorage for admin sync (new user with 0 points/donations)
-            UserStorage.saveUser(this, name, email, null);
+            // Create login session
+            sessionManager.createLoginSession(user.getId(), false);
 
             Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
 

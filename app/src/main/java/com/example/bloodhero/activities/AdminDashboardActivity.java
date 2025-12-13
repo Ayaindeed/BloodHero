@@ -13,7 +13,9 @@ import androidx.cardview.widget.CardView;
 
 import com.example.bloodhero.LoginActivity;
 import com.example.bloodhero.R;
-import com.example.bloodhero.utils.UserStorage;
+import com.example.bloodhero.repository.AppointmentRepository;
+import com.example.bloodhero.repository.DonationRepository;
+import com.example.bloodhero.repository.UserRepository;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
@@ -22,12 +24,20 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private ImageButton btnLogout, btnSettings;
     private CardView cardAppointments, cardUsers, cardDonations, cardBadges, cardCampaigns, cardReports;
     private TextView tvTotalUsers, tvPendingAppointments, tvTotalDonations;
+    
+    private UserRepository userRepository;
+    private AppointmentRepository appointmentRepository;
+    private DonationRepository donationRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
 
+        userRepository = UserRepository.getInstance(this);
+        appointmentRepository = AppointmentRepository.getInstance(this);
+        donationRepository = DonationRepository.getInstance(this);
+        
         initViews();
         setupListeners();
         loadStats();
@@ -87,17 +97,20 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void loadStats() {
-        // Get actual registered users count from UserStorage
-        int userCount = UserStorage.getUserCount(this);
-        // Add 1 for admin account if no users registered yet
-        tvTotalUsers.setText(String.valueOf(Math.max(userCount, 1)));
+        // Get actual registered users count from SQLite (exclude admin)
+        int userCount = userRepository.getAllUsers().size();
+        tvTotalUsers.setText(String.valueOf(Math.max(userCount - 1, 0))); // Exclude admin
         
-        // Get real pending appointments count
-        int pendingCount = UserStorage.getAppointmentsCountByStatus(this, "Pending");
+        // Get real pending appointments count (SCHEDULED status)
+        int pendingCount = appointmentRepository.getAppointmentsByStatus("SCHEDULED").size();
         tvPendingAppointments.setText(String.valueOf(pendingCount));
         
-        // Get real donations count
-        int donationsCount = UserStorage.getTotalDonations(this);
+        // Get real donations count from SQLite
+        // Sum up all users' donation counts
+        int donationsCount = 0;
+        for (com.example.bloodhero.models.User user : userRepository.getAllUsers()) {
+            donationsCount += user.getTotalDonations();
+        }
         tvTotalDonations.setText(String.valueOf(donationsCount));
     }
     

@@ -23,7 +23,7 @@ import java.util.List;
 public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "bloodhero.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -39,6 +39,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
 
     // Users Table Columns
     private static final String COLUMN_USER_EMAIL = "email";
+    private static final String COLUMN_USER_PASSWORD = "password";
     private static final String COLUMN_USER_NAME = "name";
     private static final String COLUMN_USER_BLOOD_TYPE = "blood_type";
     private static final String COLUMN_USER_LOCATION = "location";
@@ -107,6 +108,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         String createUsersTable = "CREATE TABLE " + TABLE_USERS + " (" +
                 COLUMN_ID + " TEXT PRIMARY KEY, " +
                 COLUMN_USER_EMAIL + " TEXT UNIQUE NOT NULL, " +
+                COLUMN_USER_PASSWORD + " TEXT NOT NULL, " +
                 COLUMN_USER_NAME + " TEXT, " +
                 COLUMN_USER_BLOOD_TYPE + " TEXT, " +
                 COLUMN_USER_LOCATION + " TEXT, " +
@@ -214,6 +216,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID, user.getId());
         values.put(COLUMN_USER_EMAIL, user.getEmail());
+        values.put(COLUMN_USER_PASSWORD, user.getPassword());
         values.put(COLUMN_USER_NAME, user.getName());
         values.put(COLUMN_USER_BLOOD_TYPE, user.getBloodType());
         values.put(COLUMN_USER_LOCATION, user.getLocation());
@@ -259,6 +262,24 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
+     * Get all users
+     */
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, null, null, null, null, null, 
+                COLUMN_USER_TOTAL_POINTS + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                users.add(cursorToUser(cursor));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return users;
+    }
+
+    /**
      * Update user
      */
     public int updateUser(User user) {
@@ -287,6 +308,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         User user = new User();
         user.setId(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)));
         user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_EMAIL)));
+        user.setPassword(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PASSWORD)));
         user.setName(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NAME)));
         user.setBloodType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_BLOOD_TYPE)));
         user.setLocation(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOCATION)));
