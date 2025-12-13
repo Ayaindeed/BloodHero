@@ -27,13 +27,6 @@ A blood donation mobile application for Android that connects donors with blood 
 - Analytics dashboard with charts (blood type distribution, monthly donations, user growth)
 - Campaign management (coming soon)
 
-### Additional Features
-- Moroccan cities support (Casablanca, Rabat, Marrakech, Fes, Tangier, etc.)
-- Real campaign data from Moroccan blood donation centers
-- Offline-first design with local storage
-- Material Design 3 UI components
-- Smooth animations and transitions
-
 ## Tech Stack
 
 - Language: Java
