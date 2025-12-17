@@ -1,251 +1,251 @@
-@startuml BloodHero Class Diagram - SQLite Architecture
+  @startuml BloodHero Class Diagram - SQLite Architecture
 
-' Data Models
-class User {
-  - id: String
-  - email: String
-  - password: String
-  - name: String
-  - bloodType: String
-  - location: String
-  - phone: String
-  - points: int
-  - totalDonations: int
-  - livesSaved: int
-  - createdAt: String
-  + User()
-  + getId(): String
-  + getEmail(): String
-  + getPoints(): int
-  + getTotalDonations(): int
-}
+  ' Data Models
+  class User {
+    - id: String
+    - email: String
+    - password: String
+    - name: String
+    - bloodType: String
+    - location: String
+    - phone: String
+    - points: int
+    - totalDonations: int
+    - livesSaved: int
+    - createdAt: String
+    + User()
+    + getId(): String
+    + getEmail(): String
+    + getPoints(): int
+    + getTotalDonations(): int
+  }
 
-class Campaign {
-  - id: String
-  - name: String
-  - location: String
-  - city: String
-  - date: String
-  - bloodTypesNeeded: String
-  - organizerName: String
-  - description: String
-  - latitude: double
-  - longitude: double
-  + Campaign()
-  + getName(): String
-  + getLocation(): String
-}
+  class Campaign {
+    - id: String
+    - name: String
+    - location: String
+    - city: String
+    - date: String
+    - bloodTypesNeeded: String
+    - organizerName: String
+    - description: String
+    - latitude: double
+    - longitude: double
+    + Campaign()
+    + getName(): String
+    + getLocation(): String
+  }
 
-class Appointment {
-  - id: String
-  - userId: String
-  - campaignId: String
-  - campaignName: String
-  - location: String
-  - date: String
-  - time: String
-  - status: Status
-  + Appointment()
-  + getId(): String
-  + getUserId(): String
-  + getStatus(): Status
-  + setStatus(Status): void
-}
+  class Appointment {
+    - id: String
+    - userId: String
+    - campaignId: String
+    - campaignName: String
+    - location: String
+    - date: String
+    - time: String
+    - status: Status
+    + Appointment()
+    + getId(): String
+    + getUserId(): String
+    + getStatus(): Status
+    + setStatus(Status): void
+  }
 
-enum Status {
-  SCHEDULED
-  COMPLETED
-  CANCELLED
-  NO_SHOW
-}
+  enum Status {
+    SCHEDULED
+    COMPLETED
+    CANCELLED
+    NO_SHOW
+  }
 
-class Donation {
-  - id: String
-  - userId: String
-  - campaignId: String
-  - campaignName: String
-  - location: String
-  - date: String
-  - bloodType: String
-  - points: int
-  - status: String
-  + Donation()
-  + getId(): String
-  + getUserId(): String
-  + getPoints(): int
-}
+  class Donation {
+    - id: String
+    - userId: String
+    - campaignId: String
+    - campaignName: String
+    - location: String
+    - date: String
+    - bloodType: String
+    - points: int
+    - status: String
+    + Donation()
+    + getId(): String
+    + getUserId(): String
+    + getPoints(): int
+  }
 
-class Badge {
-  - id: String
-  - name: String
-  - description: String
-  - iconResId: int
-  - pointValue: int
-  - requirement: String
-  - isUnlocked: boolean
-  + Badge()
-  + isUnlocked(): boolean
-  + setUnlocked(boolean): void
-}
+  class Badge {
+    - id: String
+    - name: String
+    - description: String
+    - iconResId: int
+    - pointValue: int
+    - requirement: String
+    - isUnlocked: boolean
+    + Badge()
+    + isUnlocked(): boolean
+    + setUnlocked(boolean): void
+  }
 
-' Database Layer
-class BloodHeroDatabaseHelper {
-  - DATABASE_NAME: String = "bloodhero.db"
-  - DATABASE_VERSION: int = 2
-  + BloodHeroDatabaseHelper(Context)
-  + onCreate(SQLiteDatabase): void
-  + onUpgrade(SQLiteDatabase, int, int): void
-  ' User CRUD
-  + insertUser(User): long
-  + getUserByEmail(String): User
-  + getUserById(String): User
-  + getAllUsers(): List<User>
-  + updateUser(User): int
-  + updateUserPoints(String, int): int
-  + incrementDonations(String, int): int
-  ' Appointment CRUD
-  + insertAppointment(Appointment): long
-  + getAppointmentsByUserId(String): List<Appointment>
-  + getAllAppointments(): List<Appointment>
-  + updateAppointmentStatus(String, Status): int
-  + deleteAppointment(String): int
-  ' Donation CRUD
-  + insertDonation(Donation): long
-  + getDonationsByUserId(String): List<Donation>
-  + getTotalDonationsCount(String): int
-  + deleteDonation(String): int
-  ' Campaign & Badge CRUD
-  + insertCampaign(Campaign): long
-  + getCampaignById(String): Campaign
-  + insertBadge(Badge): long
-  + getUserBadges(String): List<Badge>
-}
+  ' Database Layer
+  class BloodHeroDatabaseHelper {
+    - DATABASE_NAME: String = "bloodhero.db"
+    - DATABASE_VERSION: int = 2
+    + BloodHeroDatabaseHelper(Context)
+    + onCreate(SQLiteDatabase): void
+    + onUpgrade(SQLiteDatabase, int, int): void
+    ' User CRUD
+    + insertUser(User): long
+    + getUserByEmail(String): User
+    + getUserById(String): User
+    + getAllUsers(): List<User>
+    + updateUser(User): int
+    + updateUserPoints(String, int): int
+    + incrementDonations(String, int): int
+    ' Appointment CRUD
+    + insertAppointment(Appointment): long
+    + getAppointmentsByUserId(String): List<Appointment>
+    + getAllAppointments(): List<Appointment>
+    + updateAppointmentStatus(String, Status): int
+    + deleteAppointment(String): int
+    ' Donation CRUD
+    + insertDonation(Donation): long
+    + getDonationsByUserId(String): List<Donation>
+    + getTotalDonationsCount(String): int
+    + deleteDonation(String): int
+    ' Campaign & Badge CRUD
+    + insertCampaign(Campaign): long
+    + getCampaignById(String): Campaign
+    + insertBadge(Badge): long
+    + getUserBadges(String): List<Badge>
+  }
 
-' Repository Layer
-class UserRepository {
-  - dbHelper: BloodHeroDatabaseHelper
-  - {static} instance: UserRepository
-  - UserRepository(Context)
-  + {static} getInstance(Context): UserRepository
-  + createUser(User): boolean
-  + getUserByEmail(String): User
-  + getUserById(String): User
-  + getAllUsers(): List<User>
-  + updateUser(User): boolean
-  + updatePassword(String, String): boolean
-  + updatePoints(String, int): boolean
-  + incrementDonations(String, int): void
-}
+  ' Repository Layer
+  class UserRepository {
+    - dbHelper: BloodHeroDatabaseHelper
+    - {static} instance: UserRepository
+    - UserRepository(Context)
+    + {static} getInstance(Context): UserRepository
+    + createUser(User): boolean
+    + getUserByEmail(String): User
+    + getUserById(String): User
+    + getAllUsers(): List<User>
+    + updateUser(User): boolean
+    + updatePassword(String, String): boolean
+    + updatePoints(String, int): boolean
+    + incrementDonations(String, int): void
+  }
 
-class AppointmentRepository {
-  - dbHelper: BloodHeroDatabaseHelper
-  + AppointmentRepository(Context)
-  + createAppointment(Appointment): boolean
-  + getAppointmentsByUserId(String): List<Appointment>
-  + getAllAppointments(): List<Appointment>
-  + getAppointmentsByStatus(String): List<Appointment>
-  + getAppointmentById(String): Appointment
-  + updateStatus(String, Status): boolean
-  + deleteAppointment(String): boolean
-}
+  class AppointmentRepository {
+    - dbHelper: BloodHeroDatabaseHelper
+    + AppointmentRepository(Context)
+    + createAppointment(Appointment): boolean
+    + getAppointmentsByUserId(String): List<Appointment>
+    + getAllAppointments(): List<Appointment>
+    + getAppointmentsByStatus(String): List<Appointment>
+    + getAppointmentById(String): Appointment
+    + updateStatus(String, Status): boolean
+    + deleteAppointment(String): boolean
+  }
 
-class DonationRepository {
-  - dbHelper: BloodHeroDatabaseHelper
-  + DonationRepository(Context)
-  + saveDonation(Donation): boolean
-  + getDonationsByUserId(String): List<Donation>
-  + getDonationCount(String): int
-  + deleteDonation(String): boolean
-}
+  class DonationRepository {
+    - dbHelper: BloodHeroDatabaseHelper
+    + DonationRepository(Context)
+    + saveDonation(Donation): boolean
+    + getDonationsByUserId(String): List<Donation>
+    + getDonationCount(String): int
+    + deleteDonation(String): boolean
+  }
 
-' Activities
-class HomeActivity {
-  - currentUser: User
-  - userRepository: UserRepository
-  + onCreate(Bundle): void
-  - loadUserData(): void
-  - setupMenuItems(): void
-}
+  ' Activities
+  class HomeActivity {
+    - currentUser: User
+    - userRepository: UserRepository
+    + onCreate(Bundle): void
+    - loadUserData(): void
+    - setupMenuItems(): void
+  }
 
-class CampaignsActivity {
-  - currentUser: User
-  - appointmentRepository: AppointmentRepository
-  + onCreate(Bundle): void
-  - loadAllCampaigns(): void
-  - showBookingDialog(Campaign): void
-}
+  class CampaignsActivity {
+    - currentUser: User
+    - appointmentRepository: AppointmentRepository
+    + onCreate(Bundle): void
+    - loadAllCampaigns(): void
+    - showBookingDialog(Campaign): void
+  }
 
-class AdminAppointmentsActivity {
-  - userRepository: UserRepository
-  - appointmentRepository: AppointmentRepository
-  - donationRepository: DonationRepository
-  + onCreate(Bundle): void
-  - loadAppointments(): void
-  - confirmAppointment(AppointmentDisplay): void
-  - markAsCompleted(AppointmentDisplay): void
-}
+  class AdminAppointmentsActivity {
+    - userRepository: UserRepository
+    - appointmentRepository: AppointmentRepository
+    - donationRepository: DonationRepository
+    + onCreate(Bundle): void
+    - loadAppointments(): void
+    - confirmAppointment(AppointmentDisplay): void
+    - markAsCompleted(AppointmentDisplay): void
+  }
 
-class DonationHistoryActivity {
-  - currentUser: User
-  - donationRepository: DonationRepository
-  + onCreate(Bundle): void
-  - loadDonations(): void
-  - loadUserStats(): void
-}
+  class DonationHistoryActivity {
+    - currentUser: User
+    - donationRepository: DonationRepository
+    + onCreate(Bundle): void
+    - loadDonations(): void
+    - loadUserStats(): void
+  }
 
-' Utilities
-class UserHelper {
-  + {static} getCurrentUser(Context): User
-  + {static} saveCurrentUser(Context, User): void
-  + {static} clearCurrentUser(Context): void
-}
+  ' Utilities
+  class UserHelper {
+    + {static} getCurrentUser(Context): User
+    + {static} saveCurrentUser(Context, User): void
+    + {static} clearCurrentUser(Context): void
+  }
 
-' Relationships
-User "1" -- "0..*" Appointment : books
-User "1" -- "0..*" Donation : makes
-Appointment --> Status : has
-Appointment "1" -- "0..1" Donation : results in
+  ' Relationships
+  User "1" -- "0..*" Appointment : books
+  User "1" -- "0..*" Donation : makes
+  Appointment --> Status : has
+  Appointment "1" -- "0..1" Donation : results in
 
-BloodHeroDatabaseHelper "1" -- "1" UserRepository : used by
-BloodHeroDatabaseHelper "1" -- "1" AppointmentRepository : used by
-BloodHeroDatabaseHelper "1" -- "1" DonationRepository : used by
+  BloodHeroDatabaseHelper "1" -- "1" UserRepository : used by
+  BloodHeroDatabaseHelper "1" -- "1" AppointmentRepository : used by
+  BloodHeroDatabaseHelper "1" -- "1" DonationRepository : used by
 
-UserRepository "1" -- "0..*" User : manages
-AppointmentRepository "1" -- "0..*" Appointment : manages
-DonationRepository "1" -- "0..*" Donation : manages
+  UserRepository "1" -- "0..*" User : manages
+  AppointmentRepository "1" -- "0..*" Appointment : manages
+  DonationRepository "1" -- "0..*" Donation : manages
 
-HomeActivity --> UserRepository : uses
-HomeActivity --> User : displays
+  HomeActivity --> UserRepository : uses
+  HomeActivity --> User : displays
 
-CampaignsActivity --> AppointmentRepository : uses
-CampaignsActivity --> User : uses
-CampaignsActivity --> Campaign : displays
+  CampaignsActivity --> AppointmentRepository : uses
+  CampaignsActivity --> User : uses
+  CampaignsActivity --> Campaign : displays
 
-AdminAppointmentsActivity --> UserRepository : uses
-AdminAppointmentsActivity --> AppointmentRepository : uses
-AdminAppointmentsActivity --> DonationRepository : uses
+  AdminAppointmentsActivity --> UserRepository : uses
+  AdminAppointmentsActivity --> AppointmentRepository : uses
+  AdminAppointmentsActivity --> DonationRepository : uses
 
-DonationHistoryActivity --> DonationRepository : uses
-DonationHistoryActivity --> User : displays
+  DonationHistoryActivity --> DonationRepository : uses
+  DonationHistoryActivity --> User : displays
 
-UserHelper ..> User : provides
+  UserHelper ..> User : provides
 
-note right of BloodHeroDatabaseHelper
-  Single source of truth
-  SQLite database with tables:
-  - users
-  - appointments
-  - donations
-  - campaigns
-  - badges
-  - user_badges
-end note
+  note right of BloodHeroDatabaseHelper
+    Single source of truth
+    SQLite database with tables:
+    - users
+    - appointments
+    - donations
+    - campaigns
+    - badges
+    - user_badges
+  end note
 
-note right of UserRepository
-  Singleton pattern
-  Handles all user data operations
-  No SharedPreferences for user data
-end note
+  note right of UserRepository
+    Singleton pattern
+    Handles all user data operations
+    No SharedPreferences for user data
+  end note
 
-@enduml
+  @enduml
 

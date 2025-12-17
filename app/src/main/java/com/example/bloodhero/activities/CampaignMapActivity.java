@@ -373,6 +373,23 @@ public class CampaignMapActivity extends AppCompatActivity {
             return;
         }
         
+        // Check if user already has an active appointment
+        List<Appointment> userAppointments = appointmentRepository.getAppointmentsByUserId(currentUser.getId());
+        for (Appointment appt : userAppointments) {
+            if (appt.getStatus() == Appointment.Status.SCHEDULED) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Active Appointment Exists")
+                        .setMessage("You already have an active appointment scheduled. You can only book one appointment at a time.\n\nPlease complete or cancel your current appointment before booking a new one.")
+                        .setPositiveButton("View My Appointment", (dialog, which) -> {
+                            Intent intent = new Intent(this, MyAppointmentsActivity.class);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("Close", null)
+                        .show();
+                return;
+            }
+        }
+        
         new AlertDialog.Builder(this)
                 .setTitle("Book Appointment")
                 .setMessage("Would you like to book an appointment at " + campaign.getName() + "?\n\nLocation: " + campaign.getLocation() + "\nDate: " + campaign.getDate())

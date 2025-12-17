@@ -64,6 +64,15 @@ public class CampaignsActivity extends AppCompatActivity {
         setupSearch();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh user data and filter campaigns when returning
+        currentUser = UserHelper.getCurrentUser(this);
+        loadUserLocation();
+        filterCampaignsByLocation();
+    }
+
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         etSearch = findViewById(R.id.etSearch);
@@ -87,8 +96,14 @@ public class CampaignsActivity extends AppCompatActivity {
     }
 
     private void loadUserLocation() {
-        SharedPreferences prefs = getSharedPreferences("BloodHeroPrefs", MODE_PRIVATE);
-        userCity = prefs.getString("user_location", "").toLowerCase();
+        // Get location from current user's profile (from database)
+        if (currentUser != null && currentUser.getLocation() != null) {
+            userCity = currentUser.getLocation().toLowerCase();
+        } else {
+            // Fallback to SharedPreferences if user object doesn't have location
+            SharedPreferences prefs = getSharedPreferences("BloodHeroPrefs", MODE_PRIVATE);
+            userCity = prefs.getString("user_location", "").toLowerCase();
+        }
         
         // Extract city name from location string
         if (userCity.contains("casablanca") || userCity.contains("casa")) {
@@ -287,6 +302,36 @@ public class CampaignsActivity extends AppCompatActivity {
             return;
         }
         
+        // Check donation eligibility
+        if (!currentUser.canDonateNow()) {
+            int daysRemaining = currentUser.getDaysUntilEligible();
+            new AlertDialog.Builder(this)
+                    .setTitle("Not Eligible Yet")
+                    .setMessage("You must wait 56 days (8 weeks) between blood donations.\n\n" +
+                               "You donated " + getDaysSinceLastDonation() + " days ago.\n" +
+                               "You can donate again in " + daysRemaining + " days.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
+        
+        // Check if user already has an active appointment
+        List<Appointment> userAppointments = appointmentRepository.getAppointmentsByUserId(currentUser.getId());
+        for (Appointment appt : userAppointments) {
+            if (appt.getStatus() == Appointment.Status.SCHEDULED) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Active Appointment Exists")
+                        .setMessage("You already have an active appointment scheduled. You can only book one appointment at a time.\n\nPlease complete or cancel your current appointment before booking a new one.")
+                        .setPositiveButton("View My Appointment", (dialog, which) -> {
+                            Intent intent = new Intent(this, MyAppointmentsActivity.class);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("Close", null)
+                        .show();
+                return;
+            }
+        }
+        
         new AlertDialog.Builder(this)
                 .setTitle("Book Appointment")
                 .setMessage("Would you like to book an appointment at " + campaign.getName() + "?\n\nLocation: " + campaign.getLocation() + "\nDate: " + campaign.getDate())
@@ -313,5 +358,12 @@ public class CampaignsActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+    
+    private int getDaysSinceLastDonation() {
+        if (currentUser.getLastDonationDate() == 0) {
+            return 0;
+        }
+        return (int) ((System.currentTimeMillis() - currentUser.getLastDonationDate()) / (1000 * 60 * 60 * 24));
     }
 }

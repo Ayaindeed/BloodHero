@@ -346,10 +346,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
             String photoPath = getFilesDir() + "/" + fileName;
             currentUser.setProfileImageUrl(photoPath);
             userRepository.updateUser(currentUser);
-            
-            Toast.makeText(this, "Photo saved!", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            Toast.makeText(this, "Failed to save photo", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
     
@@ -368,31 +366,29 @@ public class ProfileSetupActivity extends AppCompatActivity {
 
     private void showDatePickerDialog() {
         Calendar now = Calendar.getInstance();
-        int year = now.get(Calendar.YEAR) - 25; // Default to 25 years old
-        int month = now.get(Calendar.MONTH);
-        int day = now.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                (view, selectedYear, selectedMonth, selectedDay) -> {
-                    selectedDateOfBirth.set(selectedYear, selectedMonth, selectedDay);
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                    etDateOfBirth.setText(sdf.format(selectedDateOfBirth.getTime()));
-                },
-                year, month, day
-        );
+        int currentYear = now.get(Calendar.YEAR);
         
-        // Set max date to 18 years ago (minimum age for blood donation)
-        Calendar maxDate = Calendar.getInstance();
-        maxDate.add(Calendar.YEAR, -18);
-        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
+        // Create year range (18 to 65 years old)
+        int maxYear = currentYear - 18; // Minimum age
+        int minYear = currentYear - 65; // Maximum age
+        int defaultYear = currentYear - 25; // Default to 25 years old
         
-        // Set min date to 65 years ago (maximum age for blood donation)
-        Calendar minDate = Calendar.getInstance();
-        minDate.add(Calendar.YEAR, -65);
-        datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
+        // Create year array
+        String[] years = new String[maxYear - minYear + 1];
+        for (int i = 0; i < years.length; i++) {
+            years[i] = String.valueOf(maxYear - i);
+        }
         
-        datePickerDialog.show();
+        // Show AlertDialog with year picker
+        new AlertDialog.Builder(this)
+                .setTitle("Select Birth Year")
+                .setItems(years, (dialog, which) -> {
+                    int selectedYear = maxYear - which;
+                    selectedDateOfBirth.set(selectedYear, 0, 1); // Set to January 1st of selected year
+                    etDateOfBirth.setText(String.valueOf(selectedYear));
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void saveProfile() {
@@ -425,16 +421,23 @@ public class ProfileSetupActivity extends AppCompatActivity {
             isValid = false;
         }
         
-        // Validate weight if provided
-        if (!TextUtils.isEmpty(weightStr)) {
+        // Validate weight - REQUIRED for blood donation safety
+        if (TextUtils.isEmpty(weightStr)) {
+            tilWeight.setError("Weight is required for blood donation eligibility");
+            isValid = false;
+        } else {
             try {
                 double weight = Double.parseDouble(weightStr);
                 if (weight < 50) {
-                    tilWeight.setError("Minimum weight is 50kg for blood donation");
+                    tilWeight.setError("Sorry, minimum weight is 50kg for safe blood donation");
+                    Toast.makeText(this, "Blood donors must weigh at least 50kg for safety reasons", Toast.LENGTH_LONG).show();
+                    isValid = false;
+                } else if (weight > 200) {
+                    tilWeight.setError("Please enter a valid weight");
                     isValid = false;
                 }
             } catch (NumberFormatException e) {
-                tilWeight.setError("Invalid weight");
+                tilWeight.setError("Please enter a valid weight in kg");
                 isValid = false;
             }
         }

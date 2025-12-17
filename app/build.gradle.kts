@@ -65,6 +65,10 @@ dependencies {
     
     // FlexboxLayout
     implementation(libs.flexbox)
+    
+    // QR Code Generation and Scanning
+    implementation(libs.zxing.core)
+    implementation(libs.zxing.embedded)
 
     // Testing
     testImplementation(libs.junit)

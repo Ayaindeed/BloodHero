@@ -12,26 +12,26 @@
     <color name="secondary_light">#FFAB91</color>
     
     <!-- Background Colors - Rich dark with warm red undertones -->
-    <color name="background">#121212</color>
-    <color name="background_primary">#121212</color>
-    <color name="background_secondary">#1E1E1E</color>
-    <color name="background_card">#252525</color>
-    <color name="background_dark">#0A0A0A</color>
+    <color name="background">#1A1A1A</color>
+    <color name="background_primary">#1A1A1A</color>
+    <color name="background_secondary">#242424</color>
+    <color name="background_card">#2A2A2A</color>
+    <color name="background_dark">#0D0D0D</color>
     
     <!-- Surface Colors - Dark with subtle warmth -->
-    <color name="surface">#1E1E1E</color>
-    <color name="surface_variant">#252525</color>
-    <color name="surface_tint">#2D2D2D</color>
+    <color name="surface">#2A2A2A</color>
+    <color name="surface_variant">#303030</color>
+    <color name="surface_tint">#3A2626</color>
     
     <!-- Text Colors - Clean whites with good contrast -->
-    <color name="text_primary">#F5F5F5</color>
-    <color name="text_secondary">#B0B8C1</color>
-    <color name="text_hint">#6B7785</color>
-    <color name="text_disabled">#6B7785</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B8B8B8</color>
+    <color name="text_hint">#808080</color>
+    <color name="text_disabled">#707070</color>
     <color name="text_on_primary">#FFFFFF</color>
-    <color name="text_on_dark">#F5F5F5</color>
+    <color name="text_on_dark">#FFFFFF</color>
     <color name="header_text_primary">#FFFFFF</color>
-    <color name="header_text_secondary">#B0B8C1</color>
+    <color name="header_text_secondary">#CCCCCC</color>
     
     <!-- White with opacity -->
     <color name="white_70">#B3F5F5F5</color>
@@ -90,6 +90,6 @@
     <color name="nav_bar_unselected">#6B7785</color>
     
     <!-- Card Background for consistency -->
-    <color name="card_background">#252525</color>
+    <color name="card_background">#1E1E1E</color>
     <color name="white">#F5F5F5</color>
 </resources>

@@ -3,6 +3,8 @@ package com.example.bloodhero.models;
 public class Appointment {
     public enum Status {
         SCHEDULED,
+        CONFIRMED,
+        CHECKED_IN,
         COMPLETED,
         CANCELLED,
         NO_SHOW
@@ -17,6 +19,7 @@ public class Appointment {
     private String timeSlot;
     private Status status;
     private long createdAt;
+    private Long checkedInAt;
 
     public Appointment() {}
 
@@ -78,8 +81,16 @@ public class Appointment {
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
 
+    public Long getCheckedInAt() { return checkedInAt; }
+    public void setCheckedInAt(Long checkedInAt) { this.checkedInAt = checkedInAt; }
+
     public void cancel() {
         this.status = Status.CANCELLED;
+    }
+
+    public void checkIn() {
+        this.status = Status.CHECKED_IN;
+        this.checkedInAt = System.currentTimeMillis();
     }
 
     public void complete() {
@@ -88,5 +99,9 @@ public class Appointment {
 
     public boolean isUpcoming() {
         return status == Status.SCHEDULED;
+    }
+    
+    public boolean isCheckedIn() {
+        return status == Status.CHECKED_IN;
     }
 }

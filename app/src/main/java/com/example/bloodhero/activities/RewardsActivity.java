@@ -77,49 +77,65 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
     private void setupRewards() {
         allRewards = new ArrayList<>();
 
-        // Food & Beverages
-        allRewards.add(new Reward("1", "Free Coffee", 
-                "Enjoy a free coffee at any participating cafe",
-                "Cafe Marrakech", 50, R.drawable.ic_gift, "food"));
+        // Healthy Food & Organic Products
+        allRewards.add(new Reward("1", "Organic Fruits Voucher", 
+                "100 DH voucher for fresh organic fruits and vegetables",
+                "Marjane Bio", 150, R.drawable.ic_gift, "organic"));
         
-        allRewards.add(new Reward("2", "Restaurant Voucher", 
-                "10% off at selected restaurants",
-                "La Sqala", 100, R.drawable.ic_gift, "food"));
+        allRewards.add(new Reward("2", "Fresh Juice Pack", 
+                "5 fresh-pressed juice bottles (Orange, Carrot, Beetroot)",
+                "Jus Atlas", 80, R.drawable.ic_gift, "organic"));
         
-        allRewards.add(new Reward("3", "Juice Bar Treat", 
-                "Free fresh juice of your choice",
-                "Fresh Morocco", 40, R.drawable.ic_gift, "food"));
-
-        // Shopping
-        allRewards.add(new Reward("4", "Supermarket Voucher", 
-                "50 DH shopping voucher",
-                "Marjane", 200, R.drawable.ic_gift, "shopping"));
+        allRewards.add(new Reward("3", "Protein Pack", 
+                "Organic chicken breast, eggs & dairy bundle",
+                "Aswak Assalam Bio", 200, R.drawable.ic_gift, "organic"));
         
-        allRewards.add(new Reward("5", "Clothing Discount", 
-                "15% off your next purchase",
-                "Morocco Mall", 150, R.drawable.ic_gift, "shopping"));
+        allRewards.add(new Reward("4", "Superfoods Bundle", 
+                "Quinoa, chia seeds, almonds, dates variety pack",
+                "Carrefour Bio", 120, R.drawable.ic_gift, "organic"));
 
         // Health & Wellness
-        allRewards.add(new Reward("6", "Gym Day Pass", 
-                "Free day pass at partner gyms",
-                "City Club", 100, R.drawable.ic_gift, "health"));
+        allRewards.add(new Reward("5", "Multivitamin Package", 
+                "1-month supply of quality multivitamins and iron supplements",
+                "Pharmacie du Centre", 100, R.drawable.ic_gift, "health"));
         
-        allRewards.add(new Reward("7", "Pharmacy Discount", 
-                "10% off vitamins and supplements",
-                "Pharmacie Centrale", 75, R.drawable.ic_gift, "health"));
+        allRewards.add(new Reward("6", "Fitness Club Pass", 
+                "1-week gym membership with free training session",
+                "City Club Casablanca", 180, R.drawable.ic_gift, "health"));
         
-        allRewards.add(new Reward("8", "Health Checkup", 
-                "Free basic health screening",
-                "Clinique Atlas", 300, R.drawable.ic_gift, "health"));
+        allRewards.add(new Reward("7", "Health Screening", 
+                "Free blood test: CBC, glucose, cholesterol panel",
+                "Laboratoire Pasteur", 250, R.drawable.ic_gift, "health"));
+        
+        allRewards.add(new Reward("8", "Yoga Classes Pack", 
+                "4 yoga or pilates sessions",
+                "Zen Studio Rabat", 140, R.drawable.ic_gift, "health"));
 
-        // Entertainment
-        allRewards.add(new Reward("9", "Cinema Ticket", 
-                "Free movie ticket",
-                "Megarama", 120, R.drawable.ic_gift, "entertainment"));
+        // Natural & Wellness Products
+        allRewards.add(new Reward("9", "Natural Honey Set", 
+                "Pure Moroccan honey collection (Euphorbia, Thyme, Carob)",
+                "Miel du Maroc", 90, R.drawable.ic_gift, "wellness"));
         
-        allRewards.add(new Reward("10", "Streaming Voucher", 
-                "1 month free streaming subscription",
-                "Partner Streaming", 250, R.drawable.ic_gift, "entertainment"));
+        allRewards.add(new Reward("10", "Herbal Tea Collection", 
+                "Premium Moroccan herbal teas (Mint, Verbena, Thyme)",
+                "La Maison du Thé", 60, R.drawable.ic_gift, "wellness"));
+        
+        allRewards.add(new Reward("11", "Argan Oil Products", 
+                "Organic argan oil beauty and wellness set",
+                "Coopérative Féminine", 130, R.drawable.ic_gift, "wellness"));
+
+        // Supermarket Vouchers
+        allRewards.add(new Reward("12", "Marjane Voucher", 
+                "200 DH shopping voucher for healthy groceries",
+                "Marjane Hypermarché", 300, R.drawable.ic_gift, "shopping"));
+        
+        allRewards.add(new Reward("13", "Carrefour Bio Voucher", 
+                "150 DH voucher for organic section",
+                "Carrefour Market", 220, R.drawable.ic_gift, "shopping"));
+        
+        allRewards.add(new Reward("14", "Acima Fresh Voucher", 
+                "100 DH voucher for fresh produce section",
+                "Acima", 150, R.drawable.ic_gift, "shopping"));
 
         // Check redeemed status
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -137,10 +153,10 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
 
     private void setupTabs() {
         tabLayout.addTab(tabLayout.newTab().setText("All"));
-        tabLayout.addTab(tabLayout.newTab().setText("Food"));
-        tabLayout.addTab(tabLayout.newTab().setText("Shopping"));
+        tabLayout.addTab(tabLayout.newTab().setText("Organic"));
         tabLayout.addTab(tabLayout.newTab().setText("Health"));
-        tabLayout.addTab(tabLayout.newTab().setText("Entertainment"));
+        tabLayout.addTab(tabLayout.newTab().setText("Wellness"));
+        tabLayout.addTab(tabLayout.newTab().setText("Shopping"));
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -164,10 +180,10 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
         } else {
             String category = "";
             switch (tabPosition) {
-                case 1: category = "food"; break;
-                case 2: category = "shopping"; break;
-                case 3: category = "health"; break;
-                case 4: category = "entertainment"; break;
+                case 1: category = "organic"; break;
+                case 2: category = "health"; break;
+                case 3: category = "wellness"; break;
+                case 4: category = "shopping"; break;
             }
             for (Reward reward : allRewards) {
                 if (reward.getCategory().equals(category)) {

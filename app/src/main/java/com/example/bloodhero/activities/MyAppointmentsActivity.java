@@ -1,10 +1,12 @@
 package com.example.bloodhero.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +20,7 @@ import com.example.bloodhero.R;
 import com.example.bloodhero.models.Appointment;
 import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.AppointmentRepository;
+import com.example.bloodhero.utils.QRCodeHelper;
 import com.example.bloodhero.utils.UserHelper;
 
 import java.util.List;
@@ -29,6 +32,8 @@ public class MyAppointmentsActivity extends AppCompatActivity {
     private CardView cardAppointment;
     private TextView tvCampaignName, tvAppointmentDate, tvAppointmentTime, tvLocation, tvStatus;
     private Button btnCancelAppointment, btnReschedule;
+    private ImageView ivQRCode;
+    private LinearLayout qrCodeSection;
     
     private AppointmentRepository appointmentRepository;
     private User currentUser;
@@ -58,6 +63,8 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         btnCancelAppointment = findViewById(R.id.btnCancelAppointment);
         btnReschedule = findViewById(R.id.btnReschedule);
+        ivQRCode = findViewById(R.id.ivQRCode);
+        qrCodeSection = findViewById(R.id.qrCodeSection);
     }
 
     private void loadAppointment() {
@@ -92,31 +99,60 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 currentAppointment.getLocation() : "Location not specified");
             tvStatus.setText(currentAppointment.getStatus().toString());
             
+            // Generate and display QR code
+            displayQRCode(currentAppointment);
+            
             // Reset button visibility
             btnCancelAppointment.setVisibility(View.VISIBLE);
             btnReschedule.setVisibility(View.VISIBLE);
 
             // Set status color and button visibility based on status
             switch (currentAppointment.getStatus()) {
+                case CHECKED_IN:
+                    tvStatus.setBackgroundResource(R.drawable.bg_status_completed);
+                    tvStatus.setText("CHECKED IN");
+                    btnCancelAppointment.setVisibility(View.GONE);
+                    btnReschedule.setVisibility(View.GONE);
+                    qrCodeSection.setVisibility(View.VISIBLE);
+                    break;
                 case COMPLETED:
                     tvStatus.setBackgroundResource(R.drawable.bg_status_completed);
                     btnCancelAppointment.setVisibility(View.GONE);
                     btnReschedule.setVisibility(View.GONE);
+                    qrCodeSection.setVisibility(View.GONE);
                     break;
                 case CANCELLED:
                     tvStatus.setBackgroundResource(R.drawable.bg_status_cancelled);
                     btnCancelAppointment.setVisibility(View.GONE);
                     btnReschedule.setVisibility(View.GONE);
+                    qrCodeSection.setVisibility(View.GONE);
                     break;
                 case SCHEDULED:
                 default:
                     tvStatus.setBackgroundResource(R.drawable.bg_status_pending);
+                    qrCodeSection.setVisibility(View.VISIBLE);
                     break;
             }
         } else {
             // Show empty state
             emptyState.setVisibility(View.VISIBLE);
             cardAppointment.setVisibility(View.GONE);
+        }
+    }
+    
+    private void displayQRCode(Appointment appointment) {
+        if (appointment == null || appointment.getId() == null) {
+            qrCodeSection.setVisibility(View.GONE);
+            return;
+        }
+        
+        // Generate QR code bitmap
+        Bitmap qrBitmap = QRCodeHelper.generateQRCode(appointment.getId(), 400);
+        if (qrBitmap != null) {
+            ivQRCode.setImageBitmap(qrBitmap);
+            qrCodeSection.setVisibility(View.VISIBLE);
+        } else {
+            qrCodeSection.setVisibility(View.GONE);
         }
     }
 
@@ -168,10 +204,16 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         }
         
         // Update appointment status in SQLite
-        appointmentRepository.updateStatus(currentAppointment.getId(), Appointment.Status.CANCELLED);
+        boolean success = appointmentRepository.updateStatus(currentAppointment.getId(), Appointment.Status.CANCELLED);
         
-        Toast.makeText(this, "Appointment cancelled successfully", Toast.LENGTH_SHORT).show();
-        loadAppointment(); // Refresh UI
+        if (success) {
+            Toast.makeText(this, "Appointment cancelled successfully", Toast.LENGTH_SHORT).show();
+            // Reload appointment from database to ensure sync
+            currentAppointment = null;
+            loadAppointment(); // Refresh UI with updated data
+        } else {
+            Toast.makeText(this, "Failed to cancel appointment", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

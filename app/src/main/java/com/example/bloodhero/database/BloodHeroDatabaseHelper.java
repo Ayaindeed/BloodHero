@@ -23,7 +23,7 @@ import java.util.List;
 public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "bloodhero.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3; // Incremented for lastDonationDate column
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -47,6 +47,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_USER_TOTAL_DONATIONS = "total_donations";
     private static final String COLUMN_USER_TOTAL_POINTS = "total_points";
     private static final String COLUMN_USER_PROFILE_IMAGE = "profile_image_url";
+    private static final String COLUMN_USER_LAST_DONATION = "last_donation_date";
 
     // Donations Table Columns
     private static final String COLUMN_DONATION_USER_ID = "user_id";
@@ -116,6 +117,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_USER_TOTAL_DONATIONS + " INTEGER DEFAULT 0, " +
                 COLUMN_USER_TOTAL_POINTS + " INTEGER DEFAULT 0, " +
                 COLUMN_USER_PROFILE_IMAGE + " TEXT, " +
+                COLUMN_USER_LAST_DONATION + " INTEGER DEFAULT 0, " +
                 COLUMN_CREATED_AT + " TEXT" +
                 ")";
         db.execSQL(createUsersTable);
@@ -194,16 +196,19 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop old tables if exist
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_BADGES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BADGES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_APPOINTMENTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CAMPAIGNS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DONATIONS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        // Preserve existing data during upgrade instead of dropping tables
+        if (oldVersion < 3 && newVersion >= 3) {
+            // Add lastDonationDate column to users table if upgrading from version 2 to 3
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_LAST_DONATION + " INTEGER DEFAULT 0");
+            } catch (Exception e) {
+                // Column might already exist, ignore
+                e.printStackTrace();
+            }
+        }
         
-        // Create new tables
-        onCreate(db);
+        // For other upgrades, add similar migration logic instead of dropping tables
+        // Only drop and recreate as last resort during development
     }
 
     // ==================== USER CRUD OPERATIONS ====================
@@ -224,6 +229,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_TOTAL_DONATIONS, user.getTotalDonations());
         values.put(COLUMN_USER_TOTAL_POINTS, user.getTotalPoints());
         values.put(COLUMN_USER_PROFILE_IMAGE, user.getProfileImageUrl());
+        values.put(COLUMN_USER_LAST_DONATION, user.getLastDonationDate());
         values.put(COLUMN_CREATED_AT, user.getCreatedAt());
 
         return db.insertWithOnConflict(TABLE_USERS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -292,6 +298,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_TOTAL_DONATIONS, user.getTotalDonations());
         values.put(COLUMN_USER_TOTAL_POINTS, user.getTotalPoints());
         values.put(COLUMN_USER_PROFILE_IMAGE, user.getProfileImageUrl());
+        values.put(COLUMN_USER_LAST_DONATION, user.getLastDonationDate());
 
         return db.update(TABLE_USERS, values, COLUMN_ID + "=?", new String[]{user.getId()});
     }
@@ -316,6 +323,7 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         user.setTotalDonations(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_TOTAL_DONATIONS)));
         user.setTotalPoints(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_TOTAL_POINTS)));
         user.setProfileImageUrl(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PROFILE_IMAGE)));
+        user.setLastDonationDate(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_USER_LAST_DONATION)));
         user.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT)));
         return user;
     }

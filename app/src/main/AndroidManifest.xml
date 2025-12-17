@@ -145,6 +145,12 @@
             android:exported="false"
             android:parentActivityName=".activities.AdminDashboardActivity" />
             
+        <activity
+            android:name=".activities.QRScannerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".activities.AdminDashboardActivity" />
+            
         <!-- New Features -->
         <activity
             android:name=".activities.RewardsActivity"

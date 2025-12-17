@@ -5,16 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_primary">
+    android:background="@color/background_secondary">
 
-    <!-- Header -->
+    <!-- Simple Red Header -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:padding="16dp"
-        android:background="@color/primary">
+        android:background="@color/primary"
+        android:paddingHorizontal="16dp">
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -29,76 +29,34 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:text="Manage Users"
+            android:layout_marginStart="8dp"
+            android:text="Admin • Users"
             android:textColor="@android:color/white"
             android:textSize="20sp"
-            android:fontFamily="sans-serif-bold" />
+            android:fontFamily="sans-serif-medium" />
 
         <TextView
             android:id="@+id/tvUserCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 users"
-            android:textColor="@color/white_70"
-            android:textSize="14sp" />
+            android:text="0"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium" />
 
     </LinearLayout>
 
-    <!-- Filter Chips -->
-    <HorizontalScrollView
+    <!-- Filter Tabs -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none"
-        android:background="@color/surface">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            app:singleSelection="true">
-
-            <com.google.android.material.chip.Chip
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="All"
-                android:checked="true"
-                style="@style/Widget.Material3.Chip.Filter" />
-
-            <com.google.android.material.chip.Chip
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Active Donors"
-                style="@style/Widget.Material3.Chip.Filter" />
-
-            <com.google.android.material.chip.Chip
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="New Users"
-                style="@style/Widget.Material3.Chip.Filter" />
-
-            <com.google.android.material.chip.Chip
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="O+"
-                style="@style/Widget.Material3.Chip.Filter" />
-
-            <com.google.android.material.chip.Chip
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="A+"
-                style="@style/Widget.Material3.Chip.Filter" />
-
-            <com.google.android.material.chip.Chip
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="B+"
-                style="@style/Widget.Material3.Chip.Filter" />
-
-        </com.google.android.material.chip.ChipGroup>
-
-    </HorizontalScrollView>
+        android:layout_height="48dp"
+        android:background="@android:color/white"
+        app:tabMode="scrollable"
+        app:tabIndicatorColor="@color/primary"
+        app:tabSelectedTextColor="@color/primary"
+        app:tabTextColor="@color/text_secondary"
+        app:tabIndicatorHeight="3dp" />
 
     <!-- Users List -->
     <androidx.recyclerview.widget.RecyclerView

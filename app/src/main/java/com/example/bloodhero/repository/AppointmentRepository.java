@@ -86,6 +86,13 @@ public class AppointmentRepository {
     public boolean updateStatus(String appointmentId, Appointment.Status status) {
         return dbHelper.updateAppointmentStatus(appointmentId, status) > 0;
     }
+    
+    /**
+     * Update entire appointment object
+     */
+    public boolean updateAppointment(Appointment appointment) {
+        return dbHelper.updateAppointmentStatus(appointment.getId(), appointment.getStatus()) > 0;
+    }
 
     /**
      * Get appointment by ID
@@ -112,7 +119,7 @@ public class AppointmentRepository {
     }
 
     private Appointment cursorToAppointment(Cursor cursor) {
-        return new Appointment(
+        Appointment appointment = new Appointment(
                 cursor.getString(cursor.getColumnIndexOrThrow("id")),
                 cursor.getString(cursor.getColumnIndexOrThrow("user_id")),
                 cursor.getString(cursor.getColumnIndexOrThrow("campaign_id")),
@@ -122,5 +129,13 @@ public class AppointmentRepository {
                 cursor.getString(cursor.getColumnIndexOrThrow("time_slot")),
                 Appointment.Status.valueOf(cursor.getString(cursor.getColumnIndexOrThrow("status")))
         );
+        
+        // Set additional fields
+        int checkedInAtIndex = cursor.getColumnIndex("checked_in_at");
+        if (checkedInAtIndex != -1 && !cursor.isNull(checkedInAtIndex)) {
+            appointment.setCheckedInAt(cursor.getLong(checkedInAtIndex));
+        }
+        
+        return appointment;
     }
 }

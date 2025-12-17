@@ -17,8 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bloodhero.R;
 import com.example.bloodhero.database.BloodHeroDatabaseHelper;
 import com.example.bloodhero.models.User;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,7 @@ public class AdminUsersActivity extends AppCompatActivity {
     
     private ImageButton btnBack;
     private RecyclerView rvUsers;
-    private ChipGroup chipGroup;
+    private TabLayout tabLayout;
     private TextView tvUserCount;
     
     private UserAdapter adapter;
@@ -45,10 +44,17 @@ public class AdminUsersActivity extends AppCompatActivity {
         loadUsers();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload users when returning to activity
+        loadUsers();
+    }
+
     private void initViews() {
         btnBack = findViewById(R.id.btnBack);
         rvUsers = findViewById(R.id.rvUsers);
-        chipGroup = findViewById(R.id.chipGroup);
+        tabLayout = findViewById(R.id.tabLayout);
         tvUserCount = findViewById(R.id.tvUserCount);
 
         btnBack.setOnClickListener(v -> finish());
@@ -57,18 +63,25 @@ public class AdminUsersActivity extends AppCompatActivity {
         adapter = new UserAdapter();
         rvUsers.setAdapter(adapter);
 
-        setupFilters();
+        setupTabs();
     }
 
-    private void setupFilters() {
-        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty()) {
-                adapter.setUsers(allUsers);
-            } else {
-                Chip chip = group.findViewById(checkedIds.get(0));
-                String filter = chip.getText().toString();
-                filterUsers(filter);
+    private void setupTabs() {
+        tabLayout.addTab(tabLayout.newTab().setText("All"));
+        tabLayout.addTab(tabLayout.newTab().setText("Active"));
+        tabLayout.addTab(tabLayout.newTab().setText("New"));
+        
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                filterUsers(tab.getText().toString());
             }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
         });
     }
 
@@ -99,21 +112,20 @@ public class AdminUsersActivity extends AppCompatActivity {
         }
 
         adapter.setUsers(allUsers);
-        tvUserCount.setText(allUsers.size() + " users");
+        tvUserCount.setText(String.valueOf(allUsers.size()));
     }
 
     private void filterUsers(String filter) {
         List<User> filtered = new ArrayList<>();
         for (User user : allUsers) {
             if (filter.equals("All") || 
-                (filter.equals("Active Donors") && user.getTotalDonations() > 0) ||
-                (filter.equals("New Users") && user.getTotalDonations() == 0) ||
-                filter.equals(user.getBloodType())) {
+                (filter.equals("Active") && user.getTotalDonations() > 0) ||
+                (filter.equals("New") && user.getTotalDonations() == 0)) {
                 filtered.add(user);
             }
         }
         adapter.setUsers(filtered);
-        tvUserCount.setText(filtered.size() + " users");
+        tvUserCount.setText(String.valueOf(filtered.size()));
     }
 
     // Adapter

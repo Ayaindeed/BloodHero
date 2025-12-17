@@ -92,4 +92,9 @@
     <!-- Card Background for consistency -->
     <color name="card_background">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
+    
+    <!-- ZXing Scanner Colors -->
+    <color name="zxing_custom_possible_result_points">#C0FFBD</color>
+    <color name="zxing_custom_result_view">#B0000000</color>
+    <color name="zxing_custom_viewfinder_mask">#60000000</color>
 </resources>

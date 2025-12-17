@@ -128,13 +128,14 @@ public class UserRepository {
     }
     
     /**
-     * Increment donation count
+     * Increment donation count and update last donation date
      */
     public boolean incrementDonations(String userId, int points) {
         User user = dbHelper.getUserById(userId);
         if (user != null) {
             user.setTotalDonations(user.getTotalDonations() + 1);
             user.setTotalPoints(user.getTotalPoints() + points);
+            user.setLastDonationDate(System.currentTimeMillis()); // Track donation date
             return dbHelper.updateUser(user) > 0;
         }
         return false;

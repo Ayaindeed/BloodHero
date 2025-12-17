@@ -57,6 +57,13 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
         loadAppointments();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload appointments when returning to activity
+        loadAppointments();
+    }
+
     private void initViews() {
         btnBack = findViewById(R.id.btnBack);
         tabLayout = findViewById(R.id.tabLayout);
@@ -142,10 +149,10 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 filter = "SCHEDULED";
                 break;
             case 1:
-                filter = "COMPLETED";
+                filter = "CONFIRMED";
                 break;
             case 2:
-                filter = "CANCELLED";
+                filter = "COMPLETED";
                 break;
             default:
                 filter = null; // Show all
@@ -167,9 +174,18 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 .setTitle("Confirm Appointment")
                 .setMessage("Confirm appointment for " + appointmentDisplay.donorName + "?")
                 .setPositiveButton("Confirm", (dialog, which) -> {
-                    // Update in SQLite
-                    appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.COMPLETED);
-                    appointmentDisplay.status = "COMPLETED";
+                    // Update in SQLite - set to CONFIRMED, not COMPLETED
+                    appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.CONFIRMED);
+                    appointmentDisplay.status = "CONFIRMED";
+                    
+                    // Update the appointment in allAppointments list
+                    for (AppointmentDisplay appt : allAppointments) {
+                        if (appt.id.equals(appointmentDisplay.id)) {
+                            appt.status = "CONFIRMED";
+                            break;
+                        }
+                    }
+                    
                     filterAppointments(tabLayout.getSelectedTabPosition());
                     Toast.makeText(this, "Appointment confirmed", Toast.LENGTH_SHORT).show();
                 })
@@ -206,6 +222,15 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                     }
                     
                     appointmentDisplay.status = "COMPLETED";
+                    
+                    // Update the appointment in allAppointments list
+                    for (AppointmentDisplay appt : allAppointments) {
+                        if (appt.id.equals(appointmentDisplay.id)) {
+                            appt.status = "COMPLETED";
+                            break;
+                        }
+                    }
+                    
                     filterAppointments(tabLayout.getSelectedTabPosition());
                     Toast.makeText(this, "Donation marked as completed! " + appointmentDisplay.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
                 })
@@ -313,6 +338,15 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                             // Reject logic
                             appointmentRepository.updateStatus(appointment.id, Appointment.Status.CANCELLED);
                             appointment.status = "CANCELLED";
+                            
+                            // Update the appointment in allAppointments list
+                            for (AppointmentDisplay appt : allAppointments) {
+                                if (appt.id.equals(appointment.id)) {
+                                    appt.status = "CANCELLED";
+                                    break;
+                                }
+                            }
+                            
                             filterAppointments(tabLayout.getSelectedTabPosition());
                             Toast.makeText(itemView.getContext(), "Appointment rejected", Toast.LENGTH_SHORT).show();
                         });

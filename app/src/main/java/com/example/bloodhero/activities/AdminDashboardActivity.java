@@ -16,14 +16,18 @@ import com.example.bloodhero.R;
 import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.repository.DonationRepository;
 import com.example.bloodhero.repository.UserRepository;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
     private static final String PREFS_NAME = "BloodHeroPrefs";
     
-    private ImageButton btnLogout, btnSettings;
-    private CardView cardAppointments, cardUsers, cardDonations, cardBadges, cardCampaigns, cardReports;
-    private TextView tvTotalUsers, tvPendingAppointments, tvTotalDonations;
+    private ImageButton btnBack, btnSettings, btnLogout;
+    private CardView cardAppointments, cardUsers, cardDonations, cardBadges, cardAnalytics;
+    private TextView tvTotalUsers, tvPendingAppointments, tvTotalDonations, tvLivesSaved;
+    private FloatingActionButton fabQRScanner;
     
     private UserRepository userRepository;
     private AppointmentRepository appointmentRepository;
@@ -51,24 +55,31 @@ public class AdminDashboardActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        btnBack = findViewById(R.id.btnBack);
         btnLogout = findViewById(R.id.btnLogout);
         btnSettings = findViewById(R.id.btnSettings);
         cardAppointments = findViewById(R.id.cardAppointments);
         cardUsers = findViewById(R.id.cardUsers);
         cardDonations = findViewById(R.id.cardDonations);
         cardBadges = findViewById(R.id.cardBadges);
-        cardCampaigns = findViewById(R.id.cardCampaigns);
-        cardReports = findViewById(R.id.cardReports);
+        cardAnalytics = findViewById(R.id.cardAnalytics);
         tvTotalUsers = findViewById(R.id.tvTotalUsers);
         tvPendingAppointments = findViewById(R.id.tvPendingAppointments);
         tvTotalDonations = findViewById(R.id.tvTotalDonations);
+        tvLivesSaved = findViewById(R.id.tvLivesSaved);
+        fabQRScanner = findViewById(R.id.fabQRScanner);
     }
 
     private void setupListeners() {
+        btnBack.setOnClickListener(v -> onBackPressed());
         btnLogout.setOnClickListener(v -> showLogoutConfirmation());
         
         btnSettings.setOnClickListener(v -> {
             startActivity(new Intent(this, SettingsActivity.class));
+        });
+        
+        fabQRScanner.setOnClickListener(v -> {
+            startActivity(new Intent(this, QRScannerActivity.class));
         });
 
         cardAppointments.setOnClickListener(v -> {
@@ -87,22 +98,29 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(new Intent(this, AdminBadgesActivity.class));
         });
 
-        cardCampaigns.setOnClickListener(v -> {
-            Toast.makeText(this, "Campaigns management coming soon!", Toast.LENGTH_SHORT).show();
-        });
-
-        cardReports.setOnClickListener(v -> {
+        cardAnalytics.setOnClickListener(v -> {
             startActivity(new Intent(this, AdminAnalyticsActivity.class));
         });
     }
 
     private void loadStats() {
-        // Get actual registered users count from SQLite (exclude admin)
-        int userCount = userRepository.getAllUsers().size();
-        tvTotalUsers.setText(String.valueOf(Math.max(userCount - 1, 0))); // Exclude admin
+        // Force fresh data from database by getting new instances
+        List<com.example.bloodhero.models.User> allUsers = userRepository.getAllUsers();
         
-        // Get real pending appointments count (SCHEDULED status)
-        int pendingCount = appointmentRepository.getAppointmentsByStatus("SCHEDULED").size();
+        // Get actual registered users count from SQLite (exclude admin)
+        int userCount = 0;
+        for (com.example.bloodhero.models.User user : allUsers) {
+            // Count only non-admin users (admin email is admin@bloodhero.com)
+            if (user.getEmail() != null && !user.getEmail().equalsIgnoreCase("admin@bloodhero.com")) {
+                userCount++;
+            }
+        }
+        tvTotalUsers.setText(String.valueOf(userCount));
+        
+        // Get real pending appointments count (SCHEDULED + CONFIRMED status)
+        int scheduledCount = appointmentRepository.getAppointmentsByStatus("SCHEDULED").size();
+        int confirmedCount = appointmentRepository.getAppointmentsByStatus("CONFIRMED").size();
+        int pendingCount = scheduledCount + confirmedCount;
         tvPendingAppointments.setText(String.valueOf(pendingCount));
         
         // Get real donations count from SQLite
@@ -112,6 +130,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             donationsCount += user.getTotalDonations();
         }
         tvTotalDonations.setText(String.valueOf(donationsCount));
+        
+        // Get total badges count (simplified - showing donation count for now)
+        tvLivesSaved.setText(String.valueOf(donationsCount));
     }
     
     private void showLogoutConfirmation() {

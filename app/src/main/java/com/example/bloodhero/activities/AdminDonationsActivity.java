@@ -51,6 +51,13 @@ public class AdminDonationsActivity extends AppCompatActivity {
         loadPendingDonations();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload donations when returning to activity
+        loadPendingDonations();
+    }
+
     private void initViews() {
         btnBack = findViewById(R.id.btnBack);
         rvDonations = findViewById(R.id.rvDonations);

@@ -86,7 +86,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:text="John Doe"
-                        android:textColor="@color/header_text_primary"
+                        android:textColor="@color/text_primary"
                         android:textSize="22sp"
                         android:fontFamily="sans-serif-bold" />
 
@@ -96,7 +96,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="john.doe@email.com"
-                        android:textColor="@color/header_text_secondary"
+                        android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
 
                     <!-- Blood Type Badge -->
