@@ -19,8 +19,12 @@ import com.example.bloodhero.activities.DonationHistoryActivity;
 import com.example.bloodhero.activities.MyAppointmentsActivity;
 import com.example.bloodhero.activities.ProfileActivity;
 import com.example.bloodhero.activities.RewardsActivity;
+import com.example.bloodhero.models.Appointment;
 import com.example.bloodhero.models.User;
+import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.utils.UserHelper;
+
+import java.util.List;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 
@@ -110,8 +114,54 @@ public class HomeActivity extends AppCompatActivity {
         tvTotalPoints.setText(String.valueOf(totalPoints));
         tvLivesSaved.setText(String.valueOf(livesSaved));
         
+        // Update schedule button based on appointments
+        updateScheduleButton();
+        
         // Load profile image
         loadProfileImage();
+    }
+    
+    private void updateScheduleButton() {
+        // Check for next scheduled or confirmed appointment
+        AppointmentRepository appointmentRepo = AppointmentRepository.getInstance(this);
+        List<Appointment> allAppointments = appointmentRepo.getAppointmentsByUserId(currentUser.getId());
+        
+        Appointment nextAppointment = null;
+        for (Appointment appt : allAppointments) {
+            if (appt.getStatus() == Appointment.Status.SCHEDULED || appt.getStatus() == Appointment.Status.CONFIRMED) {
+                nextAppointment = appt;
+                break;
+            }
+        }
+        
+        if (nextAppointment != null) {
+            // Calculate time until appointment
+            try {
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault());
+                java.util.Date appointmentDate = sdf.parse(nextAppointment.getDate());
+                if (appointmentDate != null) {
+                    long diff = appointmentDate.getTime() - System.currentTimeMillis();
+                    long days = diff / (1000 * 60 * 60 * 24);
+                    long hours = (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60);
+                    
+                    if (days > 0) {
+                        btnScheduleAppointment.setText(days + " day" + (days == 1 ? "" : "s") + " until appointment");
+                    } else if (hours > 0) {
+                        btnScheduleAppointment.setText(hours + " hour" + (hours == 1 ? "" : "s") + " until appointment");
+                    } else {
+                        btnScheduleAppointment.setText("Appointment Today!");
+                    }
+                    btnScheduleAppointment.setEnabled(false);
+                    return;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
+        // Default text if no appointment
+        btnScheduleAppointment.setText("Schedule New Appointment");
+        btnScheduleAppointment.setEnabled(true);
     }
     
     private void loadProfileImage() {

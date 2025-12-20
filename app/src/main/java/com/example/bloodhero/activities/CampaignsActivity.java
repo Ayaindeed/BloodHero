@@ -132,94 +132,94 @@ public class CampaignsActivity extends AppCompatActivity {
 
         // CASABLANCA Campaigns
         allCampaigns.add(new Campaign("c1", "Hôpital Cheikh Khalifa", "Fondation Cheikh Khalifa",
-                "Route de Nouaceur, Casablanca", "January 18, 2025", "8:00 AM - 4:00 PM", 2.5,
+                "Route de Nouaceur, Casablanca", "December 18, 2025", "8:00 AM - 4:00 PM", 2.5,
                 Arrays.asList("O+", "O-", "A-"), "Besoin urgent de sang type O. Sans rendez-vous accepté!"));
         
         allCampaigns.add(new Campaign("c2", "CHU Ibn Rochd", "Ministère de la Santé",
-                "Quartier des Hôpitaux, Casablanca", "January 20, 2025", "9:00 AM - 5:00 PM", 3.2,
+                "Quartier des Hôpitaux, Casablanca", "December 20, 2025", "9:00 AM - 5:00 PM", 3.2,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte hebdomadaire - tous les groupes bienvenus."));
         
         allCampaigns.add(new Campaign("c3", "Morocco Mall", "Croissant Rouge Marocain",
-                "Morocco Mall, Casablanca", "January 22, 2025", "10:00 AM - 8:00 PM", 5.0,
+                "Morocco Mall, Casablanca", "December 22, 2025", "10:00 AM - 8:00 PM", 5.0,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Journée de don de sang au centre commercial."));
         
         allCampaigns.add(new Campaign("c4", "Clinique Badr", "Groupe Akdital",
-                "Boulevard Zerktouni, Casablanca", "January 25, 2025", "8:00 AM - 3:00 PM", 4.1,
+                "Boulevard Zerktouni, Casablanca", "December 25, 2025", "8:00 AM - 3:00 PM", 4.1,
                 Arrays.asList("B-", "O-"), "URGENT: Besoin de groupes négatifs."));
 
         // RABAT Campaigns
         allCampaigns.add(new Campaign("r1", "Centre de Transfusion Sanguine", "CHU Ibn Sina",
-                "Avenue Mohamed V, Rabat", "January 15, 2025", "9:00 AM - 5:00 PM", 1.5,
+                "Avenue Mohamed V, Rabat", "December 19, 2025", "9:00 AM - 5:00 PM", 1.5,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte mensuelle de sang."));
         
         allCampaigns.add(new Campaign("r2", "Université Mohammed V", "Faculté de Médecine",
-                "Avenue Allal El Fassi, Rabat", "January 20, 2025", "10:00 AM - 6:00 PM", 3.8,
+                "Avenue Allal El Fassi, Rabat", "December 23, 2025", "10:00 AM - 6:00 PM", 3.8,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte annuelle universitaire."));
         
         allCampaigns.add(new Campaign("r3", "Hôpital Militaire", "Forces Armées Royales",
-                "Avenue des FAR, Rabat", "January 23, 2025", "7:00 AM - 4:00 PM", 2.2,
+                "Avenue des FAR, Rabat", "December 26, 2025", "7:00 AM - 4:00 PM", 2.2,
                 Arrays.asList("O-", "O+", "A-"), "Don de sang pour les forces armées."));
         
         allCampaigns.add(new Campaign("r4", "Mega Mall Rabat", "Association des Donneurs",
-                "Route de Témara, Rabat", "January 27, 2025", "11:00 AM - 7:00 PM", 6.5,
+                "Route de Témara, Rabat", "December 30, 2025", "11:00 AM - 7:00 PM", 6.5,
                 Arrays.asList("A+", "B+", "O+"), "Campagne de sensibilisation au don."));
 
         // MARRAKECH Campaigns
         allCampaigns.add(new Campaign("m1", "Centre Régional de Transfusion", "Ministère de la Santé",
-                "Boulevard Zerktouni, Marrakech", "January 22, 2025", "9:00 AM - 3:00 PM", 2.0,
+                "Boulevard Zerktouni, Marrakech", "December 22, 2025", "9:00 AM - 3:00 PM", 2.0,
                 Arrays.asList("B-", "AB-", "O-"), "Journée nationale du don de sang."));
         
         allCampaigns.add(new Campaign("m2", "CHU Mohammed VI", "Université Cadi Ayyad",
-                "Avenue Ibn Sina, Marrakech", "January 24, 2025", "8:00 AM - 5:00 PM", 3.5,
+                "Avenue Ibn Sina, Marrakech", "December 24, 2025", "8:00 AM - 5:00 PM", 3.5,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Collecte universitaire."));
         
         allCampaigns.add(new Campaign("m3", "Menara Mall", "Croissant Rouge",
-                "Avenue Mohammed VI, Marrakech", "January 26, 2025", "10:00 AM - 8:00 PM", 4.2,
+                "Avenue Mohammed VI, Marrakech", "December 28, 2025", "10:00 AM - 8:00 PM", 4.2,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Campagne de sensibilisation."));
 
         // TANGER Campaigns
         allCampaigns.add(new Campaign("t1", "Clinique Internationale", "Groupe Akdital",
-                "Avenue Hassan II, Tanger", "January 25, 2025", "11:00 AM - 7:00 PM", 2.8,
+                "Avenue Hassan II, Tanger", "December 25, 2025", "11:00 AM - 7:00 PM", 2.8,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Don de sang lors de la foire."));
         
         allCampaigns.add(new Campaign("t2", "Hôpital Mohammed V", "Ministère de la Santé",
-                "Avenue Moulay Ismail, Tanger", "January 28, 2025", "8:00 AM - 4:00 PM", 1.9,
+                "Avenue Moulay Ismail, Tanger", "December 29, 2025", "8:00 AM - 4:00 PM", 1.9,
                 Arrays.asList("O+", "O-", "A+"), "Collecte hebdomadaire."));
         
         allCampaigns.add(new Campaign("t3", "Tanger City Mall", "Association Sang pour Tous",
-                "Route de Rabat, Tanger", "January 30, 2025", "10:00 AM - 6:00 PM", 5.5,
+                "Route de Rabat, Tanger", "January 2, 2026", "10:00 AM - 6:00 PM", 5.5,
                 Arrays.asList("A+", "B+", "O+", "AB+"), "Journée portes ouvertes."));
 
         // FES Campaigns
         allCampaigns.add(new Campaign("f1", "CHU Hassan II", "Université Sidi Mohammed Ben Abdellah",
-                "Route Sidi Harazem, Fès", "January 19, 2025", "8:00 AM - 4:00 PM", 2.3,
+                "Route Sidi Harazem, Fès", "December 19, 2025", "8:00 AM - 4:00 PM", 2.3,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte régionale."));
         
         allCampaigns.add(new Campaign("f2", "Borj Fez Mall", "Croissant Rouge Marocain",
-                "Route de Meknès, Fès", "January 21, 2025", "10:00 AM - 7:00 PM", 4.8,
+                "Route de Meknès, Fès", "December 21, 2025", "10:00 AM - 7:00 PM", 4.8,
                 Arrays.asList("O+", "O-", "A-", "B-"), "URGENT: Groupes négatifs recherchés."));
 
         // MEKNES Campaigns
         allCampaigns.add(new Campaign("mk1", "Hôpital Mohammed V", "Ministère de la Santé",
-                "Avenue des FAR, Meknès", "January 27, 2025", "7:00 AM - 3:00 PM", 1.5,
+                "Avenue des FAR, Meknès", "December 27, 2025", "7:00 AM - 3:00 PM", 1.5,
                 Arrays.asList("O-", "O+"), "URGENT: Pénurie critique de sang type O."));
         
         allCampaigns.add(new Campaign("mk2", "Faculté de Médecine", "Université Moulay Ismail",
-                "Marjane, Meknès", "January 29, 2025", "9:00 AM - 5:00 PM", 3.0,
+                "Marjane, Meknès", "December 31, 2025", "9:00 AM - 5:00 PM", 3.0,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte étudiante."));
 
         // AGADIR Campaigns
         allCampaigns.add(new Campaign("a1", "CHU Agadir", "Ministère de la Santé",
-                "Avenue Hassan II, Agadir", "January 20, 2025", "8:00 AM - 4:00 PM", 2.1,
+                "Avenue Hassan II, Agadir", "December 20, 2025", "8:00 AM - 4:00 PM", 2.1,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Collecte hebdomadaire."));
         
         allCampaigns.add(new Campaign("a2", "Marina Shopping", "Croissant Rouge",
-                "Marina d'Agadir", "January 23, 2025", "10:00 AM - 6:00 PM", 3.5,
+                "Marina d'Agadir", "December 24, 2025", "10:00 AM - 6:00 PM", 3.5,
                 Arrays.asList("A+", "B+", "O+"), "Campagne touristique de don."));
 
         // OUJDA Campaigns
         allCampaigns.add(new Campaign("o1", "CHU Mohammed VI Oujda", "Université Mohammed Premier",
-                "Route de Sidi Yahya, Oujda", "January 22, 2025", "8:00 AM - 3:00 PM", 2.0,
+                "Route de Sidi Yahya, Oujda", "December 22, 2025", "8:00 AM - 3:00 PM", 2.0,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte régionale."));
     }
 

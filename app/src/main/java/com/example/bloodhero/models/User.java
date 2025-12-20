@@ -8,6 +8,9 @@ public class User {
     private String bloodType;
     private String location;
     private String phoneNumber;
+    private String dateOfBirth;
+    private String gender;
+    private Double weight; // in kg
     private int totalDonations;
     private int totalPoints;
     private String profileImageUrl;
@@ -26,7 +29,7 @@ public class User {
         this.createdAt = System.currentTimeMillis();
     }
 
-    // Getters and Setters
+    // Getters and Setters  
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -47,6 +50,15 @@ public class User {
 
     public String getPhoneNumber() { return phoneNumber; }
     public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
+    public String getDateOfBirth() { return dateOfBirth; }
+    public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
+
+    public Double getWeight() { return weight; }
+    public void setWeight(Double weight) { this.weight = weight; }
 
     public int getTotalDonations() { return totalDonations; }
     public void setTotalDonations(int totalDonations) { this.totalDonations = totalDonations; }

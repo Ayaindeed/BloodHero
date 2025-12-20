@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -35,9 +34,9 @@ public class ProfileActivity extends AppCompatActivity {
     private CircleImageView ivProfilePhoto;
     private TextView tvUserName, tvUserEmail, tvBloodType;
     private TextView tvDonations, tvPoints, tvBadges;
-    private LinearLayout menuEditProfile, menuNotifications, menuHelp, menuAdmin;
+    private LinearLayout menuEditProfile, menuAppointments, menuNotifications, menuLocation, menuHelp, menuAdmin;
     private View cardAdmin;
-    private Button btnLogout;
+    private LinearLayout btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +63,9 @@ public class ProfileActivity extends AppCompatActivity {
         tvPoints = findViewById(R.id.tvPoints);
         tvBadges = findViewById(R.id.tvBadges);
         menuEditProfile = findViewById(R.id.menuEditProfile);
+        menuAppointments = findViewById(R.id.menuAppointments);
         menuNotifications = findViewById(R.id.menuNotifications);
+        menuLocation = findViewById(R.id.menuLocation);
         menuHelp = findViewById(R.id.menuHelp);
         menuAdmin = findViewById(R.id.menuAdmin);
         cardAdmin = findViewById(R.id.cardAdmin);
@@ -149,8 +150,16 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        menuAppointments.setOnClickListener(v -> {
+            startActivity(new Intent(this, MyAppointmentsActivity.class));
+        });
+
         menuNotifications.setOnClickListener(v -> {
             startActivity(new Intent(this, NotificationSettingsActivity.class));
+        });
+
+        menuLocation.setOnClickListener(v -> {
+            startActivity(new Intent(this, CampaignsActivity.class));
         });
 
         menuHelp.setOnClickListener(v -> {

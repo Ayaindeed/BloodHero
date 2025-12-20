@@ -41,6 +41,13 @@ public class DonationRepository {
     }
 
     /**
+     * Get all donations (admin view)
+     */
+    public List<Donation> getAllDonations() {
+        return dbHelper.getAllDonations();
+    }
+
+    /**
      * Get donation count for a user
      */
     public int getDonationCount(String userId) {

@@ -50,7 +50,7 @@
         android:layout_margin="16dp"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/success_light">
+        app:cardBackgroundColor="@color/card_background">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -101,7 +101,7 @@
                 android:layout_height="wrap_content"
                 android:text="Show All"
                 android:textSize="12sp"
-                app:chipBackgroundColor="@android:color/white"
+                app:chipBackgroundColor="@color/surface"
                 app:checkedIconVisible="false"
                 style="@style/Widget.Material3.Chip.Filter" />
 

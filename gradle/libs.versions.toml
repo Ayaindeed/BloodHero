@@ -21,6 +21,8 @@ mpandroidchart = "v3.1.0"
 flexbox = "3.0.0"
 zxing = "3.5.3"
 zxingembedded = "4.3.0"
+playservicesauth = "21.2.0"
+localbroadcastmanager = "1.1.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -44,6 +46,8 @@ mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", versio
 flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 zxing-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxingembedded" }
+playservices-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playservicesauth" }
+localbroadcastmanager = { group = "androidx.localbroadcastmanager", name = "localbroadcastmanager", version.ref = "localbroadcastmanager" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

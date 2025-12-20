@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -157,6 +158,7 @@ public class AdminUsersActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvName, tvEmail, tvBloodType, tvDonations, tvVerified;
+            ImageButton btnDelete;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -165,6 +167,7 @@ public class AdminUsersActivity extends AppCompatActivity {
                 tvBloodType = itemView.findViewById(R.id.tvBloodType);
                 tvDonations = itemView.findViewById(R.id.tvDonations);
                 tvVerified = itemView.findViewById(R.id.tvVerified);
+                btnDelete = itemView.findViewById(R.id.btnDelete);
             }
 
             void bind(User user) {
@@ -173,7 +176,34 @@ public class AdminUsersActivity extends AppCompatActivity {
                 tvBloodType.setText(user.getBloodType() != null ? user.getBloodType() : "--");
                 tvDonations.setText(user.getTotalDonations() + " donations");
                 tvVerified.setVisibility(View.GONE); // Remove verified badge
+                
+                // Delete button click
+                btnDelete.setOnClickListener(v -> showDeleteConfirmation(user));
             }
+        }
+    }
+    
+    private void showDeleteConfirmation(User user) {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Delete User")
+                .setMessage("Are you sure you want to delete " + user.getName() + "?\n\nThis will permanently remove the user and all their data.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    deleteUser(user);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    
+    private void deleteUser(User user) {
+        // Delete from database
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int rowsDeleted = db.delete("users", "id = ?", new String[]{user.getId()});
+        
+        if (rowsDeleted > 0) {
+            android.widget.Toast.makeText(this, user.getName() + " deleted successfully", android.widget.Toast.LENGTH_SHORT).show();
+            loadUsers(); // Reload the list
+        } else {
+            android.widget.Toast.makeText(this, "Failed to delete user", android.widget.Toast.LENGTH_SHORT).show();
         }
     }
 }

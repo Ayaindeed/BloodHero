@@ -88,6 +88,27 @@ public class AppointmentRepository {
     }
     
     /**
+     * Assign appointment to bed
+     */
+    public boolean assignToBed(String appointmentId, int bedNumber) {
+        return dbHelper.assignAppointmentToBed(appointmentId, bedNumber) > 0;
+    }
+    
+    /**
+     * Set appointment to pending verification with code
+     */
+    public boolean setPendingVerification(String appointmentId, String verificationCode) {
+        return dbHelper.setAppointmentPendingVerification(appointmentId, verificationCode) > 0;
+    }
+    
+    /**
+     * Get appointments by status
+     */
+    public List<Appointment> getAppointmentsByStatus(Appointment.Status status) {
+        return dbHelper.getAppointmentsByStatus(status);
+    }
+    
+    /**
      * Update entire appointment object
      */
     public boolean updateAppointment(Appointment appointment) {

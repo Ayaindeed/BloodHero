@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
 import com.example.bloodhero.adapters.LeaderboardAdapter;
+import com.example.bloodhero.database.BloodHeroDatabaseHelper;
 import com.example.bloodhero.models.LeaderboardEntry;
 import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.UserRepository;
@@ -31,6 +32,7 @@ public class LeaderboardActivity extends AppCompatActivity {
     private LeaderboardAdapter leaderboardAdapter;
     private List<LeaderboardEntry> leaderboardList;
     private UserRepository userRepository;
+    private BloodHeroDatabaseHelper dbHelper;
     private User currentUser;
 
     @Override
@@ -39,6 +41,7 @@ public class LeaderboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_leaderboard);
 
         userRepository = UserRepository.getInstance(this);
+        dbHelper = BloodHeroDatabaseHelper.getInstance(this);
         currentUser = UserHelper.getCurrentUser(this);
         
         initViews();
@@ -62,35 +65,31 @@ public class LeaderboardActivity extends AppCompatActivity {
     }
 
     private void loadLeaderboard() {
-        // Load ALL users from SQLite and sort by points
-        List<User> allUsers = userRepository.getAllUsers();
+        // Update leaderboard cache from latest user data
+        dbHelper.updateLeaderboardCache();
         
-        // Sort by points descending
-        Collections.sort(allUsers, (a, b) -> Integer.compare(b.getPoints(), a.getPoints()));
+        // Load from cache (much faster than sorting all users)
+        leaderboardList = dbHelper.getLeaderboard(100); // Top 100
         
-        leaderboardList = new ArrayList<>();
         int userRank = 0;
         String userName = "You";
         int userPoints = 0;
         int userDonations = 0;
         
-        for (int i = 0; i < allUsers.size(); i++) {
-            User user = allUsers.get(i);
-            // Skip admin users from leaderboard
-            if ("admin@contact.me".equals(user.getEmail())) continue;
+        // Find current user in leaderboard
+        if (currentUser != null) {
+            userRank = dbHelper.getUserRank(currentUser.getId());
+            userName = currentUser.getName();
+            userPoints = currentUser.getPoints();
+            userDonations = currentUser.getTotalDonations();
             
-            LeaderboardEntry entry = new LeaderboardEntry(
-                leaderboardList.size() + 1, user.getId(), user.getName(), user.getBloodType(), 
-                user.getPoints(), user.getTotalDonations());
-            
-            if (currentUser != null && user.getId().equals(currentUser.getId())) {
-                entry.setCurrentUser(true);
-                userRank = leaderboardList.size() + 1;
-                userName = user.getName();
-                userPoints = user.getPoints();
-                userDonations = user.getTotalDonations();
+            // Mark current user in list
+            for (LeaderboardEntry entry : leaderboardList) {
+                if (entry.getRank() == userRank) {
+                    entry.setCurrentUser(true);
+                    break;
+                }
             }
-            leaderboardList.add(entry);
         }
 
         // Set podium display with top 3 users

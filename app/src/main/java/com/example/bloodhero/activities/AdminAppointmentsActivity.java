@@ -1,5 +1,6 @@
 package com.example.bloodhero.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -80,6 +82,9 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
     private void setupTabs() {
         tabLayout.addTab(tabLayout.newTab().setText("Pending"));
         tabLayout.addTab(tabLayout.newTab().setText("Confirmed"));
+        tabLayout.addTab(tabLayout.newTab().setText("Checked In"));
+        tabLayout.addTab(tabLayout.newTab().setText("In Progress"));
+        tabLayout.addTab(tabLayout.newTab().setText("Awaiting Code"));
         tabLayout.addTab(tabLayout.newTab().setText("Completed"));
         tabLayout.addTab(tabLayout.newTab().setText("All"));
 
@@ -121,7 +126,9 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 appt.getCampaignName(),
                 formatDate(appt.getDate()),
                 appt.getTimeSlot(),
-                appt.getStatus().name()
+                appt.getStatus().name(),
+                appt.getBedNumber(),
+                appt.getVerificationCode()
             ));
         }
 
@@ -152,6 +159,15 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 filter = "CONFIRMED";
                 break;
             case 2:
+                filter = "CHECKED_IN";
+                break;
+            case 3:
+                filter = "IN_PROGRESS";
+                break;
+            case 4:
+                filter = "PENDING_VERIFICATION";
+                break;
+            case 5:
                 filter = "COMPLETED";
                 break;
             default:
@@ -178,6 +194,11 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                     appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.CONFIRMED);
                     appointmentDisplay.status = "CONFIRMED";
                     
+                    // Broadcast the update
+                    Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
+                    intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointmentDisplay.id);
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+                    
                     // Update the appointment in allAppointments list
                     for (AppointmentDisplay appt : allAppointments) {
                         if (appt.id.equals(appointmentDisplay.id)) {
@@ -200,6 +221,11 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 .setPositiveButton("Complete", (dialog, which) -> {
                     // Update appointment status in SQLite
                     appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.COMPLETED);
+                    
+                    // Broadcast the update
+                    Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
+                    intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointmentDisplay.id);
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
                     
                     // Create and save donation record in SQLite
                     User user = userRepository.getUserById(appointmentDisplay.userId);
@@ -248,9 +274,11 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
         String date;
         String time;
         String status;
+        Integer bedNumber;
+        String verificationCode;
 
         AppointmentDisplay(String id, String userId, String donorName, String bloodType, String location,
-                   String date, String time, String status) {
+                   String date, String time, String status, Integer bedNumber, String verificationCode) {
             this.id = id;
             this.userId = userId;
             this.donorName = donorName;
@@ -259,6 +287,8 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
             this.date = date;
             this.time = time;
             this.status = status;
+            this.bedNumber = bedNumber;
+            this.verificationCode = verificationCode;
         }
     }
 
@@ -315,11 +345,20 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                 // Set status color
                 int statusBg;
                 switch (appointment.status) {
+                    case "SCHEDULED":
+                        statusBg = R.drawable.bg_status_scheduled;
+                        break;
                     case "COMPLETED":
                         statusBg = R.drawable.bg_status_completed;
                         break;
                     case "CANCELLED":
+                    case "NO_SHOW":
                         statusBg = R.drawable.bg_status_pending;
+                        break;
+                    case "CHECKED_IN":
+                    case "IN_PROGRESS":
+                    case "PENDING_VERIFICATION":
+                        statusBg = R.drawable.bg_status_confirmed;
                         break;
                     default:
                         statusBg = R.drawable.bg_status_confirmed;
@@ -339,6 +378,11 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                             appointmentRepository.updateStatus(appointment.id, Appointment.Status.CANCELLED);
                             appointment.status = "CANCELLED";
                             
+                            // Broadcast the update
+                            Intent broadcastIntent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
+                            broadcastIntent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointment.id);
+                            LocalBroadcastManager.getInstance(itemView.getContext()).sendBroadcast(broadcastIntent);
+                            
                             // Update the appointment in allAppointments list
                             for (AppointmentDisplay appt : allAppointments) {
                                 if (appt.id.equals(appointment.id)) {
@@ -352,12 +396,44 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
                         });
                         break;
                     case "CONFIRMED":
-                        btnAction.setText("Mark Completed");
+                        // Confirmed - waiting for donor to scan QR
+                        btnAction.setText("View Details");
                         btnAction.setVisibility(View.VISIBLE);
                         btnSecondaryAction.setVisibility(View.GONE);
-                        btnAction.setOnClickListener(v -> markAsCompleted(appointment));
+                        btnAction.setOnClickListener(v -> 
+                            Toast.makeText(itemView.getContext(), "Waiting for donor to scan QR code at center", Toast.LENGTH_SHORT).show()
+                        );
+                        break;
+                    case "CHECKED_IN":
+                        // Checked in - ready to assign to bed
+                        btnAction.setText("Manage Beds");
+                        btnAction.setVisibility(View.VISIBLE);
+                        btnSecondaryAction.setVisibility(View.GONE);
+                        btnAction.setOnClickListener(v -> {
+                            // Navigate to Bed Management Activity
+                            Intent intent = new Intent(itemView.getContext(), BedManagementActivity.class);
+                            itemView.getContext().startActivity(intent);
+                        });
+                        break;
+                    case "IN_PROGRESS":
+                        // Currently donating
+                        btnAction.setText("Bed " + (appointment.bedNumber != null ? appointment.bedNumber : "?"));
+                        btnAction.setVisibility(View.VISIBLE);
+                        btnSecondaryAction.setVisibility(View.GONE);
+                        btnAction.setEnabled(false);
+                        break;
+                    case "PENDING_VERIFICATION":
+                        // Waiting for donor to enter code
+                        btnAction.setText("Awaiting Code Entry");
+                        btnAction.setVisibility(View.VISIBLE);
+                        btnSecondaryAction.setVisibility(View.GONE);
+                        btnAction.setEnabled(false);
                         break;
                     case "COMPLETED":
+                        btnAction.setVisibility(View.GONE);
+                        btnSecondaryAction.setVisibility(View.GONE);
+                        break;
+                    default:
                         btnAction.setVisibility(View.GONE);
                         btnSecondaryAction.setVisibility(View.GONE);
                         break;

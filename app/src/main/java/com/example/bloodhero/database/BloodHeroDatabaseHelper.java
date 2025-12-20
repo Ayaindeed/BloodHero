@@ -23,7 +23,7 @@ import java.util.List;
 public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "bloodhero.db";
-    private static final int DATABASE_VERSION = 3; // Incremented for lastDonationDate column
+    private static final int DATABASE_VERSION = 7; // Added checked_in_at column to appointments
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -32,6 +32,10 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_APPOINTMENTS = "appointments";
     private static final String TABLE_BADGES = "badges";
     private static final String TABLE_USER_BADGES = "user_badges";
+    private static final String TABLE_BLOOD_REQUESTS = "blood_requests";
+    private static final String TABLE_REWARDS = "rewards";
+    private static final String TABLE_USER_REWARDS = "user_rewards";
+    private static final String TABLE_LEADERBOARD_CACHE = "leaderboard_cache";
 
     // Common Columns
     private static final String COLUMN_ID = "id";
@@ -44,6 +48,9 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_USER_BLOOD_TYPE = "blood_type";
     private static final String COLUMN_USER_LOCATION = "location";
     private static final String COLUMN_USER_PHONE = "phone";
+    private static final String COLUMN_USER_DATE_OF_BIRTH = "date_of_birth";
+    private static final String COLUMN_USER_GENDER = "gender";
+    private static final String COLUMN_USER_WEIGHT = "weight";
     private static final String COLUMN_USER_TOTAL_DONATIONS = "total_donations";
     private static final String COLUMN_USER_TOTAL_POINTS = "total_points";
     private static final String COLUMN_USER_PROFILE_IMAGE = "profile_image_url";
@@ -77,6 +84,9 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_APPOINTMENT_DATE = "date";
     private static final String COLUMN_APPOINTMENT_TIME = "time_slot";
     private static final String COLUMN_APPOINTMENT_STATUS = "status";
+    private static final String COLUMN_APPOINTMENT_VERIFICATION_CODE = "verification_code";
+    private static final String COLUMN_APPOINTMENT_BED_NUMBER = "bed_number";
+    private static final String COLUMN_APPOINTMENT_CHECKED_IN_AT = "checked_in_at";
 
     // Badges Table Columns
     private static final String COLUMN_BADGE_NAME = "name";
@@ -89,6 +99,41 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_USER_BADGE_USER_ID = "user_id";
     private static final String COLUMN_USER_BADGE_BADGE_ID = "badge_id";
     private static final String COLUMN_USER_BADGE_UNLOCKED_AT = "unlocked_at";
+
+    // Blood Requests Table Columns
+    private static final String COLUMN_BLOOD_REQUEST_PATIENT_NAME = "patient_name";
+    private static final String COLUMN_BLOOD_REQUEST_BLOOD_TYPE = "blood_type";
+    private static final String COLUMN_BLOOD_REQUEST_HOSPITAL = "hospital";
+    private static final String COLUMN_BLOOD_REQUEST_CITY = "city";
+    private static final String COLUMN_BLOOD_REQUEST_URGENCY = "urgency_level";
+    private static final String COLUMN_BLOOD_REQUEST_UNITS = "units_needed";
+    private static final String COLUMN_BLOOD_REQUEST_CONTACT = "contact_phone";
+    private static final String COLUMN_BLOOD_REQUEST_POSTED_TIME = "posted_time";
+    private static final String COLUMN_BLOOD_REQUEST_IS_ACTIVE = "is_active";
+
+    // Rewards Table Columns
+    private static final String COLUMN_REWARD_NAME = "name";
+    private static final String COLUMN_REWARD_DESCRIPTION = "description";
+    private static final String COLUMN_REWARD_PARTNER = "partner_name";
+    private static final String COLUMN_REWARD_POINTS_COST = "points_cost";
+    private static final String COLUMN_REWARD_ICON_RES = "icon_res_id";
+    private static final String COLUMN_REWARD_CATEGORY = "category";
+    private static final String COLUMN_REWARD_EXPIRY_DATE = "expiry_date";
+
+    // User Rewards (Redemptions) Table Columns
+    private static final String COLUMN_USER_REWARD_USER_ID = "user_id";
+    private static final String COLUMN_USER_REWARD_REWARD_ID = "reward_id";
+    private static final String COLUMN_USER_REWARD_REDEEMED_AT = "redeemed_at";
+    private static final String COLUMN_USER_REWARD_POINTS_SPENT = "points_spent";
+
+    // Leaderboard Cache Table Columns
+    private static final String COLUMN_LEADERBOARD_USER_ID = "user_id";
+    private static final String COLUMN_LEADERBOARD_RANK = "rank";
+    private static final String COLUMN_LEADERBOARD_USERNAME = "user_name";
+    private static final String COLUMN_LEADERBOARD_BLOOD_TYPE = "blood_type";
+    private static final String COLUMN_LEADERBOARD_TOTAL_DONATIONS = "total_donations";
+    private static final String COLUMN_LEADERBOARD_TOTAL_POINTS = "total_points";
+    private static final String COLUMN_LEADERBOARD_LAST_UPDATED = "last_updated";
 
     private static BloodHeroDatabaseHelper instance;
 
@@ -114,6 +159,9 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_USER_BLOOD_TYPE + " TEXT, " +
                 COLUMN_USER_LOCATION + " TEXT, " +
                 COLUMN_USER_PHONE + " TEXT, " +
+                COLUMN_USER_DATE_OF_BIRTH + " TEXT, " +
+                COLUMN_USER_GENDER + " TEXT, " +
+                COLUMN_USER_WEIGHT + " REAL, " +
                 COLUMN_USER_TOTAL_DONATIONS + " INTEGER DEFAULT 0, " +
                 COLUMN_USER_TOTAL_POINTS + " INTEGER DEFAULT 0, " +
                 COLUMN_USER_PROFILE_IMAGE + " TEXT, " +
@@ -161,6 +209,9 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_APPOINTMENT_DATE + " TEXT, " +
                 COLUMN_APPOINTMENT_TIME + " TEXT, " +
                 COLUMN_APPOINTMENT_STATUS + " TEXT DEFAULT 'SCHEDULED', " +
+                COLUMN_APPOINTMENT_VERIFICATION_CODE + " TEXT, " +
+                COLUMN_APPOINTMENT_BED_NUMBER + " INTEGER, " +
+                COLUMN_APPOINTMENT_CHECKED_IN_AT + " INTEGER, " +
                 COLUMN_CREATED_AT + " TEXT, " +
                 "FOREIGN KEY (" + COLUMN_APPOINTMENT_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + ")" +
                 ")";
@@ -188,10 +239,66 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
                 ")";
         db.execSQL(createUserBadgesTable);
 
+        // Create Blood Requests Table
+        String createBloodRequestsTable = "CREATE TABLE " + TABLE_BLOOD_REQUESTS + " (" +
+                COLUMN_ID + " TEXT PRIMARY KEY, " +
+                COLUMN_BLOOD_REQUEST_PATIENT_NAME + " TEXT NOT NULL, " +
+                COLUMN_BLOOD_REQUEST_BLOOD_TYPE + " TEXT NOT NULL, " +
+                COLUMN_BLOOD_REQUEST_HOSPITAL + " TEXT, " +
+                COLUMN_BLOOD_REQUEST_CITY + " TEXT, " +
+                COLUMN_BLOOD_REQUEST_URGENCY + " TEXT, " +
+                COLUMN_BLOOD_REQUEST_UNITS + " INTEGER, " +
+                COLUMN_BLOOD_REQUEST_CONTACT + " TEXT, " +
+                COLUMN_BLOOD_REQUEST_POSTED_TIME + " TEXT, " +
+                COLUMN_BLOOD_REQUEST_IS_ACTIVE + " INTEGER DEFAULT 1" +
+                ")";
+        db.execSQL(createBloodRequestsTable);
+
+        // Create Rewards Table
+        String createRewardsTable = "CREATE TABLE " + TABLE_REWARDS + " (" +
+                COLUMN_ID + " TEXT PRIMARY KEY, " +
+                COLUMN_REWARD_NAME + " TEXT NOT NULL, " +
+                COLUMN_REWARD_DESCRIPTION + " TEXT, " +
+                COLUMN_REWARD_PARTNER + " TEXT, " +
+                COLUMN_REWARD_POINTS_COST + " INTEGER, " +
+                COLUMN_REWARD_ICON_RES + " INTEGER, " +
+                COLUMN_REWARD_CATEGORY + " TEXT, " +
+                COLUMN_REWARD_EXPIRY_DATE + " TEXT" +
+                ")";
+        db.execSQL(createRewardsTable);
+
+        // Create User Rewards (Redemptions) Table
+        String createUserRewardsTable = "CREATE TABLE " + TABLE_USER_REWARDS + " (" +
+                COLUMN_USER_REWARD_USER_ID + " TEXT NOT NULL, " +
+                COLUMN_USER_REWARD_REWARD_ID + " TEXT NOT NULL, " +
+                COLUMN_USER_REWARD_REDEEMED_AT + " TEXT, " +
+                COLUMN_USER_REWARD_POINTS_SPENT + " INTEGER, " +
+                "PRIMARY KEY (" + COLUMN_USER_REWARD_USER_ID + ", " + COLUMN_USER_REWARD_REWARD_ID + "), " +
+                "FOREIGN KEY (" + COLUMN_USER_REWARD_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + "), " +
+                "FOREIGN KEY (" + COLUMN_USER_REWARD_REWARD_ID + ") REFERENCES " + TABLE_REWARDS + "(" + COLUMN_ID + ")" +
+                ")";
+        db.execSQL(createUserRewardsTable);
+
+        // Create Leaderboard Cache Table
+        String createLeaderboardCacheTable = "CREATE TABLE " + TABLE_LEADERBOARD_CACHE + " (" +
+                COLUMN_LEADERBOARD_USER_ID + " TEXT PRIMARY KEY, " +
+                COLUMN_LEADERBOARD_RANK + " INTEGER, " +
+                COLUMN_LEADERBOARD_USERNAME + " TEXT, " +
+                COLUMN_LEADERBOARD_BLOOD_TYPE + " TEXT, " +
+                COLUMN_LEADERBOARD_TOTAL_DONATIONS + " INTEGER, " +
+                COLUMN_LEADERBOARD_TOTAL_POINTS + " INTEGER, " +
+                COLUMN_LEADERBOARD_LAST_UPDATED + " INTEGER, " +
+                "FOREIGN KEY (" + COLUMN_LEADERBOARD_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + ")" +
+                ")";
+        db.execSQL(createLeaderboardCacheTable);
+
         // Create indexes for better query performance
         db.execSQL("CREATE INDEX idx_donations_user ON " + TABLE_DONATIONS + "(" + COLUMN_DONATION_USER_ID + ")");
         db.execSQL("CREATE INDEX idx_appointments_user ON " + TABLE_APPOINTMENTS + "(" + COLUMN_APPOINTMENT_USER_ID + ")");
         db.execSQL("CREATE INDEX idx_user_badges_user ON " + TABLE_USER_BADGES + "(" + COLUMN_USER_BADGE_USER_ID + ")");
+        db.execSQL("CREATE INDEX idx_blood_requests_active ON " + TABLE_BLOOD_REQUESTS + "(" + COLUMN_BLOOD_REQUEST_IS_ACTIVE + ")");
+        db.execSQL("CREATE INDEX idx_user_rewards_user ON " + TABLE_USER_REWARDS + "(" + COLUMN_USER_REWARD_USER_ID + ")");
+        db.execSQL("CREATE INDEX idx_leaderboard_rank ON " + TABLE_LEADERBOARD_CACHE + "(" + COLUMN_LEADERBOARD_RANK + ")");
     }
 
     @Override
@@ -201,6 +308,94 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
             // Add lastDonationDate column to users table if upgrading from version 2 to 3
             try {
                 db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_LAST_DONATION + " INTEGER DEFAULT 0");
+            } catch (Exception e) {
+                // Column might already exist, ignore
+                e.printStackTrace();
+            }
+        }
+        
+        if (oldVersion < 4 && newVersion >= 4) {
+            // Add verification_code and bed_number columns to appointments table
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_APPOINTMENTS + " ADD COLUMN " + COLUMN_APPOINTMENT_VERIFICATION_CODE + " TEXT");
+                db.execSQL("ALTER TABLE " + TABLE_APPOINTMENTS + " ADD COLUMN " + COLUMN_APPOINTMENT_BED_NUMBER + " INTEGER");
+            } catch (Exception e) {
+                // Columns might already exist, ignore
+                e.printStackTrace();
+            }
+        }
+        
+        if (oldVersion < 5 && newVersion >= 5) {
+            // Add date_of_birth, gender, and weight columns to users table
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_DATE_OF_BIRTH + " TEXT");
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_GENDER + " TEXT");
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_WEIGHT + " REAL");
+            } catch (Exception e) {
+                // Columns might already exist, ignore
+                e.printStackTrace();
+            }
+        }
+        
+        if (oldVersion < 6 && newVersion >= 6) {
+            // Create new tables for blood requests, rewards, and leaderboard cache
+            try {
+                // Create Blood Requests Table
+                db.execSQL("CREATE TABLE " + TABLE_BLOOD_REQUESTS + " (" +
+                        COLUMN_ID + " TEXT PRIMARY KEY, " +
+                        COLUMN_BLOOD_REQUEST_PATIENT_NAME + " TEXT NOT NULL, " +
+                        COLUMN_BLOOD_REQUEST_BLOOD_TYPE + " TEXT NOT NULL, " +
+                        COLUMN_BLOOD_REQUEST_HOSPITAL + " TEXT, " +
+                        COLUMN_BLOOD_REQUEST_CITY + " TEXT, " +
+                        COLUMN_BLOOD_REQUEST_URGENCY + " TEXT, " +
+                        COLUMN_BLOOD_REQUEST_UNITS + " INTEGER, " +
+                        COLUMN_BLOOD_REQUEST_CONTACT + " TEXT, " +
+                        COLUMN_BLOOD_REQUEST_POSTED_TIME + " TEXT, " +
+                        COLUMN_BLOOD_REQUEST_IS_ACTIVE + " INTEGER DEFAULT 1)");
+                
+                // Create Rewards Table
+                db.execSQL("CREATE TABLE " + TABLE_REWARDS + " (" +
+                        COLUMN_ID + " TEXT PRIMARY KEY, " +
+                        COLUMN_REWARD_NAME + " TEXT NOT NULL, " +
+                        COLUMN_REWARD_DESCRIPTION + " TEXT, " +
+                        COLUMN_REWARD_PARTNER + " TEXT, " +
+                        COLUMN_REWARD_POINTS_COST + " INTEGER, " +
+                        COLUMN_REWARD_ICON_RES + " INTEGER, " +
+                        COLUMN_REWARD_CATEGORY + " TEXT, " +
+                        COLUMN_REWARD_EXPIRY_DATE + " TEXT)");
+                
+                // Create User Rewards Table
+                db.execSQL("CREATE TABLE " + TABLE_USER_REWARDS + " (" +
+                        COLUMN_USER_REWARD_USER_ID + " TEXT NOT NULL, " +
+                        COLUMN_USER_REWARD_REWARD_ID + " TEXT NOT NULL, " +
+                        COLUMN_USER_REWARD_REDEEMED_AT + " TEXT, " +
+                        COLUMN_USER_REWARD_POINTS_SPENT + " INTEGER, " +
+                        "PRIMARY KEY (" + COLUMN_USER_REWARD_USER_ID + ", " + COLUMN_USER_REWARD_REWARD_ID + "))");
+                
+                // Create Leaderboard Cache Table
+                db.execSQL("CREATE TABLE " + TABLE_LEADERBOARD_CACHE + " (" +
+                        COLUMN_LEADERBOARD_USER_ID + " TEXT PRIMARY KEY, " +
+                        COLUMN_LEADERBOARD_RANK + " INTEGER, " +
+                        COLUMN_LEADERBOARD_USERNAME + " TEXT, " +
+                        COLUMN_LEADERBOARD_BLOOD_TYPE + " TEXT, " +
+                        COLUMN_LEADERBOARD_TOTAL_DONATIONS + " INTEGER, " +
+                        COLUMN_LEADERBOARD_TOTAL_POINTS + " INTEGER, " +
+                        COLUMN_LEADERBOARD_LAST_UPDATED + " INTEGER)");
+                
+                // Create indexes
+                db.execSQL("CREATE INDEX idx_blood_requests_active ON " + TABLE_BLOOD_REQUESTS + "(" + COLUMN_BLOOD_REQUEST_IS_ACTIVE + ")");
+                db.execSQL("CREATE INDEX idx_user_rewards_user ON " + TABLE_USER_REWARDS + "(" + COLUMN_USER_REWARD_USER_ID + ")");
+                db.execSQL("CREATE INDEX idx_leaderboard_rank ON " + TABLE_LEADERBOARD_CACHE + "(" + COLUMN_LEADERBOARD_RANK + ")");
+            } catch (Exception e) {
+                // Tables might already exist, ignore
+                e.printStackTrace();
+            }
+        }
+        
+        if (oldVersion < 7 && newVersion >= 7) {
+            // Add checked_in_at column to appointments table
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_APPOINTMENTS + " ADD COLUMN " + COLUMN_APPOINTMENT_CHECKED_IN_AT + " INTEGER");
             } catch (Exception e) {
                 // Column might already exist, ignore
                 e.printStackTrace();
@@ -226,6 +421,9 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_BLOOD_TYPE, user.getBloodType());
         values.put(COLUMN_USER_LOCATION, user.getLocation());
         values.put(COLUMN_USER_PHONE, user.getPhoneNumber());
+        values.put(COLUMN_USER_DATE_OF_BIRTH, user.getDateOfBirth());
+        values.put(COLUMN_USER_GENDER, user.getGender());
+        values.put(COLUMN_USER_WEIGHT, user.getWeight());
         values.put(COLUMN_USER_TOTAL_DONATIONS, user.getTotalDonations());
         values.put(COLUMN_USER_TOTAL_POINTS, user.getTotalPoints());
         values.put(COLUMN_USER_PROFILE_IMAGE, user.getProfileImageUrl());
@@ -291,10 +489,14 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
     public int updateUser(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_EMAIL, user.getEmail());
         values.put(COLUMN_USER_NAME, user.getName());
         values.put(COLUMN_USER_BLOOD_TYPE, user.getBloodType());
         values.put(COLUMN_USER_LOCATION, user.getLocation());
         values.put(COLUMN_USER_PHONE, user.getPhoneNumber());
+        values.put(COLUMN_USER_DATE_OF_BIRTH, user.getDateOfBirth());
+        values.put(COLUMN_USER_GENDER, user.getGender());
+        values.put(COLUMN_USER_WEIGHT, user.getWeight());
         values.put(COLUMN_USER_TOTAL_DONATIONS, user.getTotalDonations());
         values.put(COLUMN_USER_TOTAL_POINTS, user.getTotalPoints());
         values.put(COLUMN_USER_PROFILE_IMAGE, user.getProfileImageUrl());
@@ -320,6 +522,23 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         user.setBloodType(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_BLOOD_TYPE)));
         user.setLocation(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_LOCATION)));
         user.setPhoneNumber(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PHONE)));
+        
+        // Handle nullable fields for dateOfBirth, gender, weight
+        int dobIndex = cursor.getColumnIndex(COLUMN_USER_DATE_OF_BIRTH);
+        if (dobIndex >= 0 && !cursor.isNull(dobIndex)) {
+            user.setDateOfBirth(cursor.getString(dobIndex));
+        }
+        
+        int genderIndex = cursor.getColumnIndex(COLUMN_USER_GENDER);
+        if (genderIndex >= 0 && !cursor.isNull(genderIndex)) {
+            user.setGender(cursor.getString(genderIndex));
+        }
+        
+        int weightIndex = cursor.getColumnIndex(COLUMN_USER_WEIGHT);
+        if (weightIndex >= 0 && !cursor.isNull(weightIndex)) {
+            user.setWeight(cursor.getDouble(weightIndex));
+        }
+        
         user.setTotalDonations(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_TOTAL_DONATIONS)));
         user.setTotalPoints(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_TOTAL_POINTS)));
         user.setProfileImageUrl(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PROFILE_IMAGE)));
@@ -358,6 +577,25 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         
         Cursor cursor = db.query(TABLE_DONATIONS, null, 
                 COLUMN_DONATION_USER_ID + "=?", new String[]{userId},
+                null, null, COLUMN_DONATION_DATE + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                donations.add(cursorToDonation(cursor));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return donations;
+    }
+
+    /**
+     * Get all donations (admin view)
+     */
+    public List<Donation> getAllDonations() {
+        List<Donation> donations = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        
+        Cursor cursor = db.query(TABLE_DONATIONS, null, null, null,
                 null, null, COLUMN_DONATION_DATE + " DESC");
 
         if (cursor != null && cursor.moveToFirst()) {
@@ -510,6 +748,13 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_APPOINTMENT_DATE, appointment.getDate());
         values.put(COLUMN_APPOINTMENT_TIME, appointment.getTimeSlot());
         values.put(COLUMN_APPOINTMENT_STATUS, appointment.getStatus().name());
+        values.put(COLUMN_APPOINTMENT_VERIFICATION_CODE, appointment.getVerificationCode());
+        if (appointment.getBedNumber() != null) {
+            values.put(COLUMN_APPOINTMENT_BED_NUMBER, appointment.getBedNumber());
+        }
+        if (appointment.getCheckedInAt() != null) {
+            values.put(COLUMN_APPOINTMENT_CHECKED_IN_AT, appointment.getCheckedInAt());
+        }
         values.put(COLUMN_CREATED_AT, System.currentTimeMillis() + "");
 
         return db.insertWithOnConflict(TABLE_APPOINTMENTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -562,8 +807,73 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_APPOINTMENT_STATUS, status.name());
+        
+        // Set checked_in_at timestamp when status changes to CHECKED_IN
+        if (status == Appointment.Status.CHECKED_IN) {
+            values.put(COLUMN_APPOINTMENT_CHECKED_IN_AT, System.currentTimeMillis());
+        }
 
         return db.update(TABLE_APPOINTMENTS, values, COLUMN_ID + "=?", new String[]{appointmentId});
+    }
+
+    /**
+     * Assign appointment to bed and set status to IN_PROGRESS
+     */
+    public int assignAppointmentToBed(String appointmentId, int bedNumber) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_APPOINTMENT_STATUS, Appointment.Status.IN_PROGRESS.name());
+        values.put(COLUMN_APPOINTMENT_BED_NUMBER, bedNumber);
+
+        return db.update(TABLE_APPOINTMENTS, values, COLUMN_ID + "=?", new String[]{appointmentId});
+    }
+
+    /**
+     * Set appointment to pending verification with code
+     */
+    public int setAppointmentPendingVerification(String appointmentId, String verificationCode) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_APPOINTMENT_STATUS, Appointment.Status.PENDING_VERIFICATION.name());
+        values.put(COLUMN_APPOINTMENT_VERIFICATION_CODE, verificationCode);
+
+        return db.update(TABLE_APPOINTMENTS, values, COLUMN_ID + "=?", new String[]{appointmentId});
+    }
+
+    /**
+     * Get appointment by ID
+     */
+    public Appointment getAppointmentById(String appointmentId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_APPOINTMENTS, null, COLUMN_ID + "=?",
+                new String[]{appointmentId}, null, null, null);
+
+        Appointment appointment = null;
+        if (cursor != null && cursor.moveToFirst()) {
+            appointment = cursorToAppointment(cursor);
+            cursor.close();
+        }
+        return appointment;
+    }
+
+    /**
+     * Get appointments by status
+     */
+    public List<Appointment> getAppointmentsByStatus(Appointment.Status status) {
+        List<Appointment> appointments = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        
+        Cursor cursor = db.query(TABLE_APPOINTMENTS, null,
+                COLUMN_APPOINTMENT_STATUS + "=?", new String[]{status.name()},
+                null, null, COLUMN_APPOINTMENT_DATE + " ASC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                appointments.add(cursorToAppointment(cursor));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return appointments;
     }
 
     /**
@@ -585,6 +895,25 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_APPOINTMENT_TIME)),
                 Appointment.Status.valueOf(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_APPOINTMENT_STATUS)))
         );
+        
+        // Set verification code if present
+        int codeIdx = cursor.getColumnIndex(COLUMN_APPOINTMENT_VERIFICATION_CODE);
+        if (codeIdx != -1 && !cursor.isNull(codeIdx)) {
+            appointment.setVerificationCode(cursor.getString(codeIdx));
+        }
+        
+        // Set bed number if present
+        int bedIdx = cursor.getColumnIndex(COLUMN_APPOINTMENT_BED_NUMBER);
+        if (bedIdx != -1 && !cursor.isNull(bedIdx)) {
+            appointment.setBedNumber(cursor.getInt(bedIdx));
+        }
+        
+        // Set checked_in_at timestamp if present
+        int checkedInIdx = cursor.getColumnIndex(COLUMN_APPOINTMENT_CHECKED_IN_AT);
+        if (checkedInIdx != -1 && !cursor.isNull(checkedInIdx)) {
+            appointment.setCheckedInAt(cursor.getLong(checkedInIdx));
+        }
+        
         return appointment;
     }
 
@@ -679,5 +1008,237 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return total;
+    }
+
+    // ==================== BLOOD REQUEST CRUD OPERATIONS ====================
+
+    public long insertBloodRequest(com.example.bloodhero.models.BloodRequest request) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ID, request.getId());
+        values.put(COLUMN_BLOOD_REQUEST_PATIENT_NAME, request.getPatientName());
+        values.put(COLUMN_BLOOD_REQUEST_BLOOD_TYPE, request.getBloodType());
+        values.put(COLUMN_BLOOD_REQUEST_HOSPITAL, request.getHospital());
+        values.put(COLUMN_BLOOD_REQUEST_CITY, request.getCity());
+        values.put(COLUMN_BLOOD_REQUEST_URGENCY, request.getUrgencyLevel());
+        values.put(COLUMN_BLOOD_REQUEST_UNITS, request.getUnitsNeeded());
+        values.put(COLUMN_BLOOD_REQUEST_CONTACT, request.getContactPhone());
+        values.put(COLUMN_BLOOD_REQUEST_POSTED_TIME, request.getPostedTime());
+        values.put(COLUMN_BLOOD_REQUEST_IS_ACTIVE, request.isActive() ? 1 : 0);
+        return db.insert(TABLE_BLOOD_REQUESTS, null, values);
+    }
+
+    public List<com.example.bloodhero.models.BloodRequest> getAllBloodRequests() {
+        List<com.example.bloodhero.models.BloodRequest> requests = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_BLOOD_REQUESTS, null, null, null, null, null,
+                COLUMN_BLOOD_REQUEST_POSTED_TIME + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                requests.add(new com.example.bloodhero.models.BloodRequest(
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_PATIENT_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_BLOOD_TYPE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_HOSPITAL)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_CITY)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_URGENCY)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_UNITS)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_CONTACT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_POSTED_TIME))
+                ));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return requests;
+    }
+
+    public List<com.example.bloodhero.models.BloodRequest> getActiveBloodRequests() {
+        List<com.example.bloodhero.models.BloodRequest> requests = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_BLOOD_REQUESTS, null,
+                COLUMN_BLOOD_REQUEST_IS_ACTIVE + "=1", null, null, null,
+                COLUMN_BLOOD_REQUEST_POSTED_TIME + " DESC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                requests.add(new com.example.bloodhero.models.BloodRequest(
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_PATIENT_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_BLOOD_TYPE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_HOSPITAL)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_CITY)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_URGENCY)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_UNITS)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_CONTACT)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BLOOD_REQUEST_POSTED_TIME))
+                ));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return requests;
+    }
+
+    public int updateBloodRequestStatus(String requestId, boolean isActive) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_BLOOD_REQUEST_IS_ACTIVE, isActive ? 1 : 0);
+        return db.update(TABLE_BLOOD_REQUESTS, values, COLUMN_ID + "=?", new String[]{requestId});
+    }
+
+    // ==================== REWARD CRUD OPERATIONS ====================
+
+    public long insertReward(com.example.bloodhero.models.Reward reward) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ID, reward.getId());
+        values.put(COLUMN_REWARD_NAME, reward.getName());
+        values.put(COLUMN_REWARD_DESCRIPTION, reward.getDescription());
+        values.put(COLUMN_REWARD_PARTNER, reward.getPartnerName());
+        values.put(COLUMN_REWARD_POINTS_COST, reward.getPointsCost());
+        values.put(COLUMN_REWARD_ICON_RES, reward.getIconResId());
+        values.put(COLUMN_REWARD_CATEGORY, reward.getCategory());
+        values.put(COLUMN_REWARD_EXPIRY_DATE, reward.getExpiryDate());
+        return db.insert(TABLE_REWARDS, null, values);
+    }
+
+    public List<com.example.bloodhero.models.Reward> getAllRewards() {
+        List<com.example.bloodhero.models.Reward> rewards = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_REWARDS, null, null, null, null, null,
+                COLUMN_REWARD_POINTS_COST + " ASC");
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                rewards.add(new com.example.bloodhero.models.Reward(
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REWARD_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REWARD_DESCRIPTION)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REWARD_PARTNER)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REWARD_POINTS_COST)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REWARD_ICON_RES)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REWARD_CATEGORY))
+                ));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return rewards;
+    }
+
+    public long redeemReward(String userId, String rewardId, int pointsSpent) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_REWARD_USER_ID, userId);
+        values.put(COLUMN_USER_REWARD_REWARD_ID, rewardId);
+        values.put(COLUMN_USER_REWARD_REDEEMED_AT, String.valueOf(System.currentTimeMillis()));
+        values.put(COLUMN_USER_REWARD_POINTS_SPENT, pointsSpent);
+        return db.insert(TABLE_USER_REWARDS, null, values);
+    }
+
+    public boolean hasRedeemedReward(String userId, String rewardId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USER_REWARDS, null,
+                COLUMN_USER_REWARD_USER_ID + "=? AND " + COLUMN_USER_REWARD_REWARD_ID + "=?",
+                new String[]{userId, rewardId}, null, null, null);
+        boolean redeemed = cursor != null && cursor.getCount() > 0;
+        if (cursor != null) cursor.close();
+        return redeemed;
+    }
+
+    public List<com.example.bloodhero.models.Reward> getRedeemedRewards(String userId) {
+        List<com.example.bloodhero.models.Reward> rewards = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT r.* FROM " + TABLE_REWARDS + " r " +
+                "INNER JOIN " + TABLE_USER_REWARDS + " ur ON r." + COLUMN_ID + " = ur." + COLUMN_USER_REWARD_REWARD_ID +
+                " WHERE ur." + COLUMN_USER_REWARD_USER_ID + "=? " +
+                "ORDER BY ur." + COLUMN_USER_REWARD_REDEEMED_AT + " DESC";
+        Cursor cursor = db.rawQuery(query, new String[]{userId});
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                com.example.bloodhero.models.Reward reward = new com.example.bloodhero.models.Reward(
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REWARD_NAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REWARD_DESCRIPTION)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REWARD_PARTNER)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REWARD_POINTS_COST)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REWARD_ICON_RES)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_REWARD_CATEGORY))
+                );
+                reward.setRedeemed(true);
+                rewards.add(reward);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return rewards;
+    }
+
+    // ==================== LEADERBOARD CRUD OPERATIONS ====================
+
+    public void updateLeaderboardCache() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        
+        // Clear old cache
+        db.delete(TABLE_LEADERBOARD_CACHE, null, null);
+        
+        // Rebuild from users table
+        String query = "SELECT " + COLUMN_ID + ", " + COLUMN_USER_NAME + ", " +
+                COLUMN_USER_BLOOD_TYPE + ", " + COLUMN_USER_TOTAL_DONATIONS + ", " +
+                COLUMN_USER_TOTAL_POINTS +
+                " FROM " + TABLE_USERS +
+                " ORDER BY " + COLUMN_USER_TOTAL_POINTS + " DESC, " +
+                COLUMN_USER_TOTAL_DONATIONS + " DESC";
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int rank = 1;
+            do {
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_LEADERBOARD_USER_ID, cursor.getString(0));
+                values.put(COLUMN_LEADERBOARD_RANK, rank++);
+                values.put(COLUMN_LEADERBOARD_USERNAME, cursor.getString(1));
+                values.put(COLUMN_LEADERBOARD_BLOOD_TYPE, cursor.getString(2));
+                values.put(COLUMN_LEADERBOARD_TOTAL_DONATIONS, cursor.getInt(3));
+                values.put(COLUMN_LEADERBOARD_TOTAL_POINTS, cursor.getInt(4));
+                values.put(COLUMN_LEADERBOARD_LAST_UPDATED, System.currentTimeMillis());
+                db.insert(TABLE_LEADERBOARD_CACHE, null, values);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+    }
+
+    public List<com.example.bloodhero.models.LeaderboardEntry> getLeaderboard(int limit) {
+        List<com.example.bloodhero.models.LeaderboardEntry> entries = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_LEADERBOARD_CACHE, null, null, null, null, null,
+                COLUMN_LEADERBOARD_RANK + " ASC", String.valueOf(limit));
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                entries.add(new com.example.bloodhero.models.LeaderboardEntry(
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_LEADERBOARD_RANK)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LEADERBOARD_USERNAME)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LEADERBOARD_USERNAME)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_LEADERBOARD_TOTAL_POINTS)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_LEADERBOARD_TOTAL_DONATIONS))
+                ));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        return entries;
+    }
+
+    public int getUserRank(String userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_LEADERBOARD_CACHE,
+                new String[]{COLUMN_LEADERBOARD_RANK},
+                COLUMN_LEADERBOARD_USER_ID + "=?",
+                new String[]{userId}, null, null, null);
+        int rank = -1;
+        if (cursor != null && cursor.moveToFirst()) {
+            rank = cursor.getInt(0);
+            cursor.close();
+        }
+        return rank;
     }
 }

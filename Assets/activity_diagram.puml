@@ -67,18 +67,43 @@ endif
 :AppointmentRepository.getAppointmentsByUserId();
 
 note right
-  User donates blood at campaign location
-  (Physical donation happens offline)
+  Donor arrives at donation center
+  with QR code displayed in app
 end note
 
-partition "Admin Marks Donation Complete" {
-  :Admin opens AdminAppointmentsActivity;
-  :AppointmentRepository.getAllAppointments();
-  :Admin clicks "Mark Completed";
-  :AppointmentRepository.updateStatus(COMPLETED);
+partition "Admin Check-In Process" {
+  :Admin opens QRScannerActivity;
+  :Admin scans donor's QR code;
+  :AppointmentRepository.updateStatus(CHECKED_IN);
+  :Set checkedInAt timestamp;
+  :LocalBroadcastManager.sendBroadcast();
+  :Donor's app updates to CHECKED_IN;
+}
+
+partition "Bed Assignment" {
+  :Admin opens BedManagementActivity;
+  :Admin assigns donor to available bed;
+  :AppointmentRepository.assignToBed(bedNumber);
+  :Status = CHECKED_IN;
+}
+
+note right
+  Donor completes blood donation
+  (Physical donation happens)
+end note
+
+partition "Donation Completion" {
+  :Admin generates verification code;
+  :AppointmentRepository.setPendingVerification(code);
+  :Status = PENDING_VERIFICATION;
+  :Donor enters verification code in app;
+  :App validates code;
   :DonationRepository.saveDonation();
   :UserRepository.incrementDonations(+50 points);
+  :Status = COMPLETED;
   :All saved to SQLite database;
+  :LocalBroadcastManager syncs UI;
+  :Admin releases bed;
 }
 
 :User opens app;
@@ -100,8 +125,10 @@ endif
 note right
   All data synchronized automatically
   via SQLite - single source of truth
-  No UserStorage, no SharedPreferences
-  for user data
+  LocalBroadcastManager ensures
+  real-time UI updates across activities
+  QR scanning + verification codes
+  ensure secure donation tracking
 end note
 
 stop

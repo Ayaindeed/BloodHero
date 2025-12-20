@@ -185,6 +185,19 @@ public class ProfileSetupActivity extends AppCompatActivity {
         if (!TextUtils.isEmpty(currentUser.getEmail())) {
             etEmail.setText(currentUser.getEmail());
         }
+        if (!TextUtils.isEmpty(currentUser.getDateOfBirth())) {
+            etDateOfBirth.setText(currentUser.getDateOfBirth());
+        }
+        if (!TextUtils.isEmpty(currentUser.getGender())) {
+            if ("Male".equals(currentUser.getGender())) {
+                rbMale.setChecked(true);
+            } else if ("Female".equals(currentUser.getGender())) {
+                rbFemale.setChecked(true);
+            }
+        }
+        if (currentUser.getWeight() != null && currentUser.getWeight() > 0) {
+            etWeight.setText(String.valueOf(currentUser.getWeight()));
+        }
         
         // Pre-select blood type button
         String bloodType = currentUser.getBloodType();
@@ -422,12 +435,13 @@ public class ProfileSetupActivity extends AppCompatActivity {
         }
         
         // Validate weight - REQUIRED for blood donation safety
+        Double weight = null;
         if (TextUtils.isEmpty(weightStr)) {
             tilWeight.setError("Weight is required for blood donation eligibility");
             isValid = false;
         } else {
             try {
-                double weight = Double.parseDouble(weightStr);
+                weight = Double.parseDouble(weightStr);
                 if (weight < 50) {
                     tilWeight.setError("Sorry, minimum weight is 50kg for safe blood donation");
                     Toast.makeText(this, "Blood donors must weigh at least 50kg for safety reasons", Toast.LENGTH_LONG).show();
@@ -448,11 +462,14 @@ public class ProfileSetupActivity extends AppCompatActivity {
                 return;
             }
 
-            // Update user object
+            // Update user object with all profile fields
             currentUser.setName(name);
             currentUser.setPhoneNumber(phone);
             currentUser.setLocation(location);
             currentUser.setBloodType(selectedBloodType);
+            currentUser.setDateOfBirth(dob);
+            currentUser.setGender(gender);
+            currentUser.setWeight(weight);
 
             // Save to SQLite
             boolean success = userRepository.updateUser(currentUser);

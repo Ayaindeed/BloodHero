@@ -90,19 +90,7 @@
 
         </LinearLayout>
 
-        <!-- Action Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnMarkComplete"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:text="✓ Mark as Donated"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textAllCaps="false"
-            android:fontFamily="sans-serif-medium"
-            app:cornerRadius="24dp"
-            app:backgroundTint="@color/success" />
+        <!-- Removed "Mark as Complete" button - donations are automatically recorded when donor enters verification code -->
 
     </LinearLayout>
 

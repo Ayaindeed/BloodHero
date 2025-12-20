@@ -1,95 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors - Vibrant Blood Red Theme for Dark Mode -->
-    <color name="primary">#FF5A5A</color>
-    <color name="primary_dark">#E53935</color>
-    <color name="primary_light">#FF8A80</color>
-    <color name="primary_variant">#F44336</color>
+    <!-- Primary Colors - Vibrant Blood Red for Dark Mode (Tinder-inspired) -->
+    <color name="primary">#E85D5D</color>
+    <color name="primary_dark">#2A1616</color>
+    <color name="primary_light">#FF6B6B</color>
+    <color name="primary_variant">#D94545</color>
     
     <!-- Secondary/Accent Colors -->
-    <color name="secondary">#FF7B7B</color>
-    <color name="secondary_dark">#E57373</color>
-    <color name="secondary_light">#FFAB91</color>
+    <color name="secondary">#FF8787</color>
+    <color name="secondary_dark">#CC5555</color>
+    <color name="secondary_light">#FFABAB</color>
     
-    <!-- Background Colors - Rich dark with warm red undertones -->
-    <color name="background">#1A1A1A</color>
-    <color name="background_primary">#1A1A1A</color>
-    <color name="background_secondary">#242424</color>
-    <color name="background_card">#2A2A2A</color>
-    <color name="background_dark">#0D0D0D</color>
+    <!-- Background Colors - Rich Dark with Warm Red Undertones (Tinder style) -->
+    <color name="background">#0F0808</color>
+    <color name="background_primary">#0F0808</color>
+    <color name="background_secondary">#1A1010</color>
+    <color name="background_dark">#070404</color>
     
-    <!-- Surface Colors - Dark with subtle warmth -->
-    <color name="surface">#2A2A2A</color>
-    <color name="surface_variant">#303030</color>
-    <color name="surface_tint">#3A2626</color>
+    <!-- Surface Colors - Dark Warm Surfaces -->
+    <color name="surface">#1F1515</color>
+    <color name="surface_variant">#2A1E1E</color>
+    <color name="surface_tint">#332222</color>
     
-    <!-- Text Colors - Clean whites with good contrast -->
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B8B8B8</color>
-    <color name="text_hint">#808080</color>
-    <color name="text_disabled">#707070</color>
+    <!-- Text Colors - High Contrast Whites -->
+    <color name="text_primary">#FAFAFA</color>
+    <color name="text_secondary">#C4C4C4</color>
+    <color name="text_hint">#888888</color>
+    <color name="text_disabled">#5A5A5A</color>
     <color name="text_on_primary">#FFFFFF</color>
-    <color name="text_on_dark">#FFFFFF</color>
+    <color name="text_on_dark">#FAFAFA</color>
     <color name="header_text_primary">#FFFFFF</color>
-    <color name="header_text_secondary">#CCCCCC</color>
+    <color name="header_text_secondary">#D4D4D4</color>
     
     <!-- White with opacity -->
-    <color name="white_70">#B3F5F5F5</color>
-    <color name="white_50">#80F5F5F5</color>
-    <color name="white_30">#4DF5F5F5</color>
+    <color name="white_70">#B3FAFAFA</color>
+    <color name="white_50">#80FAFAFA</color>
+    <color name="white_30">#4DFAFAFA</color>
     
-    <!-- Status Colors - Vibrant for dark mode visibility -->
-    <color name="success">#66BB6A</color>
-    <color name="success_light">#1B3D2B</color>
-    <color name="warning">#FFB74D</color>
-    <color name="warning_light">#3D3020</color>
+    <!-- Status Colors - Vibrant and Clear -->
+    <color name="success">#5DD97C</color>
+    <color name="success_light">#2A4D35</color>
+    <color name="warning">#FFB84D</color>
+    <color name="warning_light">#3D3018</color>
     <color name="error">#FF6B6B</color>
-    <color name="error_light">#3D2323</color>
-    <color name="info">#64B5F6</color>
-    <color name="info_light">#1A2D40</color>
+    <color name="error_light">#3D1F1F</color>
+    <color name="info">#5D9CEC</color>
+    <color name="info_light">#1A2A40</color>
     
     <!-- Medal/Ranking Colors -->
-    <color name="gold">#FFD54F</color>
-    <color name="silver">#CFD8DC</color>
-    <color name="bronze">#FFAB40</color>
+    <color name="gold">#FFD966</color>
+    <color name="silver">#D9DADE</color>
+    <color name="bronze">#FFB74D</color>
     
     <!-- Badge Colors -->
-    <color name="badge_gold">#FFD54F</color>
-    <color name="badge_silver">#CFD8DC</color>
-    <color name="badge_bronze">#FFAB40</color>
-    <color name="badge_locked">#3D4550</color>
+    <color name="badge_gold">#FFD966</color>
+    <color name="badge_silver">#D9DADE</color>
+    <color name="badge_bronze">#FFB74D</color>
+    <color name="badge_locked">#3D3D3D</color>
     
-    <!-- Blood Type Colors -->
-    <color name="blood_a">#FF6B6B</color>
-    <color name="blood_b">#FF5252</color>
-    <color name="blood_ab">#EF5350</color>
-    <color name="blood_o">#E53935</color>
+    <!-- Blood Type Colors - Warm Reds -->
+    <color name="blood_a">#FF7575</color>
+    <color name="blood_b">#FF6363</color>
+    <color name="blood_ab">#FF5252</color>
+    <color name="blood_o">#E84545</color>
     
-    <!-- Gradient Colors -->
-    <color name="gradient_start">#E53935</color>
-    <color name="gradient_center">#FF5A5A</color>
-    <color name="gradient_end">#FF8A80</color>
+    <!-- Gradient Colors - Tinder-style Dark to Salmon -->
+    <color name="gradient_start">#1A0A0A</color>
+    <color name="gradient_center">#8B3D3D</color>
+    <color name="gradient_end">#E87575</color>
     
-    <!-- Divider and Border - Subtle separators with warm tone -->
-    <color name="divider">#2D2D2D</color>
-    <color name="border">#3A3A3A</color>
+    <!-- Divider and Border - Subtle Dark Warm Tones -->
+    <color name="divider">#2D2424</color>
+    <color name="border">#3D3030</color>
     
     <!-- Overlay -->
-    <color name="overlay_dark">#CC121212</color>
-    <color name="overlay_light">#20F5F5F5</color>
+    <color name="overlay_dark">#E0070404</color>
+    <color name="overlay_light">#30FAFAFA</color>
     
     <!-- Ripple -->
-    <color name="ripple_light">#40FF5A5A</color>
-    <color name="ripple_dark">#30F5F5F5</color>
+    <color name="ripple_light">#50FF6B6B</color>
+    <color name="ripple_dark">#40FAFAFA</color>
     
     <!-- Status Bar -->
-    <color name="status_bar">#0A0A0A</color>
+    <color name="status_bar">#070404</color>
     
     <!-- Navigation Bar -->
-    <color name="nav_bar_selected">#FF5A5A</color>
-    <color name="nav_bar_unselected">#6B7785</color>
+    <color name="nav_bar_selected">#FF6B6B</color>
+    <color name="nav_bar_unselected">#6A6A6A</color>
     
-    <!-- Card Background for consistency -->
-    <color name="card_background">#1E1E1E</color>
-    <color name="white">#F5F5F5</color>
+    <!-- Card Background -->
+    <color name="card_background">#1E1414</color>
+    <color name="card_background_elevated">#2A1E1E</color>
+    <color name="white">#FAFAFA</color>
 </resources>

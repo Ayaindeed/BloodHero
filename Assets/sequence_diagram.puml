@@ -1,132 +1,180 @@
-    @startuml BloodHero Appointment Booking & Admin Approval - SQLite Architecture
+@startuml BloodHero Complete Donation Flow - QR Scanning & Verification
 
-    /' Donor Booking Flow '/
-    actor "Donor" as donor
-    participant "CampaignsActivity" as ui
-    participant "AppointmentRepository" as appointmentRepo
-    participant "UserHelper" as helper
-    participant "BloodHeroDatabaseHelper" as db
-    participant "SQLiteDatabase" as sqlite
+actor "Donor" as donor
+participant "MyAppointmentsActivity" as donorUI
+participant "QRCodeGenerator" as qrGen
+participant "LocalBroadcastManager" as broadcast
 
-    == User Opens Campaigns ==
-    donor -> ui : Opens Campaigns screen
-    ui -> helper : getCurrentUser(context)
-    helper --> ui : currentUser
-    ui -> ui : loadAllCampaigns()
-    ui --> donor : Display campaign list
+actor "Admin" as admin
+participant "QRScannerActivity" as scannerUI
+participant "BedManagementActivity" as bedUI
+participant "AdminAppointmentsActivity" as adminUI
 
-    == User Selects Campaign ==
-    donor -> ui : Clicks on campaign
-    ui --> donor : Show campaign details
+participant "AppointmentRepository" as apptRepo
+participant "DonationRepository" as donationRepo
+participant "UserRepository" as userRepo
+participant "BloodHeroDatabaseHelper" as dbHelper
+participant "SQLiteDatabase" as db
 
-    == User Books Appointment ==
-    donor -> ui : Clicks "Book Now"
-    ui -> ui : showBookingDialog(campaign)
-    donor -> ui : Confirms booking
+== Donor Arrives at Center ==
+donor -> donorUI : Opens MyAppointments
+donorUI -> apptRepo : getAppointmentsByUserId(userId)
+apptRepo -> dbHelper : getAppointmentsByUserId(id)
+dbHelper -> db : SELECT * FROM appointments WHERE user_id=?
+db --> dbHelper : Cursor
+dbHelper --> apptRepo : List<Appointment>
+apptRepo --> donorUI : appointments
+donorUI -> qrGen : generateQRCode(appointmentId)
+qrGen --> donorUI : QR Code Bitmap
+donorUI --> donor : Display appointment with QR code
 
-    ui -> ui : Create Appointment object
-    note right
-    new Appointment(
-        UUID.randomUUID(),
-        currentUser.getId(),
-        campaign.getId(),
-        campaign.getName(),
-        campaign.getLocation(),
-        date, time,
-        Status.SCHEDULED
-    )
-    end note
+== Admin Scans Donor QR Code ==
+admin -> scannerUI : Opens QR Scanner
+scannerUI --> admin : Camera ready
+donor -> scannerUI : Shows QR code
+scannerUI -> scannerUI : Decode QR (appointmentId)
 
-    ui -> appointmentRepo : createAppointment(appointment)
-    appointmentRepo -> db : insertAppointment(appointment)
-    db -> sqlite : INSERT INTO appointments VALUES(...)
-    sqlite --> db : rowId
-    db --> appointmentRepo : success
-    appointmentRepo --> ui : true
+scannerUI -> apptRepo : getAppointmentById(appointmentId)
+apptRepo -> dbHelper : getAppointmentById(id)
+dbHelper -> db : SELECT * FROM appointments WHERE id=?
+db --> dbHelper : Appointment data
+dbHelper --> apptRepo : Appointment
+apptRepo --> scannerUI : appointment
 
-    ui --> donor : "Appointment booked successfully!"
-    ui -> ui : Navigate to MyAppointmentsActivity
+scannerUI -> userRepo : getUserById(userId)
+userRepo -> dbHelper : getUserById(id)
+dbHelper -> db : SELECT * FROM users WHERE id=?
+db --> dbHelper : User data
+dbHelper --> userRepo : User
+userRepo --> scannerUI : user
 
-    newpage Admin Approval Flow
+scannerUI --> admin : Show donor details
 
-    actor "Admin" as admin
-    participant "AdminAppointmentsActivity" as adminUI
-    participant "AppointmentRepository" as apptRepo
-    participant "DonationRepository" as donationRepo
-    participant "UserRepository" as userRepo
-    participant "BloodHeroDatabaseHelper" as dbHelper
-    participant "SQLiteDatabase" as db
+admin -> scannerUI : Confirms check-in
+scannerUI -> apptRepo : updateStatus(appointmentId, CHECKED_IN)
+apptRepo -> dbHelper : updateAppointmentStatus(id, CHECKED_IN)
+dbHelper -> db : UPDATE appointments SET status='CHECKED_IN',\nchecked_in_at=TIMESTAMP
+db --> dbHelper : rowsAffected
+dbHelper --> apptRepo : success
+apptRepo --> scannerUI : true
 
-    == Admin Views Appointments ==
-    admin -> adminUI : Opens Admin Appointments
-    adminUI -> apptRepo : getAllAppointments()
-    apptRepo -> dbHelper : getAllAppointments()
-    dbHelper -> db : SELECT * FROM appointments
-    db --> dbHelper : Cursor
-    dbHelper --> apptRepo : List<Appointment>
-    apptRepo --> adminUI : appointments
+scannerUI -> broadcast : sendBroadcast(APPOINTMENT_UPDATED)
+broadcast -> donorUI : onReceive(appointmentId)
+donorUI -> apptRepo : getAppointmentById(id)
+apptRepo --> donorUI : updated appointment
+donorUI --> donor : Status changed to CHECKED_IN
 
-    loop For each appointment
-    adminUI -> userRepo : getUserById(userId)
-    userRepo -> dbHelper : getUserById(id)
-    dbHelper -> db : SELECT * FROM users WHERE id=?
-    db --> dbHelper : User data
-    dbHelper --> userRepo : User
-    userRepo --> adminUI : user
-    end
+scannerUI --> admin : Check-in successful
 
-    adminUI --> admin : Display appointments with user details
+== Admin Assigns Bed ==
+admin -> bedUI : Opens Bed Management
+bedUI -> apptRepo : getAppointmentsByStatus(CHECKED_IN)
+apptRepo -> dbHelper : getAppointmentsByStatus(CHECKED_IN)
+dbHelper -> db : SELECT * FROM appointments WHERE status='CHECKED_IN'
+db --> dbHelper : Cursor
+dbHelper --> apptRepo : List<Appointment>
+apptRepo --> bedUI : checked-in appointments
+bedUI --> admin : Display available beds and waiting donors
 
-    == Admin Marks Donation Complete ==
-    admin -> adminUI : Clicks "Mark Completed"
-    adminUI -> adminUI : markAsCompleted(appointment)
+admin -> bedUI : Assigns donor to Bed 3
+bedUI -> apptRepo : assignToBed(appointmentId, 3)
+apptRepo -> dbHelper : assignAppointmentToBed(id, 3)
+dbHelper -> db : UPDATE appointments SET bed_number=3
+db --> dbHelper : rowsAffected
+dbHelper --> apptRepo : success
+apptRepo --> bedUI : true
 
-    adminUI -> apptRepo : updateStatus(appointmentId, COMPLETED)
-    apptRepo -> dbHelper : updateAppointmentStatus(id, COMPLETED)
-    dbHelper -> db : UPDATE appointments SET status='COMPLETED'
-    db --> dbHelper : rowsAffected
-    dbHelper --> apptRepo : success
-    apptRepo --> adminUI : true
+bedUI -> broadcast : sendBroadcast(APPOINTMENT_UPDATED)
+broadcast -> donorUI : onReceive(appointmentId)
+donorUI --> donor : Assigned to Bed 3
 
-    adminUI -> userRepo : getUserById(userId)
-    userRepo --> adminUI : user
+bedUI --> admin : Bed assigned successfully
 
-    adminUI -> adminUI : Create Donation object
-    note right
-    new Donation(
-        UUID.randomUUID(),
-        user.getId(),
-        campaignId,
-        location,
-        date,
-        bloodType,
-        50, // points
-        "COMPLETED"
-    )
-    end note
+note over donor, admin
+  Donor completes blood donation
+  (Physical donation process)
+end note
 
-    adminUI -> donationRepo : saveDonation(donation)
-    donationRepo -> dbHelper : insertDonation(donation)
-    dbHelper -> db : INSERT INTO donations VALUES(...)
-    db --> dbHelper : rowId
-    dbHelper --> donationRepo : success
-    donationRepo --> adminUI : true
+== Admin Generates Verification Code ==
+admin -> adminUI : Clicks "Generate Code" for donor
+adminUI -> adminUI : Generate random 6-digit code
+adminUI -> apptRepo : setPendingVerification(appointmentId, code)
+apptRepo -> dbHelper : setAppointmentPendingVerification(id, code)
+dbHelper -> db : UPDATE appointments SET\nstatus='PENDING_VERIFICATION',\nverification_code=?
+db --> dbHelper : rowsAffected
+dbHelper --> apptRepo : success
+apptRepo --> adminUI : true
 
-    adminUI -> userRepo : incrementDonations(userId, 50)
-    userRepo -> dbHelper : incrementDonations(id, 50)
-    dbHelper -> db : UPDATE users SET points=points+50,\ntotalDonations=totalDonations+1
-    db --> dbHelper : rowsAffected
-    dbHelper --> userRepo : success
-    userRepo --> adminUI : void
+adminUI -> broadcast : sendBroadcast(APPOINTMENT_UPDATED)
+broadcast -> donorUI : onReceive(appointmentId)
+donorUI --> donor : Status: PENDING_VERIFICATION\nEnter verification code
 
-    adminUI --> admin : "Donation recorded! User earned 50 points"
+adminUI --> admin : Code generated, shown to donor
 
-    note over donor, db
-    Now when donor opens app:
-    - Appointment status = COMPLETED
-    - Donation appears in history
-    - Points automatically updated
-    - All data synchronized via SQLite
-    end note
+== Donor Enters Verification Code ==
+admin -> donor : Tells verification code
+donor -> donorUI : Enters code in dialog
+donorUI -> apptRepo : getAppointmentById(appointmentId)
+apptRepo --> donorUI : appointment with verification_code
+donorUI -> donorUI : Validate code matches
 
-    @enduml
+alt Code is correct
+  donorUI -> donorUI : Create Donation object
+  note right
+  new Donation(
+      UUID.randomUUID(),
+      userId,
+      campaignId,
+      location,
+      date,
+      bloodType,
+      50,
+      "COMPLETED"
+  )
+  end note
+
+  donorUI -> donationRepo : saveDonation(donation)
+  donationRepo -> dbHelper : insertDonation(donation)
+  dbHelper -> db : INSERT INTO donations VALUES(...)
+  db --> dbHelper : rowId
+  dbHelper --> donationRepo : success
+  donationRepo --> donorUI : true
+
+  donorUI -> apptRepo : updateStatus(appointmentId, COMPLETED)
+  apptRepo -> dbHelper : updateAppointmentStatus(id, COMPLETED)
+  dbHelper -> db : UPDATE appointments SET status='COMPLETED'
+  db --> dbHelper : rowsAffected
+  dbHelper --> apptRepo : success
+  apptRepo --> donorUI : true
+
+  donorUI -> userRepo : incrementDonations(userId, 50)
+  userRepo -> dbHelper : incrementDonations(id, 50)
+  dbHelper -> db : UPDATE users SET\ntotal_points=total_points+50,\ntotal_donations=total_donations+1,\nlast_donation_date=TIMESTAMP
+  db --> dbHelper : rowsAffected
+  dbHelper --> userRepo : success
+  userRepo --> donorUI : void
+
+  donorUI -> broadcast : sendBroadcast(APPOINTMENT_UPDATED)
+  broadcast -> adminUI : onReceive(appointmentId)
+  adminUI -> bedUI : onReceive(appointmentId)
+  bedUI --> admin : Bed 3 released (auto)
+
+  donorUI -> donorUI : Reload currentUser from DB
+  donorUI --> donor : Donation Complete!\nEarned 50 points\nTotal donations updated
+
+else Code is incorrect
+  donorUI --> donor : Invalid code, try again
+end
+
+note over donor, db
+  Complete flow ensures:
+  - Real-time status updates via LocalBroadcastManager
+  - QR code for secure check-in
+  - Bed management for tracking
+  - Verification code prevents unauthorized completions
+  - Single database update atomicity
+  - No duplicate donation counting
+  - Automatic UI synchronization across all admin screens
+end note
+
+@enduml

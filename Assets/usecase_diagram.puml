@@ -45,9 +45,11 @@ rectangle "BloodHero App - SQLite Architecture" {
   
   package "Admin Operations" {
     usecase "View All Appointments\n(AppointmentRepository)" as UC20
-    usecase "Mark Donation Complete\n(Creates Donation in SQLite)" as UC21
-    usecase "Update User Points\n(UserRepository)" as UC22
-    usecase "Manage Users\n(UserRepository)" as UC23
+    usecase "Scan QR Code\n(Check-in Donor)" as UC26
+    usecase "Manage Beds\n(Assign/Release)" as UC27
+    usecase "Generate Verification Code\n(After Donation)" as UC28
+    usecase "View Donations\n(DonationRepository)" as UC21
+    usecase "Delete Users\n(UserRepository)" as UC23
     usecase "View Analytics\n(SQLite aggregates)" as UC24
     usecase "Manage Badges\n(BadgeRepository)" as UC25
   }
@@ -83,8 +85,10 @@ donor --> UC19
 ' Admin Flows
 admin --> UC2
 admin --> UC20
+admin --> UC26
+admin --> UC27
+admin --> UC28
 admin --> UC21
-admin --> UC22
 admin --> UC23
 admin --> UC24
 admin --> UC25
@@ -123,14 +127,17 @@ UC21 ..> UC12 : triggers
 UC21 ..> UC13 : may trigger
 UC12 ..> UC13 : may trigger
 
-note right of UC21
-  Critical Flow:
-  1. Admin marks appointment COMPLETED
-  2. Donation created in SQLite
-  3. User points incremented
-  4. User donation count updated
-  5. All synchronized automatically
-  6. No UserStorage, no sync issues
+note right of UC28
+  Enhanced Donation Flow:
+  1. Admin scans donor QR code (CHECKED_IN)
+  2. Donor assigned to bed
+  3. After donation, admin generates verification code
+  4. Donor enters code in app (auto-completes)
+  5. Donation created in SQLite
+  6. User points incremented (+50)
+  7. User donation count updated
+  8. LocalBroadcastManager syncs UI
+  9. All synchronized automatically
 end note
 
 note bottom of DATA4

@@ -2,10 +2,12 @@ package com.example.bloodhero.models;
 
 public class Appointment {
     public enum Status {
-        SCHEDULED,
-        CONFIRMED,
-        CHECKED_IN,
-        COMPLETED,
+        SCHEDULED,      // Initial booking
+        CONFIRMED,      // Admin confirmed
+        CHECKED_IN,     // QR code scanned at center
+        IN_PROGRESS,    // Assigned to bed, donation in progress
+        PENDING_VERIFICATION, // Donation done, awaiting code verification
+        COMPLETED,      // Code verified, donation confirmed
         CANCELLED,
         NO_SHOW
     }
@@ -20,6 +22,8 @@ public class Appointment {
     private Status status;
     private long createdAt;
     private Long checkedInAt;
+    private String verificationCode; // 4-character code for donation verification
+    private Integer bedNumber; // Bed number (1-4) when IN_PROGRESS
 
     public Appointment() {}
 
@@ -84,6 +88,12 @@ public class Appointment {
     public Long getCheckedInAt() { return checkedInAt; }
     public void setCheckedInAt(Long checkedInAt) { this.checkedInAt = checkedInAt; }
 
+    public String getVerificationCode() { return verificationCode; }
+    public void setVerificationCode(String verificationCode) { this.verificationCode = verificationCode; }
+
+    public Integer getBedNumber() { return bedNumber; }
+    public void setBedNumber(Integer bedNumber) { this.bedNumber = bedNumber; }
+
     public void cancel() {
         this.status = Status.CANCELLED;
     }
@@ -97,11 +107,33 @@ public class Appointment {
         this.status = Status.COMPLETED;
     }
 
+    public void assignToBed(int bedNumber) {
+        this.status = Status.IN_PROGRESS;
+        this.bedNumber = bedNumber;
+    }
+
+    public void setPendingVerification(String code) {
+        this.status = Status.PENDING_VERIFICATION;
+        this.verificationCode = code;
+    }
+
+    public boolean verifyCode(String enteredCode) {
+        return verificationCode != null && verificationCode.equalsIgnoreCase(enteredCode);
+    }
+
     public boolean isUpcoming() {
         return status == Status.SCHEDULED;
     }
     
     public boolean isCheckedIn() {
         return status == Status.CHECKED_IN;
+    }
+
+    public boolean isInProgress() {
+        return status == Status.IN_PROGRESS;
+    }
+
+    public boolean isPendingVerification() {
+        return status == Status.PENDING_VERIFICATION;
     }
 }

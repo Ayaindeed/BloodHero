@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors - Blood Red Theme -->
-    <color name="primary">#E31837</color>
+    <!-- Primary Colors - Blood Red Theme (Darker Red to match dark mode) -->
+    <color name="primary">#C62828</color>
     <color name="primary_dark">#B71C1C</color>
-    <color name="primary_light">#FF5252</color>
-    <color name="primary_variant">#C62828</color>
+    <color name="primary_light">#FFEBEE</color>
+    <color name="primary_variant">#D32F2F</color>
     
     <!-- Secondary/Accent Colors -->
     <color name="secondary">#FF6B6B</color>
@@ -15,7 +15,6 @@
     <color name="background">#FFFFFF</color>
     <color name="background_primary">#FFFFFF</color>
     <color name="background_secondary">#F8F9FA</color>
-    <color name="background_card">#FFFFFF</color>
     <color name="background_dark">#1A1A2E</color>
     
     <!-- Surface Colors -->
@@ -66,9 +65,9 @@
     <color name="blood_o">#B71C1C</color>
     
     <!-- Gradient Colors -->
-    <color name="gradient_start">#E31837</color>
-    <color name="gradient_center">#FF5252</color>
-    <color name="gradient_end">#FF8A80</color>
+    <color name="gradient_start">#E85555</color>
+    <color name="gradient_center">#C94444</color>
+    <color name="gradient_end">#A33535</color>
     
     <!-- Divider and Border -->
     <color name="divider">#E0E0E0</color>

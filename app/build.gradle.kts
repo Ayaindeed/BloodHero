@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -14,6 +16,20 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Load Google Client ID from local.properties
+        val properties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use { properties.load(it) }
+        }
+        
+        val googleClientId = properties.getProperty("GOOGLE_CLIENT_ID") ?: ""
+        buildConfigField("String", "GOOGLE_CLIENT_ID", "\"$googleClientId\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -69,6 +85,12 @@ dependencies {
     // QR Code Generation and Scanning
     implementation(libs.zxing.core)
     implementation(libs.zxing.embedded)
+    
+    // LocalBroadcastManager for real-time updates
+    implementation(libs.localbroadcastmanager)
+    
+    // Google Sign-In
+    implementation(libs.playservices.auth)
 
     // Testing
     testImplementation(libs.junit)

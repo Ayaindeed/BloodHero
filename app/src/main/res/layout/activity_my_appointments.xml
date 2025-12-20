@@ -63,9 +63,14 @@
     </RelativeLayout>
 
     <!-- Content -->
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp">
 
@@ -120,6 +125,7 @@
             android:id="@+id/cardAppointment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="@color/card_background"
@@ -337,7 +343,7 @@
                         android:layout_width="200dp"
                         android:layout_height="200dp"
                         android:layout_marginTop="12dp"
-                        android:background="@android:color/white"
+                        android:background="@color/card_background"
                         android:padding="8dp"
                         android:scaleType="fitCenter"
                         android:contentDescription="Appointment QR Code" />
@@ -390,6 +396,32 @@
                         android:ellipsize="end" />
 
                 </LinearLayout>
+                
+                <!-- Verification Code Button (shown when PENDING_VERIFICATION) -->
+                <Button
+                    android:id="@+id/btnEnterCode"
+                    style="@style/BloodHeroButton.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:text="Enter Verification Code"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    android:layout_marginTop="16dp" />
+
+                <!-- Check In Button (shown when CONFIRMED - for testing) -->
+                <Button
+                    android:id="@+id/btnCheckIn"
+                    style="@style/BloodHeroButton.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:text="✓ Check In Now"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    android:layout_marginTop="16dp" />
 
             </LinearLayout>
 
@@ -431,5 +463,7 @@
         </androidx.cardview.widget.CardView>
 
     </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

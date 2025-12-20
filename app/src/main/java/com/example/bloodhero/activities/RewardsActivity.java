@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bloodhero.R;
 import com.example.bloodhero.adapters.RewardAdapter;
+import com.example.bloodhero.database.BloodHeroDatabaseHelper;
 import com.example.bloodhero.models.Reward;
 import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.UserRepository;
@@ -40,6 +41,7 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
     private int userPoints;
     
     private UserRepository userRepository;
+    private BloodHeroDatabaseHelper dbHelper;
     private User currentUser;
 
     @Override
@@ -48,6 +50,7 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
         setContentView(R.layout.activity_rewards);
 
         userRepository = UserRepository.getInstance(this);
+        dbHelper = BloodHeroDatabaseHelper.getInstance(this);
         currentUser = UserHelper.getCurrentUser(this);
         
         initViews();
@@ -137,11 +140,12 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
                 "100 DH voucher for fresh produce section",
                 "Acima", 150, R.drawable.ic_gift, "shopping"));
 
-        // Check redeemed status
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        for (Reward reward : allRewards) {
-            if (prefs.getBoolean("reward_redeemed_" + reward.getId(), false)) {
-                reward.setRedeemed(true);
+        // Check redeemed status from database
+        if (currentUser != null) {
+            for (Reward reward : allRewards) {
+                if (dbHelper.hasRedeemedReward(currentUser.getId(), reward.getId())) {
+                    reward.setRedeemed(true);
+                }
             }
         }
 
@@ -210,35 +214,38 @@ public class RewardsActivity extends AppCompatActivity implements RewardAdapter.
                 .setTitle("Redeem Reward")
                 .setMessage("Redeem \"" + reward.getName() + "\" for " + reward.getPointsCost() + " points?\n\nPartner: " + reward.getPartnerName())
                 .setPositiveButton("Redeem", (dialog, which) -> {
+                    if (currentUser == null) {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
                     // Deduct points
                     userPoints -= reward.getPointsCost();
                     
-                    // Save to SharedPreferences (for local reward tracking)
-                    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("reward_redeemed_" + reward.getId(), true);
+                    // Save redemption to database
+                    long result = dbHelper.redeemReward(currentUser.getId(), reward.getId(), reward.getPointsCost());
                     
-                    // Update user points in SQLite
-                    if (currentUser != null) {
+                    if (result > 0) {
+                        // Update user points in SQLite
                         userRepository.updatePoints(currentUser.getId(), userPoints);
+                        
+                        // Set expiry date (30 days from now)
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.add(Calendar.DAY_OF_MONTH, 30);
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        String expiryDate = sdf.format(calendar.getTime());
+                        
+                        // Update UI
+                        reward.setRedeemed(true);
+                        reward.setExpiryDate(expiryDate);
+                        tvPointsBalance.setText(String.format(Locale.getDefault(), "%,d", userPoints));
+                        rewardAdapter.setUserPoints(userPoints);
+                        
+                        // Show success
+                        showRedemptionSuccess(reward, expiryDate);
+                    } else {
+                        Toast.makeText(this, "Failed to redeem reward", Toast.LENGTH_SHORT).show();
                     }
-                    
-                    // Set expiry date (30 days from now)
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.add(Calendar.DAY_OF_MONTH, 30);
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                    String expiryDate = sdf.format(calendar.getTime());
-                    editor.putString("reward_expiry_" + reward.getId(), expiryDate);
-                    editor.apply();
-                    
-                    // Update UI
-                    reward.setRedeemed(true);
-                    reward.setExpiryDate(expiryDate);
-                    tvPointsBalance.setText(String.format(Locale.getDefault(), "%,d", userPoints));
-                    rewardAdapter.setUserPoints(userPoints);
-                    
-                    // Show success
-                    showRedemptionSuccess(reward, expiryDate);
                 })
                 .setNegativeButton("Cancel", null)
                 .show();

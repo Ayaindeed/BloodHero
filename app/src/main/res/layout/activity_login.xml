@@ -56,7 +56,7 @@
             android:layout_height="0dp"
             app:cardCornerRadius="32dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@android:color/white"
+            app:cardBackgroundColor="@color/card_background"
             app:layout_constraintTop_toBottomOf="@id/headerContent"
             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -95,8 +95,8 @@
                         android:hint="your@email.com"
                         android:inputType="textEmailAddress"
                         android:maxLines="1"
-                        android:textColor="#1A1A1A"
-                        android:textColorHint="#AAAAAA"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_hint"
                         android:background="@android:color/transparent"
                         android:paddingVertical="12dp" />
 
@@ -105,7 +105,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E0E0E0" />
+                    android:background="@color/divider" />
 
                 <!-- Password Input -->
                 <TextView
@@ -128,7 +128,7 @@
                     app:boxStrokeWidthFocused="0dp"
                     app:hintEnabled="false"
                     app:endIconMode="password_toggle"
-                    app:endIconTint="#888888">
+                    app:endIconTint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPassword"
@@ -137,8 +137,8 @@
                         android:hint="••••••••"
                         android:inputType="textPassword"
                         android:maxLines="1"
-                        android:textColor="#1A1A1A"
-                        android:textColorHint="#AAAAAA"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_hint"
                         android:background="@android:color/transparent"
                         android:paddingVertical="12dp" />
 
@@ -147,7 +147,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E0E0E0" />
+                    android:background="@color/divider" />
 
                 <!-- Forgot Password -->
                 <TextView
@@ -157,7 +157,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="20dp"
                     android:text="Forgot password?"
-                    android:textColor="#666666"
+                    android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:padding="4dp" />
 
@@ -184,7 +184,7 @@
                     android:layout_height="56dp"
                     android:layout_marginTop="16dp"
                     android:text="Continue with Google"
-                    android:textColor="#1A1A1A"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textAllCaps="false"
                     android:fontFamily="sans-serif-medium"
@@ -208,7 +208,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Don't have account?"
-                        android:textColor="#666666"
+                        android:textColor="@color/text_secondary"
                         android:textSize="14sp" />
 
                     <TextView

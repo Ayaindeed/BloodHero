@@ -1,6 +1,7 @@
 package com.example.bloodhero.activities;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.bloodhero.R;
 import com.example.bloodhero.models.Appointment;
@@ -144,16 +146,42 @@ public class QRScannerActivity extends AppCompatActivity {
             return;
         }
         
+        if (appointment.getStatus() == Appointment.Status.IN_PROGRESS) {
+            showErrorDialog("Donation In Progress", 
+                "This donor is already donating on bed " + appointment.getBedNumber() + ".");
+            return;
+        }
+        
+        if (appointment.getStatus() == Appointment.Status.PENDING_VERIFICATION) {
+            showErrorDialog("Pending Verification", 
+                "This donation is awaiting code verification.");
+            return;
+        }
+        
+        // Only allow check-in for CONFIRMED appointments
+        if (appointment.getStatus() != Appointment.Status.CONFIRMED) {
+            showErrorDialog("Appointment Not Confirmed", 
+                "This appointment must be confirmed by admin before check-in.");
+            return;
+        }
+        
         // Check in the appointment
         checkInAppointment(appointment);
     }
 
     private void checkInAppointment(Appointment appointment) {
-        // Update appointment status
-        appointment.checkIn();
-        boolean success = appointmentRepository.updateAppointment(appointment);
+        // Update appointment status to CHECKED_IN in database
+        boolean success = appointmentRepository.updateStatus(appointment.getId(), Appointment.Status.CHECKED_IN);
         
         if (success) {
+            // Update the local object
+            appointment.checkIn();
+            
+            // Broadcast the status update so other activities can refresh
+            Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
+            intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointment.getId());
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            
             showSuccessDialog(appointment);
         } else {
             showErrorDialog("Check-in Failed", 
@@ -163,11 +191,12 @@ public class QRScannerActivity extends AppCompatActivity {
 
     private void showSuccessDialog(Appointment appointment) {
         new AlertDialog.Builder(this)
-                .setTitle("✓ Check-in Successful")
-                .setMessage("Donor checked in successfully!\n\n" +
+                .setTitle("✓ Checked In Successfully")
+                .setMessage("Donor has been checked in!\n\n" +
                         "Campaign: " + appointment.getCampaignName() + "\n" +
                         "Date: " + appointment.getDate() + "\n" +
-                        "Time: " + appointment.getTime())
+                        "Time: " + appointment.getTime() + "\n\n" +
+                        "Next: Admin will assign donor to an available bed.")
                 .setPositiveButton("Continue Scanning", (dialog, which) -> {
                     isScanning = false;
                     barcodeView.resume();

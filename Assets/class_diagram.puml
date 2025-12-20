@@ -54,6 +54,9 @@
 
   enum Status {
     SCHEDULED
+    CONFIRMED
+    CHECKED_IN
+    PENDING_VERIFICATION
     COMPLETED
     CANCELLED
     NO_SHOW
@@ -91,7 +94,7 @@
   ' Database Layer
   class BloodHeroDatabaseHelper {
     - DATABASE_NAME: String = "bloodhero.db"
-    - DATABASE_VERSION: int = 2
+    - DATABASE_VERSION: int = 7
     + BloodHeroDatabaseHelper(Context)
     + onCreate(SQLiteDatabase): void
     + onUpgrade(SQLiteDatabase, int, int): void
@@ -103,15 +106,21 @@
     + updateUser(User): int
     + updateUserPoints(String, int): int
     + incrementDonations(String, int): int
+    + deleteUser(String): int
     ' Appointment CRUD
     + insertAppointment(Appointment): long
     + getAppointmentsByUserId(String): List<Appointment>
     + getAllAppointments(): List<Appointment>
+    + getAppointmentsByStatus(Status): List<Appointment>
     + updateAppointmentStatus(String, Status): int
+    + assignAppointmentToBed(String, int): int
+    + setAppointmentPendingVerification(String, String): int
+    + getAppointmentById(String): Appointment
     + deleteAppointment(String): int
     ' Donation CRUD
     + insertDonation(Donation): long
     + getDonationsByUserId(String): List<Donation>
+    + getAllDonations(): List<Donation>
     + getTotalDonationsCount(String): int
     + deleteDonation(String): int
     ' Campaign & Badge CRUD
@@ -144,16 +153,22 @@
     + getAppointmentsByUserId(String): List<Appointment>
     + getAllAppointments(): List<Appointment>
     + getAppointmentsByStatus(String): List<Appointment>
+    + getAppointmentsByStatus(Status): List<Appointment>
     + getAppointmentById(String): Appointment
     + updateStatus(String, Status): boolean
+    + assignToBed(String, int): boolean
+    + setPendingVerification(String, String): boolean
     + deleteAppointment(String): boolean
   }
 
   class DonationRepository {
     - dbHelper: BloodHeroDatabaseHelper
-    + DonationRepository(Context)
+    - {static} instance: DonationRepository
+    - DonationRepository(Context)
+    + {static} getInstance(Context): DonationRepository
     + saveDonation(Donation): boolean
     + getDonationsByUserId(String): List<Donation>
+    + getAllDonations(): List<Donation>
     + getDonationCount(String): int
     + deleteDonation(String): boolean
   }
@@ -203,12 +218,14 @@
   ' Relationships
   User "1" -- "0..*" Appointment : books
   User "1" -- "0..*" Donation : makes
+  User "0..*" -- "0..*" Badge : earns
   Appointment --> Status : has
   Appointment "1" -- "0..1" Donation : results in
 
   BloodHeroDatabaseHelper "1" -- "1" UserRepository : used by
   BloodHeroDatabaseHelper "1" -- "1" AppointmentRepository : used by
   BloodHeroDatabaseHelper "1" -- "1" DonationRepository : used by
+  BloodHeroDatabaseHelper "1" -- "0..*" Badge : manages
 
   UserRepository "1" -- "0..*" User : manages
   AppointmentRepository "1" -- "0..*" Appointment : manages

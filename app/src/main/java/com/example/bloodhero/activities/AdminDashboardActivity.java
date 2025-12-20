@@ -2,6 +2,7 @@ package com.example.bloodhero.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -16,9 +17,16 @@ import com.example.bloodhero.R;
 import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.repository.DonationRepository;
 import com.example.bloodhero.repository.UserRepository;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AdminDashboardActivity extends AppCompatActivity {
 
@@ -28,6 +36,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
     private CardView cardAppointments, cardUsers, cardDonations, cardBadges, cardAnalytics;
     private TextView tvTotalUsers, tvPendingAppointments, tvTotalDonations, tvLivesSaved;
     private FloatingActionButton fabQRScanner;
+    private PieChart miniPieChart;
     
     private UserRepository userRepository;
     private AppointmentRepository appointmentRepository;
@@ -45,6 +54,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         initViews();
         setupListeners();
         loadStats();
+        setupMiniChart();
     }
 
     @Override
@@ -52,6 +62,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         super.onResume();
         // Refresh stats when returning to dashboard
         loadStats();
+        setupMiniChart();
     }
 
     private void initViews() {
@@ -68,6 +79,7 @@ public class AdminDashboardActivity extends AppCompatActivity {
         tvTotalDonations = findViewById(R.id.tvTotalDonations);
         tvLivesSaved = findViewById(R.id.tvLivesSaved);
         fabQRScanner = findViewById(R.id.fabQRScanner);
+        miniPieChart = findViewById(R.id.miniPieChart);
     }
 
     private void setupListeners() {
@@ -79,7 +91,17 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
         
         fabQRScanner.setOnClickListener(v -> {
-            startActivity(new Intent(this, QRScannerActivity.class));
+            // Show options: QR Scanner or Bed Management
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("Choose Action")
+                    .setItems(new String[]{"Scan QR Code", "Manage Beds"}, (dialog, which) -> {
+                        if (which == 0) {
+                            startActivity(new Intent(this, QRScannerActivity.class));
+                        } else {
+                            startActivity(new Intent(this, BedManagementActivity.class));
+                        }
+                    })
+                    .show();
         });
 
         cardAppointments.setOnClickListener(v -> {
@@ -164,5 +186,70 @@ public class AdminDashboardActivity extends AppCompatActivity {
     public void onBackPressed() {
         // Show logout confirmation when pressing back
         showLogoutConfirmation();
+    }
+
+    private void setupMiniChart() {
+        // Get actual blood type distribution from registered users
+        List<com.example.bloodhero.models.User> allUsers = userRepository.getAllUsers();
+        Map<String, Integer> bloodTypeStats = new HashMap<>();
+        
+        for (com.example.bloodhero.models.User user : allUsers) {
+            if (user.getBloodType() != null && !user.getBloodType().isEmpty()) {
+                bloodTypeStats.put(user.getBloodType(), 
+                    bloodTypeStats.getOrDefault(user.getBloodType(), 0) + 1);
+            }
+        }
+        
+        ArrayList<PieEntry> entries = new ArrayList<>();
+        
+        // Add data from actual users or use mock data if empty
+        if (bloodTypeStats.isEmpty() || bloodTypeStats.values().stream().mapToInt(Integer::intValue).sum() == 0) {
+            // Mock data for demonstration
+            entries.add(new PieEntry(35f, "O+"));
+            entries.add(new PieEntry(25f, "A+"));
+            entries.add(new PieEntry(15f, "B+"));
+            entries.add(new PieEntry(10f, "AB+"));
+            entries.add(new PieEntry(8f, "O-"));
+            entries.add(new PieEntry(4f, "A-"));
+            entries.add(new PieEntry(2f, "B-"));
+            entries.add(new PieEntry(1f, "AB-"));
+        } else {
+            for (Map.Entry<String, Integer> entry : bloodTypeStats.entrySet()) {
+                if (entry.getValue() > 0) {
+                    entries.add(new PieEntry(entry.getValue(), entry.getKey()));
+                }
+            }
+        }
+
+        PieDataSet dataSet = new PieDataSet(entries, "");
+        dataSet.setColors(new int[]{
+                Color.parseColor("#E53935"), // O+
+                Color.parseColor("#D32F2F"), // A+
+                Color.parseColor("#C62828"), // B+
+                Color.parseColor("#B71C1C"), // AB+
+                Color.parseColor("#EF5350"), // O-
+                Color.parseColor("#E57373"), // A-
+                Color.parseColor("#EF9A9A"), // B-
+                Color.parseColor("#FFCDD2")  // AB-
+        });
+        dataSet.setValueTextSize(10f);
+        dataSet.setValueTextColor(Color.WHITE);
+        dataSet.setDrawValues(false); // Hide values for compact view
+
+        PieData data = new PieData(dataSet);
+        miniPieChart.setData(data);
+        miniPieChart.setUsePercentValues(false);
+        miniPieChart.getDescription().setEnabled(false);
+        miniPieChart.setDrawHoleEnabled(true);
+        miniPieChart.setHoleRadius(35f);
+        miniPieChart.setTransparentCircleRadius(40f);
+        miniPieChart.setEntryLabelTextSize(9f);
+        miniPieChart.setEntryLabelColor(Color.DKGRAY);
+        miniPieChart.getLegend().setEnabled(false); // Hide legend for compact view
+        miniPieChart.setRotationEnabled(false);
+        miniPieChart.setHighlightPerTapEnabled(true);
+        
+        miniPieChart.animateY(800);
+        miniPieChart.invalidate();
     }
 }

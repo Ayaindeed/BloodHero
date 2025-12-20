@@ -102,6 +102,18 @@
             android:textSize="14sp"
             android:fontFamily="sans-serif-bold" />
 
+        <!-- Delete Button -->
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_delete"
+            android:contentDescription="Delete user"
+            android:padding="8dp"
+            app:tint="@color/error" />
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

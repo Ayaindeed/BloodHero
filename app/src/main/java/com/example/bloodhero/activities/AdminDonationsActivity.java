@@ -73,12 +73,12 @@ public class AdminDonationsActivity extends AppCompatActivity {
     private void loadPendingDonations() {
         List<PendingDonation> donations = new ArrayList<>();
         
-        // Load COMPLETED status appointments (admin-confirmed, awaiting final completion)
-        List<Appointment> completedAppointments = appointmentRepository.getAppointmentsByStatus("COMPLETED");
+        // Load actual donations from donations table
+        List<Donation> completedDonations = donationRepository.getAllDonations();
         
-        for (Appointment appt : completedAppointments) {
+        for (Donation don : completedDonations) {
             // Get the user from SQLite database
-            User user = userRepository.getUserById(appt.getUserId());
+            User user = userRepository.getUserById(don.getUserId());
             String donorName = "Unknown";
             String bloodType = "Unknown";
             
@@ -88,52 +88,19 @@ public class AdminDonationsActivity extends AppCompatActivity {
             }
             
             donations.add(new PendingDonation(
-                appt.getId(),
-                user != null ? user.getId() : "",
+                don.getId(),
+                don.getUserId(),
                 donorName,
                 bloodType,
-                appt.getLocation(),
-                appt.getDate(),
-                appt.getStatus().toString()
+                don.getLocation(),
+                don.getDate(),
+                don.getStatus()
             ));
         }
 
         adapter.setDonations(donations);
         emptyState.setVisibility(donations.isEmpty() ? View.VISIBLE : View.GONE);
         rvDonations.setVisibility(donations.isEmpty() ? View.GONE : View.VISIBLE);
-    }
-
-    private void markDonationComplete(PendingDonation donation) {
-        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Confirm Donation")
-                .setMessage("Mark " + donation.donorName + "'s donation as completed?\n\nThis will:\n• Award 50 points\n• Update donation count\n• Unlock eligible badges")
-                .setPositiveButton("Confirm", (dialog, which) -> {
-                    // Get user to update their donation count
-                    User user = userRepository.getUserById(donation.userId);
-                    if (user != null) {
-                        // Create and save donation record
-                        Donation completedDonation = new Donation(
-                                UUID.randomUUID().toString(),
-                                user.getId(),
-                                "",
-                                donation.location,
-                                donation.location,
-                                donation.date,
-                                user.getBloodType(),
-                                50,
-                                "COMPLETED"
-                        );
-                        donationRepository.saveDonation(completedDonation);
-                        
-                        // Update user points and donation count
-                        userRepository.incrementDonations(user.getId(), 50);
-                    }
-                    
-                    Toast.makeText(this, "Donation recorded! " + donation.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
-                    loadPendingDonations(); // Refresh
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
     }
 
     // Data class
@@ -180,7 +147,6 @@ public class AdminDonationsActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvDonorName, tvBloodType, tvLocation, tvDate;
-            MaterialButton btnMarkComplete;
 
             ViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -188,7 +154,7 @@ public class AdminDonationsActivity extends AppCompatActivity {
                 tvBloodType = itemView.findViewById(R.id.tvBloodType);
                 tvLocation = itemView.findViewById(R.id.tvLocation);
                 tvDate = itemView.findViewById(R.id.tvDate);
-                btnMarkComplete = itemView.findViewById(R.id.btnMarkComplete);
+                // Remove btnMarkComplete - donations are automatic when donor enters verification code
             }
 
             void bind(PendingDonation donation) {
@@ -196,7 +162,7 @@ public class AdminDonationsActivity extends AppCompatActivity {
                 tvBloodType.setText(donation.bloodType);
                 tvLocation.setText(donation.location);
                 tvDate.setText(donation.date);
-                btnMarkComplete.setOnClickListener(v -> markDonationComplete(donation));
+                // No click listener needed - just display donation records
             }
         }
     }
