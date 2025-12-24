@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.ImageButton;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +21,7 @@ import com.example.bloodhero.models.Appointment;
 import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.utils.QRCodeHelper;
 import com.google.zxing.ResultPoint;
+import com.google.android.material.button.MaterialButton;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
@@ -190,20 +193,38 @@ public class QRScannerActivity extends AppCompatActivity {
     }
 
     private void showSuccessDialog(Appointment appointment) {
-        new AlertDialog.Builder(this)
-                .setTitle("✓ Checked In Successfully")
-                .setMessage("Donor has been checked in!\n\n" +
-                        "Campaign: " + appointment.getCampaignName() + "\n" +
-                        "Date: " + appointment.getDate() + "\n" +
-                        "Time: " + appointment.getTime() + "\n\n" +
-                        "Next: Admin will assign donor to an available bed.")
-                .setPositiveButton("Continue Scanning", (dialog, which) -> {
-                    isScanning = false;
-                    barcodeView.resume();
-                })
-                .setNegativeButton("Close", (dialog, which) -> finish())
-                .setCancelable(false)
-                .show();
+        // Create custom dialog with enhanced design
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_checkin_success, null);
+        builder.setView(dialogView);
+        
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.setCancelable(false);
+        
+        // Set appointment data
+        TextView tvCampaignName = dialogView.findViewById(R.id.tvCampaignName);
+        TextView tvDate = dialogView.findViewById(R.id.tvDate);
+        TextView tvTime = dialogView.findViewById(R.id.tvTime);
+        MaterialButton btnContinueScanning = dialogView.findViewById(R.id.btnContinueScanning);
+        MaterialButton btnClose = dialogView.findViewById(R.id.btnClose);
+        
+        tvCampaignName.setText(appointment.getCampaignName());
+        tvDate.setText(appointment.getDate());
+        tvTime.setText(appointment.getTime());
+        
+        btnContinueScanning.setOnClickListener(v -> {
+            dialog.dismiss();
+            isScanning = false;
+            barcodeView.resume();
+        });
+        
+        btnClose.setOnClickListener(v -> {
+            dialog.dismiss();
+            finish();
+        });
+        
+        dialog.show();
     }
 
     private void showErrorDialog(String title, String message) {

@@ -23,7 +23,7 @@ import java.util.List;
 public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "bloodhero.db";
-    private static final int DATABASE_VERSION = 7; // Added checked_in_at column to appointments
+    private static final int DATABASE_VERSION = 9; // Added second security question and answer columns
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -55,6 +55,10 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_USER_TOTAL_POINTS = "total_points";
     private static final String COLUMN_USER_PROFILE_IMAGE = "profile_image_url";
     private static final String COLUMN_USER_LAST_DONATION = "last_donation_date";
+    private static final String COLUMN_USER_SECURITY_QUESTION = "security_question";
+    private static final String COLUMN_USER_SECURITY_ANSWER = "security_answer";
+    private static final String COLUMN_USER_SECURITY_QUESTION_2 = "security_question_2";
+    private static final String COLUMN_USER_SECURITY_ANSWER_2 = "security_answer_2";
 
     // Donations Table Columns
     private static final String COLUMN_DONATION_USER_ID = "user_id";
@@ -166,6 +170,10 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_USER_TOTAL_POINTS + " INTEGER DEFAULT 0, " +
                 COLUMN_USER_PROFILE_IMAGE + " TEXT, " +
                 COLUMN_USER_LAST_DONATION + " INTEGER DEFAULT 0, " +
+                COLUMN_USER_SECURITY_QUESTION + " TEXT, " +
+                COLUMN_USER_SECURITY_ANSWER + " TEXT, " +
+                COLUMN_USER_SECURITY_QUESTION_2 + " TEXT, " +
+                COLUMN_USER_SECURITY_ANSWER_2 + " TEXT, " +
                 COLUMN_CREATED_AT + " TEXT" +
                 ")";
         db.execSQL(createUsersTable);
@@ -402,6 +410,28 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
             }
         }
         
+        if (oldVersion < 8 && newVersion >= 8) {
+            // Add security question and answer columns to users table
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_SECURITY_QUESTION + " TEXT");
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_SECURITY_ANSWER + " TEXT");
+            } catch (Exception e) {
+                // Columns might already exist, ignore
+                e.printStackTrace();
+            }
+        }
+        
+        if (oldVersion < 9 && newVersion >= 9) {
+            // Add second security question and answer columns to users table
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_SECURITY_QUESTION_2 + " TEXT");
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_USER_SECURITY_ANSWER_2 + " TEXT");
+            } catch (Exception e) {
+                // Columns might already exist, ignore
+                e.printStackTrace();
+            }
+        }
+        
         // For other upgrades, add similar migration logic instead of dropping tables
         // Only drop and recreate as last resort during development
     }
@@ -428,6 +458,10 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_TOTAL_POINTS, user.getTotalPoints());
         values.put(COLUMN_USER_PROFILE_IMAGE, user.getProfileImageUrl());
         values.put(COLUMN_USER_LAST_DONATION, user.getLastDonationDate());
+        values.put(COLUMN_USER_SECURITY_QUESTION, user.getSecurityQuestion());
+        values.put(COLUMN_USER_SECURITY_ANSWER, user.getSecurityAnswer());
+        values.put(COLUMN_USER_SECURITY_QUESTION_2, user.getSecurityQuestion2());
+        values.put(COLUMN_USER_SECURITY_ANSWER_2, user.getSecurityAnswer2());
         values.put(COLUMN_CREATED_AT, user.getCreatedAt());
 
         return db.insertWithOnConflict(TABLE_USERS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -501,6 +535,10 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_TOTAL_POINTS, user.getTotalPoints());
         values.put(COLUMN_USER_PROFILE_IMAGE, user.getProfileImageUrl());
         values.put(COLUMN_USER_LAST_DONATION, user.getLastDonationDate());
+        values.put(COLUMN_USER_SECURITY_QUESTION, user.getSecurityQuestion());
+        values.put(COLUMN_USER_SECURITY_ANSWER, user.getSecurityAnswer());
+        values.put(COLUMN_USER_SECURITY_QUESTION_2, user.getSecurityQuestion2());
+        values.put(COLUMN_USER_SECURITY_ANSWER_2, user.getSecurityAnswer2());
 
         return db.update(TABLE_USERS, values, COLUMN_ID + "=?", new String[]{user.getId()});
     }
@@ -543,6 +581,29 @@ public class BloodHeroDatabaseHelper extends SQLiteOpenHelper {
         user.setTotalPoints(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_TOTAL_POINTS)));
         user.setProfileImageUrl(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_PROFILE_IMAGE)));
         user.setLastDonationDate(cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_USER_LAST_DONATION)));
+        
+        // Handle security question and answer
+        int securityQuestionIndex = cursor.getColumnIndex(COLUMN_USER_SECURITY_QUESTION);
+        if (securityQuestionIndex >= 0 && !cursor.isNull(securityQuestionIndex)) {
+            user.setSecurityQuestion(cursor.getString(securityQuestionIndex));
+        }
+        
+        int securityAnswerIndex = cursor.getColumnIndex(COLUMN_USER_SECURITY_ANSWER);
+        if (securityAnswerIndex >= 0 && !cursor.isNull(securityAnswerIndex)) {
+            user.setSecurityAnswer(cursor.getString(securityAnswerIndex));
+        }
+        
+        // Handle second security question and answer
+        int securityQuestion2Index = cursor.getColumnIndex(COLUMN_USER_SECURITY_QUESTION_2);
+        if (securityQuestion2Index >= 0 && !cursor.isNull(securityQuestion2Index)) {
+            user.setSecurityQuestion2(cursor.getString(securityQuestion2Index));
+        }
+        
+        int securityAnswer2Index = cursor.getColumnIndex(COLUMN_USER_SECURITY_ANSWER_2);
+        if (securityAnswer2Index >= 0 && !cursor.isNull(securityAnswer2Index)) {
+            user.setSecurityAnswer2(cursor.getString(securityAnswer2Index));
+        }
+        
         user.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT)));
         return user;
     }

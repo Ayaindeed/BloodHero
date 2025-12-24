@@ -33,11 +33,15 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 public class CampaignMapActivity extends AppCompatActivity {
@@ -217,87 +221,120 @@ public class CampaignMapActivity extends AppCompatActivity {
 
     private List<Campaign> getAllCampaigns() {
         List<Campaign> all = new ArrayList<>();
+        Random random = new Random();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
 
         // CASABLANCA
         all.add(new Campaign("c1", "Hôpital Cheikh Khalifa", "Fondation Cheikh Khalifa",
-                "Route de Nouaceur, Casablanca", "January 18, 2025", "8:00 AM - 4:00 PM", 2.5,
+                "Route de Nouaceur, Casablanca", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.5,
                 Arrays.asList("O+", "O-", "A-"), "Besoin urgent de sang type O."));
         all.add(new Campaign("c2", "CHU Ibn Rochd", "Ministère de la Santé",
-                "Quartier des Hôpitaux, Casablanca", "January 20, 2025", "9:00 AM - 5:00 PM", 3.2,
+                "Quartier des Hôpitaux, Casablanca", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 3.2,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte hebdomadaire."));
         all.add(new Campaign("c3", "Morocco Mall", "Croissant Rouge Marocain",
-                "Morocco Mall, Casablanca", "January 22, 2025", "10:00 AM - 8:00 PM", 5.0,
+                "Morocco Mall, Casablanca", generateRandomDate(random, dateFormat), "10:00 AM - 8:00 PM", 5.0,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Journée de don."));
         all.add(new Campaign("c4", "Clinique Badr", "Groupe Akdital",
-                "Boulevard Zerktouni, Casablanca", "January 25, 2025", "8:00 AM - 3:00 PM", 4.1,
+                "Boulevard Zerktouni, Casablanca", generateRandomDate(random, dateFormat), "8:00 AM - 3:00 PM", 4.1,
                 Arrays.asList("B-", "O-"), "URGENT: Groupes négatifs."));
+        all.add(new Campaign("c5", "Clinique Al Madina", "Croissant Rouge",
+                "Avenue Mers Sultan, Casablanca", generateRandomDate(random, dateFormat), "2:00 PM - 8:00 PM", 3.8,
+                Arrays.asList("A+", "O+", "B+"), "Collecte de l'après-midi."));
 
         // RABAT
         all.add(new Campaign("r1", "Centre de Transfusion", "CHU Ibn Sina",
-                "Avenue Mohamed V, Rabat", "January 15, 2025", "9:00 AM - 5:00 PM", 1.5,
+                "Avenue Mohamed V, Rabat", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 1.5,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte mensuelle."));
         all.add(new Campaign("r2", "Université Mohammed V", "Faculté de Médecine",
-                "Avenue Allal El Fassi, Rabat", "January 20, 2025", "10:00 AM - 6:00 PM", 3.8,
+                "Avenue Allal El Fassi, Rabat", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 3.8,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte universitaire."));
         all.add(new Campaign("r3", "Hôpital Militaire", "Forces Armées Royales",
-                "Avenue des FAR, Rabat", "January 23, 2025", "7:00 AM - 4:00 PM", 2.2,
+                "Avenue des FAR, Rabat", generateRandomDate(random, dateFormat), "7:00 AM - 4:00 PM", 2.2,
                 Arrays.asList("O-", "O+", "A-"), "Don pour les forces armées."));
         all.add(new Campaign("r4", "Mega Mall Rabat", "Association des Donneurs",
-                "Route de Témara, Rabat", "January 27, 2025", "11:00 AM - 7:00 PM", 6.5,
+                "Route de Témara, Rabat", generateRandomDate(random, dateFormat), "11:00 AM - 7:00 PM", 6.5,
                 Arrays.asList("A+", "B+", "O+"), "Campagne de sensibilisation."));
+        all.add(new Campaign("r5", "Agdal Centre", "Ministère de la Santé",
+                "Avenue Mehdi Ben Barka, Rabat", generateRandomDate(random, dateFormat), "3:00 PM - 9:00 PM", 4.2,
+                Arrays.asList("O-", "A-", "B-"), "Session du soir."));
 
         // MARRAKECH
         all.add(new Campaign("m1", "Centre Régional", "Ministère de la Santé",
-                "Boulevard Zerktouni, Marrakech", "January 22, 2025", "9:00 AM - 3:00 PM", 2.0,
+                "Boulevard Zerktouni, Marrakech", generateRandomDate(random, dateFormat), "9:00 AM - 3:00 PM", 2.0,
                 Arrays.asList("B-", "AB-", "O-"), "Journée nationale."));
         all.add(new Campaign("m2", "CHU Mohammed VI", "Université Cadi Ayyad",
-                "Avenue Ibn Sina, Marrakech", "January 24, 2025", "8:00 AM - 5:00 PM", 3.5,
+                "Avenue Ibn Sina, Marrakech", generateRandomDate(random, dateFormat), "8:00 AM - 5:00 PM", 3.5,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Collecte universitaire."));
         all.add(new Campaign("m3", "Menara Mall", "Croissant Rouge",
-                "Avenue Mohammed VI, Marrakech", "January 26, 2025", "10:00 AM - 8:00 PM", 4.2,
+                "Avenue Mohammed VI, Marrakech", generateRandomDate(random, dateFormat), "10:00 AM - 8:00 PM", 4.2,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Campagne de sensibilisation."));
+        all.add(new Campaign("m4", "Carré Eden", "Association Dar Zhor",
+                "Route de Casablanca, Marrakech", generateRandomDate(random, dateFormat), "1:00 PM - 7:00 PM", 5.1,
+                Arrays.asList("O+", "A+"), "Don au centre commercial."));
 
         // TANGER
         all.add(new Campaign("t1", "Clinique Internationale", "Groupe Akdital",
-                "Avenue Hassan II, Tanger", "January 25, 2025", "11:00 AM - 7:00 PM", 2.8,
+                "Avenue Hassan II, Tanger", generateRandomDate(random, dateFormat), "11:00 AM - 7:00 PM", 2.8,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Don lors de la foire."));
         all.add(new Campaign("t2", "Hôpital Mohammed V", "Ministère de la Santé",
-                "Avenue Moulay Ismail, Tanger", "January 28, 2025", "8:00 AM - 4:00 PM", 1.9,
+                "Avenue Moulay Ismail, Tanger", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 1.9,
                 Arrays.asList("O+", "O-", "A+"), "Collecte hebdomadaire."));
         all.add(new Campaign("t3", "Tanger City Mall", "Association Sang pour Tous",
-                "Route de Rabat, Tanger", "January 30, 2025", "10:00 AM - 6:00 PM", 5.5,
+                "Route de Rabat, Tanger", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 5.5,
                 Arrays.asList("A+", "B+", "O+", "AB+"), "Journée portes ouvertes."));
+        all.add(new Campaign("t4", "Grand Socco", "Croissant Rouge Marocain",
+                "Place du 9 Avril, Tanger", generateRandomDate(random, dateFormat), "9:00 AM - 3:00 PM", 3.7,
+                Arrays.asList("A+", "A-", "O+", "O-"), "Campagne au coeur de la ville."));
 
         // FES
         all.add(new Campaign("f1", "CHU Hassan II", "Université Sidi Mohammed",
-                "Route Sidi Harazem, Fès", "January 19, 2025", "8:00 AM - 4:00 PM", 2.3,
+                "Route Sidi Harazem, Fès", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.3,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte régionale."));
         all.add(new Campaign("f2", "Borj Fez Mall", "Croissant Rouge Marocain",
-                "Route de Meknès, Fès", "January 21, 2025", "10:00 AM - 7:00 PM", 4.8,
+                "Route de Meknès, Fès", generateRandomDate(random, dateFormat), "10:00 AM - 7:00 PM", 4.8,
                 Arrays.asList("O+", "O-", "A-", "B-"), "URGENT: Groupes négatifs."));
+        all.add(new Campaign("f3", "Hôpital Ibn Al Khatib", "CHU Fès",
+                "Avenue Allal Ben Abdellah, Fès", generateRandomDate(random, dateFormat), "7:00 AM - 2:00 PM", 2.1,
+                Arrays.asList("AB+", "AB-", "B+"), "Collecte matinale."));
 
         // MEKNES
         all.add(new Campaign("mk1", "Hôpital Mohammed V", "Ministère de la Santé",
-                "Avenue des FAR, Meknès", "January 27, 2025", "7:00 AM - 3:00 PM", 1.5,
+                "Avenue des FAR, Meknès", generateRandomDate(random, dateFormat), "7:00 AM - 3:00 PM", 1.5,
                 Arrays.asList("O-", "O+"), "URGENT: Pénurie de sang type O."));
         all.add(new Campaign("mk2", "Faculté de Médecine", "Université Moulay Ismail",
-                "Marjane, Meknès", "January 29, 2025", "9:00 AM - 5:00 PM", 3.0,
+                "Marjane, Meknès", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 3.0,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte étudiante."));
+        all.add(new Campaign("mk3", "Palais des Congrès", "Association Al Amal",
+                "Avenue Okba Ibn Nafiaa, Meknès", generateRandomDate(random, dateFormat), "10:00 AM - 4:00 PM", 2.8,
+                Arrays.asList("A+", "A-", "B+", "B-"), "Journée solidaire."));
 
         // AGADIR
         all.add(new Campaign("a1", "CHU Agadir", "Ministère de la Santé",
-                "Avenue Hassan II, Agadir", "January 20, 2025", "8:00 AM - 4:00 PM", 2.1,
+                "Avenue Hassan II, Agadir", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.1,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Collecte hebdomadaire."));
         all.add(new Campaign("a2", "Marina Shopping", "Croissant Rouge",
-                "Marina d'Agadir", "January 23, 2025", "10:00 AM - 6:00 PM", 3.5,
+                "Marina d'Agadir", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 3.5,
                 Arrays.asList("A+", "B+", "O+"), "Campagne touristique."));
+        all.add(new Campaign("a3", "Souk El Had", "Association Amal",
+                "Boulevard Mohammed V, Agadir", generateRandomDate(random, dateFormat), "2:00 PM - 8:00 PM", 1.8,
+                Arrays.asList("O+", "O-", "A+"), "Don au marché central."));
 
         // OUJDA
         all.add(new Campaign("o1", "CHU Mohammed VI", "Université Mohammed Premier",
-                "Route de Sidi Yahya, Oujda", "January 22, 2025", "8:00 AM - 3:00 PM", 2.0,
+                "Route de Sidi Yahya, Oujda", generateRandomDate(random, dateFormat), "8:00 AM - 3:00 PM", 2.0,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte régionale."));
+        all.add(new Campaign("o2", "Centre Ville Oujda", "Croissant Rouge",
+                "Boulevard Mohammed Derfoufi, Oujda", generateRandomDate(random, dateFormat), "11:00 AM - 6:00 PM", 1.5,
+                Arrays.asList("A+", "B+", "O+"), "Campagne urbaine."));
 
         return all;
+    }
+    
+    private String generateRandomDate(Random random, SimpleDateFormat dateFormat) {
+        Calendar calendar = Calendar.getInstance();
+        int daysToAdd = random.nextInt(7); // 0 to 6 days
+        calendar.add(Calendar.DAY_OF_MONTH, daysToAdd);
+        return dateFormat.format(calendar.getTime());
     }
 
     private void addCampaignMarkers() {

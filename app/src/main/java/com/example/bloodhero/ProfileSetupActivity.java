@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+import android.widget.AutoCompleteTextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -40,8 +41,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+
+import android.widget.ArrayAdapter;
 
 public class ProfileSetupActivity extends AppCompatActivity {
 
@@ -57,10 +62,16 @@ public class ProfileSetupActivity extends AppCompatActivity {
     private MaterialButton btnSaveProfile, btnSkip;
     private ImageView ivProfilePhoto, ivAddPhoto;
     
+    // Security Question Fields
+    private TextInputLayout tilSecurityQuestion, tilSecurityAnswer;
+    private AutoCompleteTextView etSecurityQuestion;
+    private TextInputEditText etSecurityAnswer;
+    
     private MaterialButton[] bloodTypeButtons;
     private String selectedBloodType = null;
     private MaterialButton selectedButton = null;
     private Calendar selectedDateOfBirth = Calendar.getInstance();
+    private String selectedSecurityQuestion = null;
     
     private String currentPhotoPath;
     private Uri photoUri;
@@ -147,6 +158,12 @@ public class ProfileSetupActivity extends AppCompatActivity {
         rbMale = findViewById(R.id.rbMale);
         rbFemale = findViewById(R.id.rbFemale);
         
+        // Security Question Fields
+        tilSecurityQuestion = findViewById(R.id.tilSecurityQuestion);
+        tilSecurityAnswer = findViewById(R.id.tilSecurityAnswer);
+        etSecurityQuestion = findViewById(R.id.etSecurityQuestion);
+        etSecurityAnswer = findViewById(R.id.etSecurityAnswer);
+        
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         btnSkip = findViewById(R.id.btnSkip);
         
@@ -198,6 +215,21 @@ public class ProfileSetupActivity extends AppCompatActivity {
         if (currentUser.getWeight() != null && currentUser.getWeight() > 0) {
             etWeight.setText(String.valueOf(currentUser.getWeight()));
         }
+
+        // Load security questions/answers if present
+        if (!TextUtils.isEmpty(currentUser.getSecurityQuestion())) {
+            etSecurityQuestion.setText(currentUser.getSecurityQuestion(), false);
+            selectedSecurityQuestion = currentUser.getSecurityQuestion();
+        }
+        if (!TextUtils.isEmpty(currentUser.getSecurityAnswer())) {
+            etSecurityAnswer.setText(currentUser.getSecurityAnswer());
+        }
+        // Clear any legacy second question data to avoid mismatched expectations
+        if (currentUser.getSecurityQuestion2() != null || currentUser.getSecurityAnswer2() != null) {
+            currentUser.setSecurityQuestion2(null);
+            currentUser.setSecurityAnswer2(null);
+            userRepository.updateUser(currentUser);
+        }
         
         // Pre-select blood type button
         String bloodType = currentUser.getBloodType();
@@ -246,10 +278,36 @@ public class ProfileSetupActivity extends AppCompatActivity {
 
         // Date of Birth picker
         etDateOfBirth.setOnClickListener(v -> showDatePickerDialog());
+        
+        // Setup security questions dropdown
+        setupSecurityQuestionsDropdown();
 
         btnSaveProfile.setOnClickListener(v -> saveProfile());
 
         btnSkip.setOnClickListener(v -> navigateToHome());
+    }
+    
+    private void setupSecurityQuestionsDropdown() {
+        String[] securityQuestions = {
+            "What is your favorite color?",
+            "What is the name of your first pet?"
+        };
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            securityQuestions
+        );
+        etSecurityQuestion.setAdapter(adapter);
+        etSecurityQuestion.setOnItemClickListener((parent, view, position, id) -> {
+            selectedSecurityQuestion = securityQuestions[position];
+        });
+        etSecurityQuestion.setOnClickListener(v -> etSecurityQuestion.showDropDown());
+        etSecurityQuestion.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                etSecurityQuestion.showDropDown();
+            }
+        });
     }
     
     private void showPhotoSelectionDialog() {
@@ -410,6 +468,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
         tilPhone.setError(null);
         tilLocation.setError(null);
         tilWeight.setError(null);
+        tilSecurityQuestion.setError(null);
+        tilSecurityAnswer.setError(null);
 
         String name = etName.getText() != null ? etName.getText().toString().trim() : "";
         String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
@@ -417,6 +477,13 @@ public class ProfileSetupActivity extends AppCompatActivity {
         String email = etEmail.getText() != null ? etEmail.getText().toString().trim() : "";
         String dob = etDateOfBirth.getText() != null ? etDateOfBirth.getText().toString().trim() : "";
         String weightStr = etWeight.getText() != null ? etWeight.getText().toString().trim() : "";
+        String securityAnswer = etSecurityAnswer.getText() != null ? etSecurityAnswer.getText().toString().trim() : "";
+
+        // If user typed instead of selecting, sync selected values from text
+        if (TextUtils.isEmpty(selectedSecurityQuestion) && !TextUtils.isEmpty(etSecurityQuestion.getText())) {
+            selectedSecurityQuestion = etSecurityQuestion.getText().toString();
+        }
+        // Only one security question supported
         
         String gender = "";
         if (rbMale.isChecked()) gender = "Male";
@@ -434,6 +501,21 @@ public class ProfileSetupActivity extends AppCompatActivity {
             isValid = false;
         }
         
+        // Validate first security question
+        if (TextUtils.isEmpty(selectedSecurityQuestion)) {
+            tilSecurityQuestion.setError("Please select a security question");
+            isValid = false;
+        }
+        
+        // Validate first security answer
+        if (TextUtils.isEmpty(securityAnswer)) {
+            tilSecurityAnswer.setError("Please provide an answer");
+            isValid = false;
+        } else if (securityAnswer.length() < 3) {
+            tilSecurityAnswer.setError("Answer must be at least 3 characters");
+            isValid = false;
+        }
+
         // Validate weight - REQUIRED for blood donation safety
         Double weight = null;
         if (TextUtils.isEmpty(weightStr)) {
@@ -470,6 +552,10 @@ public class ProfileSetupActivity extends AppCompatActivity {
             currentUser.setDateOfBirth(dob);
             currentUser.setGender(gender);
             currentUser.setWeight(weight);
+            currentUser.setSecurityQuestion(selectedSecurityQuestion);
+            currentUser.setSecurityAnswer(securityAnswer); // Store answer (in production, hash this)
+            currentUser.setSecurityQuestion2(null);
+            currentUser.setSecurityAnswer2(null);
 
             // Save to SQLite
             boolean success = userRepository.updateUser(currentUser);

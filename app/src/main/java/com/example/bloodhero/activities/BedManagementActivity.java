@@ -45,6 +45,7 @@ public class BedManagementActivity extends AppCompatActivity {
     
     private List<Appointment> waitingAppointments;
     private Appointment[] bedsInUse; // Track which appointment is in each bed
+    private String[] bedConditions; // Track bed conditions: "good", "needs_check", "maintenance"
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,11 @@ public class BedManagementActivity extends AppCompatActivity {
         
         waitingAppointments = new ArrayList<>();
         bedsInUse = new Appointment[TOTAL_BEDS];
+        bedConditions = new String[TOTAL_BEDS];
+        // Initialize all beds as "good" condition
+        for (int i = 0; i < TOTAL_BEDS; i++) {
+            bedConditions[i] = "good";
+        }
         
         initViews();
         loadData();
@@ -167,13 +173,30 @@ public class BedManagementActivity extends AppCompatActivity {
                 bedActionButtons[i].setText("Complete Donation");
                 bedActionButtons[i].setEnabled(true);
             } else {
-                // Bed available
-                bedStatusTexts[i].setText("AVAILABLE");
-                bedStatusTexts[i].setTextColor(getResources().getColor(R.color.success));
-                bedDonorNames[i].setText("");
-                bedDonorNames[i].setVisibility(View.GONE);
-                bedActionButtons[i].setText("Assign Donor");
-                bedActionButtons[i].setEnabled(!waitingAppointments.isEmpty());
+                // Bed available - check condition
+                if ("maintenance".equals(bedConditions[i])) {
+                    bedStatusTexts[i].setText("MAINTENANCE");
+                    bedStatusTexts[i].setTextColor(getResources().getColor(R.color.warning));
+                    bedDonorNames[i].setText("Needs service");
+                    bedDonorNames[i].setVisibility(View.VISIBLE);
+                    bedDonorNames[i].setTextColor(getResources().getColor(R.color.warning));
+                    bedActionButtons[i].setText("Mark as Fixed");
+                    bedActionButtons[i].setEnabled(true);
+                    final int bedIndex = i; // Make final copy for lambda
+                    final int bedNum = i + 1;
+                    bedActionButtons[i].setOnClickListener(v -> {
+                        bedConditions[bedIndex] = "good";
+                        Toast.makeText(this, "Bed " + bedNum + " marked as ready", Toast.LENGTH_SHORT).show();
+                        updateUI();
+                    });
+                } else {
+                    bedStatusTexts[i].setText("AVAILABLE");
+                    bedStatusTexts[i].setTextColor(getResources().getColor(R.color.success));
+                    bedDonorNames[i].setText("");
+                    bedDonorNames[i].setVisibility(View.GONE);
+                    bedActionButtons[i].setText("Assign Donor");
+                    bedActionButtons[i].setEnabled(!waitingAppointments.isEmpty());
+                }
             }
         }
     }
@@ -218,6 +241,75 @@ public class BedManagementActivity extends AppCompatActivity {
     }
     
     private void assignDonorToBed(int bedNumber, Appointment appointment) {
+        // Check bed condition first
+        checkBedConditionBeforeAssignment(bedNumber, appointment);
+    }
+    
+    private void checkBedConditionBeforeAssignment(int bedNumber, Appointment appointment) {
+        final int bedIndex = bedNumber - 1;
+        User donor = userRepository.getUserById(appointment.getUserId());
+        String donorName = donor != null ? donor.getName() : "Unknown";
+        
+        // Create custom dialog with enhanced design
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_bed_condition_check, null);
+        builder.setView(dialogView);
+        
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.setCancelable(false);
+        
+        // Set bed and donor info
+        TextView tvBedTitle = dialogView.findViewById(R.id.tvBedTitle);
+        TextView tvDonorInfo = dialogView.findViewById(R.id.tvDonorInfo);
+        MaterialButton btnBedReady = dialogView.findViewById(R.id.btnBedReady);
+        MaterialButton btnNeedsMaintenance = dialogView.findViewById(R.id.btnNeedsMaintenance);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+        
+        tvBedTitle.setText("Check Bed " + bedNumber + " Condition");
+        tvDonorInfo.setText("For donor: " + donorName);
+        
+        btnBedReady.setOnClickListener(v -> {
+            bedConditions[bedIndex] = "good";
+            dialog.dismiss();
+            proceedWithBedAssignment(bedNumber, appointment);
+        });
+        
+        btnNeedsMaintenance.setOnClickListener(v -> {
+            bedConditions[bedIndex] = "maintenance";
+            dialog.dismiss();
+            Toast.makeText(this, "Bed " + bedNumber + " marked for maintenance. Please select another bed.", Toast.LENGTH_LONG).show();
+            findAlternativeBed(appointment);
+        });
+        
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        dialog.show();
+    }
+    
+    private void findAlternativeBed(Appointment appointment) {
+        // Find next available bed in good condition
+        for (int i = 0; i < TOTAL_BEDS; i++) {
+            if (bedsInUse[i] == null && "good".equals(bedConditions[i])) {
+                int bedNumber = i + 1;
+                new AlertDialog.Builder(this)
+                        .setTitle("Alternative Bed Available")
+                        .setMessage("Bed " + bedNumber + " is available and in good condition.\n\nAssign donor to Bed " + bedNumber + "?")
+                        .setPositiveButton("Assign", (dialog, which) -> {
+                            checkBedConditionBeforeAssignment(bedNumber, appointment);
+                        })
+                        .setNegativeButton("Choose Manually", (dialog, which) -> {
+                            showBedSelectionDialog(appointment);
+                        })
+                        .show();
+                return;
+            }
+        }
+        // No alternative bed found
+        Toast.makeText(this, "No other beds available. Please wait or check bed conditions.", Toast.LENGTH_LONG).show();
+    }
+    
+    private void proceedWithBedAssignment(int bedNumber, Appointment appointment) {
         User donor = userRepository.getUserById(appointment.getUserId());
         String donorName = donor != null ? donor.getName() : "Unknown";
         

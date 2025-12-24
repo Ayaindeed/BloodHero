@@ -39,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private GoogleSignInClient googleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
+    private boolean isProcessingGoogleSignIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,7 +180,6 @@ public class LoginActivity extends AppCompatActivity {
     private void configureGoogleSignIn() {
         String clientId = BuildConfig.GOOGLE_CLIENT_ID;
         
-        // Check if client ID is configured
         if (clientId == null || clientId.isEmpty() || clientId.equals("YOUR_GOOGLE_CLIENT_ID_HERE")) {
             Log.w("LoginActivity", "Google Client ID not configured. Please add it to local.properties");
             btnGoogle.setEnabled(false);
@@ -190,7 +190,6 @@ public class LoginActivity extends AppCompatActivity {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestProfile()
-                .requestId()
                 .build();
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -200,12 +199,30 @@ public class LoginActivity extends AppCompatActivity {
         googleSignInLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        Intent data = result.getData();
-                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                        handleGoogleSignInResult(task);
+                    Log.d("LoginActivity", "Launcher callback fired with result code: " + result.getResultCode());
+                    if (isProcessingGoogleSignIn) {
+                        Log.d("LoginActivity", "Already processing, ignoring duplicate callback");
+                        return;
+                    }
+                    
+                    Intent data = result.getData();
+                    if (data != null) {
+                        try {
+                            Log.d("LoginActivity", "Processing Google Sign-In task...");
+                            isProcessingGoogleSignIn = true;
+                            btnGoogle.setEnabled(false);
+                            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                            handleGoogleSignInResult(task);
+                        } catch (Exception e) {
+                            Log.e("LoginActivity", "Exception processing task: ", e);
+                            isProcessingGoogleSignIn = false;
+                            btnGoogle.setEnabled(true);
+                            Toast.makeText(this, "Sign-In error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(this, "Google Sign-In cancelled", Toast.LENGTH_SHORT).show();
+                        Log.d("LoginActivity", "No intent data, result cancelled or failed");
+                        isProcessingGoogleSignIn = false;
+                        btnGoogle.setEnabled(true);
                     }
                 }
         );
@@ -213,20 +230,30 @@ public class LoginActivity extends AppCompatActivity {
 
     private void signInWithGoogle() {
         if (googleSignInClient == null) {
+            Log.e("LoginActivity", "googleSignInClient is null");
             Toast.makeText(this, "Google Sign-In not configured. Please check local.properties", Toast.LENGTH_LONG).show();
             return;
         }
 
+        Log.d("LoginActivity", "signInWithGoogle called, signing out first to show account picker");
+        btnGoogle.setEnabled(false);
+        
         // Sign out first to force account picker
         googleSignInClient.signOut().addOnCompleteListener(this, task -> {
+            isProcessingGoogleSignIn = false;
+            Toast.makeText(this, "Opening Google Sign-In...", Toast.LENGTH_SHORT).show();
             Intent signInIntent = googleSignInClient.getSignInIntent();
+            Log.d("LoginActivity", "Launching Google Sign-In intent");
             googleSignInLauncher.launch(signInIntent);
         });
     }
 
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
+            Log.d("LoginActivity", "handleGoogleSignInResult called");
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            
+            Log.d("LoginActivity", "Google account retrieved: " + account.getEmail());
             
             // Get user info from Google
             String email = account.getEmail();
@@ -234,14 +261,19 @@ public class LoginActivity extends AppCompatActivity {
             String googleId = account.getId();
             
             if (email == null) {
+                Log.e("LoginActivity", "Email is null from Google account");
                 Toast.makeText(this, "Unable to get email from Google account", Toast.LENGTH_SHORT).show();
+                isProcessingGoogleSignIn = false;
+                btnGoogle.setEnabled(true);
                 return;
             }
 
+            Log.d("LoginActivity", "Checking if user exists: " + email);
             // Check if user already exists in database
             User existingUser = userRepository.getUserByEmail(email);
             
             if (existingUser != null) {
+                Log.d("LoginActivity", "User found, logging in");
                 // User exists - log them in
                 sessionManager.createLoginSession(existingUser.getId(), false);
                 
@@ -260,43 +292,70 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             } else {
+                Log.d("LoginActivity", "New user, creating account");
                 // New user - create account
                 createGoogleUser(email, displayName, googleId);
             }
             
         } catch (ApiException e) {
-            Log.e("LoginActivity", "Google sign in failed", e);
-            Toast.makeText(this, "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e("LoginActivity", "Google sign in failed with ApiException", e);
+            isProcessingGoogleSignIn = false;
+            btnGoogle.setEnabled(true);
+            Toast.makeText(this, "Google Sign-In failed: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Log.e("LoginActivity", "Google sign in failed with exception", e);
+            isProcessingGoogleSignIn = false;
+            btnGoogle.setEnabled(true);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void createGoogleUser(String email, String displayName, String googleId) {
-        // Generate temporary password for Google users
-        String tempPassword = "google_" + googleId;
-        
-        // Use display name or email prefix as name
-        String userName = displayName;
-        if (userName == null || userName.isEmpty()) {
-            userName = email.split("@")[0];
-        }
-        
-        // Register new user with UserRepository API
-        User newUser = userRepository.registerUser(email, tempPassword, userName, "Unknown");
-        
-        if (newUser != null) {
-            // Get the created user
-            User createdUser = userRepository.getUserByEmail(email);
-            if (createdUser != null) {
-                sessionManager.createLoginSession(createdUser.getId(), false);
-                
-                // Navigate to profile setup since this is a new Google user
-                Intent intent = new Intent(LoginActivity.this, ProfileSetupActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
+        try {
+            Log.d("LoginActivity", "Creating new Google user: " + email);
+            // Generate temporary password for Google users
+            String tempPassword = "google_" + googleId;
+            
+            // Use display name or email prefix as name
+            String userName = displayName;
+            if (userName == null || userName.isEmpty()) {
+                userName = email.split("@")[0];
             }
-        } else {
-            Toast.makeText(this, "Failed to create account with Google", Toast.LENGTH_SHORT).show();
+            
+            Log.d("LoginActivity", "Registering user with name: " + userName);
+            // Register new user with UserRepository API
+            User newUser = userRepository.registerUser(email, tempPassword, userName, "Unknown");
+            
+            if (newUser != null) {
+                Log.d("LoginActivity", "User registered successfully");
+                // Get the created user
+                User createdUser = userRepository.getUserByEmail(email);
+                if (createdUser != null) {
+                    Log.d("LoginActivity", "User found after creation, creating session");
+                    sessionManager.createLoginSession(createdUser.getId(), false);
+                    
+                    // Navigate to profile setup since this is a new Google user
+                    Intent intent = new Intent(LoginActivity.this, ProfileSetupActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Log.e("LoginActivity", "User not found after creation");
+                    Toast.makeText(this, "Failed to retrieve created account", Toast.LENGTH_SHORT).show();
+                    isProcessingGoogleSignIn = false;
+                    btnGoogle.setEnabled(true);
+                }
+            } else {
+                Log.e("LoginActivity", "Failed to register user");
+                Toast.makeText(this, "Failed to create account with Google", Toast.LENGTH_SHORT).show();
+                isProcessingGoogleSignIn = false;
+                btnGoogle.setEnabled(true);
+            }
+        } catch (Exception e) {
+            Log.e("LoginActivity", "Error creating Google user", e);
+            isProcessingGoogleSignIn = false;
+            btnGoogle.setEnabled(true);
+            Toast.makeText(this, "Error creating account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }

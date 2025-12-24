@@ -78,7 +78,18 @@ public class BadgeAdapter extends RecyclerView.Adapter<BadgeAdapter.BadgeViewHol
             // Style based on unlock status
             if (badge.isUnlocked()) {
                 itemView.setAlpha(1.0f);
-                ivBadgeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+                // Check if dark mode is active
+                boolean isDarkMode = (itemView.getContext().getResources().getConfiguration().uiMode 
+                        & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                
+                if (isDarkMode) {
+                    // Dark mode: use white icon for better visibility
+                    ivBadgeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), android.R.color.white));
+                } else {
+                    // Light mode: use primary color
+                    ivBadgeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary));
+                }
             } else {
                 itemView.setAlpha(0.5f);
                 ivBadgeIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.badge_locked));

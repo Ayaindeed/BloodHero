@@ -3,6 +3,7 @@ package com.example.bloodhero;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ImageButton;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.UserRepository;
+import com.example.bloodhero.utils.EmailHelper;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -26,11 +28,13 @@ import java.util.Random;
  */
 public class ForgotPasswordActivity extends AppCompatActivity {
 
+    private static final String TAG = "ForgotPasswordActivity";
     private static final String PREFS_NAME = "BloodHeroPrefs";
     private static final String RESET_PREFS = "BloodHeroPasswordReset";
     private static final long CODE_EXPIRATION_MS = 15 * 60 * 1000; // 15 minutes
     
     private UserRepository userRepository;
+    private EmailHelper emailHelper;
 
     // Step 1: Email entry
     private LinearLayout layoutEmailStep;
@@ -74,10 +78,19 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_forgot_password);
 
         userRepository = UserRepository.getInstance(this);
+        emailHelper = new EmailHelper(this);
         
         initViews();
         setupListeners();
         showStep(1);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (emailHelper != null) {
+            emailHelper.shutdown();
+        }
     }
 
     private void initViews() {
@@ -201,21 +214,45 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             .putLong("reset_time", codeGeneratedTime)
             .apply();
         
-        // Simulate sending email (in production, use Firebase/SendGrid/etc.)
+        // Get user info for email
+        User user = userRepository.getUserByEmail(email);
+        String userName = (user != null && !TextUtils.isEmpty(user.getName())) 
+            ? user.getName() 
+            : "User";
+        
+        // Show demo code immediately (for development/testing)
+        String maskedEmail = maskEmail(email);
+        
+        // Proceed to next step after short delay (demo mode)
         btnSendCode.postDelayed(() -> {
             btnSendCode.setEnabled(true);
             btnSendCode.setText("Send Code");
             
-            // Show code step
-            String maskedEmail = maskEmail(email);
             tvCodeSentTo.setText("Enter the 6-digit code sent to\n" + maskedEmail);
             showStep(2);
             
-            // For demo purposes, show the code in a toast
-            Toast.makeText(this, "Demo: Your code is " + generatedCode, Toast.LENGTH_LONG).show();
+            // Show code in toast for demo (remove in production)
+            Toast.makeText(this, "Demo Code: " + generatedCode, Toast.LENGTH_LONG).show();
             
             startCodeTimer();
-        }, 1500);
+        }, 1000);
+        
+        // Also try to send real email in background (won't block UI)
+        emailHelper.sendVerificationCode(email, userName, generatedCode, new EmailHelper.EmailCallback() {
+            @Override
+            public void onSuccess(String message) {
+                Log.d(TAG, "Email sent successfully: " + message);
+                runOnUiThread(() -> {
+                    Toast.makeText(ForgotPasswordActivity.this, "Email sent to " + maskedEmail, Toast.LENGTH_SHORT).show();
+                });
+            }
+            
+            @Override
+            public void onFailure(String errorMessage) {
+                Log.e(TAG, "Failed to send email: " + errorMessage);
+                // Don't show error to user since demo mode is working
+            }
+        });
     }
 
     private String generateVerificationCode() {
@@ -368,9 +405,13 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     }
 
     private String getSecurityQuestion(String email) {
-        // Get user's security question (or default)
-        SharedPreferences userPrefs = getSharedPreferences("user_security_" + email.replace("@", "_").replace(".", "_"), MODE_PRIVATE);
-        return userPrefs.getString("security_question", "What is your mother's maiden name?");
+        // Get user's security question from database
+        User user = userRepository.getUserByEmail(email);
+        if (user != null && !TextUtils.isEmpty(user.getSecurityQuestion())) {
+            return user.getSecurityQuestion();
+        }
+        // Default fallback
+        return "What is your mother's maiden name?";
     }
 
     private void verifySecurityAnswer() {
@@ -383,9 +424,14 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             return;
         }
         
-        // Get stored answer
-        SharedPreferences userPrefs = getSharedPreferences("user_security_" + currentEmail.replace("@", "_").replace(".", "_"), MODE_PRIVATE);
-        String storedAnswer = userPrefs.getString("security_answer", "").toLowerCase();
+        // Get stored answer from database
+        User user = userRepository.getUserByEmail(currentEmail);
+        if (user == null || TextUtils.isEmpty(user.getSecurityAnswer())) {
+            tilSecurityAnswer.setError("No security answer found for this account");
+            return;
+        }
+        
+        String storedAnswer = user.getSecurityAnswer().toLowerCase();
         
         if (answer.equals(storedAnswer)) {
             showStep(3);

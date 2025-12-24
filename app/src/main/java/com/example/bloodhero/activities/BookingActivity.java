@@ -162,12 +162,18 @@ public class BookingActivity extends AppCompatActivity {
                 day
         );
 
-        // Set minimum date to today
-        datePickerDialog.getDatePicker().setMinDate(calendar.getTimeInMillis());
+        // Set minimum date to today (ensure no past dates can be selected)
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+        datePickerDialog.getDatePicker().setMinDate(today.getTimeInMillis());
 
         // Set maximum date to 3 months from now
-        calendar.add(Calendar.MONTH, 3);
-        datePickerDialog.getDatePicker().setMaxDate(calendar.getTimeInMillis());
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.MONTH, 3);
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
 
         datePickerDialog.show();
     }

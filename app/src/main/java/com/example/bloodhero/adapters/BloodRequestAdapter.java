@@ -103,10 +103,40 @@ public class BloodRequestAdapter extends RecyclerView.Adapter<BloodRequestAdapte
             if (isCompatible) {
                 tvCompatibleBadge.setVisibility(View.VISIBLE);
                 tvCompatibleBadge.setText("You can donate!");
-                cardRequest.setCardBackgroundColor(Color.parseColor("#E8F5E9"));
+                // Check if dark mode is active
+                boolean isDarkMode = (itemView.getContext().getResources().getConfiguration().uiMode 
+                        & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
+                        == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+                
+                if (isDarkMode) {
+                    // Dark mode: use darker green background with white/light text
+                    cardRequest.setCardBackgroundColor(Color.parseColor("#1B4D2E")); // Dark green
+                    tvPatientName.setTextColor(Color.parseColor("#FAFAFA")); // White text
+                    tvHospital.setTextColor(Color.parseColor("#FAFAFA"));
+                    tvCity.setTextColor(Color.parseColor("#C4C4C4")); // Light grey
+                    tvUnitsNeeded.setTextColor(Color.parseColor("#5DD97C")); // Bright green
+                } else {
+                    // Light mode: use light green background with dark text
+                    cardRequest.setCardBackgroundColor(Color.parseColor("#E8F5E9")); // Light green
+                    tvPatientName.setTextColor(Color.parseColor("#212121")); // Dark text
+                    tvHospital.setTextColor(Color.parseColor("#212121"));
+                    tvCity.setTextColor(Color.parseColor("#757575")); // Grey
+                    tvUnitsNeeded.setTextColor(Color.parseColor("#2E7D32")); // Dark green
+                }
             } else {
                 tvCompatibleBadge.setVisibility(View.GONE);
-                cardRequest.setCardBackgroundColor(Color.WHITE);
+                // Reset to default card background
+                cardRequest.setCardBackgroundColor(itemView.getContext().getResources().getColor(
+                        com.example.bloodhero.R.color.card_background, itemView.getContext().getTheme()));
+                // Reset text colors to theme defaults
+                tvPatientName.setTextColor(itemView.getContext().getResources().getColor(
+                        com.example.bloodhero.R.color.text_primary, itemView.getContext().getTheme()));
+                tvHospital.setTextColor(itemView.getContext().getResources().getColor(
+                        com.example.bloodhero.R.color.text_primary, itemView.getContext().getTheme()));
+                tvCity.setTextColor(itemView.getContext().getResources().getColor(
+                        com.example.bloodhero.R.color.text_secondary, itemView.getContext().getTheme()));
+                tvUnitsNeeded.setTextColor(itemView.getContext().getResources().getColor(
+                        com.example.bloodhero.R.color.primary, itemView.getContext().getTheme()));
             }
 
             btnRespond.setOnClickListener(v -> {

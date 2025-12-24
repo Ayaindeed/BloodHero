@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.viewpager2)
     implementation(libs.circleimageview)
+    implementation(libs.core.ktx)
+    implementation(libs.core)
     
     // Splash Screen
     implementation(libs.splashscreen)
@@ -91,6 +93,9 @@ dependencies {
     
     // Google Sign-In
     implementation(libs.playservices.auth)
+    
+    // Email (JavaMail API)
+    implementation(libs.javamail)
 
     // Testing
     testImplementation(libs.junit)

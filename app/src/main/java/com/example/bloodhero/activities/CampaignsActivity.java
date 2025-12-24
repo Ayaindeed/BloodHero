@@ -22,12 +22,17 @@ import com.example.bloodhero.models.Campaign;
 import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.utils.UserHelper;
+import com.example.bloodhero.utils.StatusDialogHelper;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 public class CampaignsActivity extends AppCompatActivity {
@@ -129,98 +134,139 @@ public class CampaignsActivity extends AppCompatActivity {
 
     private void loadAllCampaigns() {
         allCampaigns = new ArrayList<>();
+        Random random = new Random();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
 
         // CASABLANCA Campaigns
         allCampaigns.add(new Campaign("c1", "Hôpital Cheikh Khalifa", "Fondation Cheikh Khalifa",
-                "Route de Nouaceur, Casablanca", "December 18, 2025", "8:00 AM - 4:00 PM", 2.5,
+                "Route de Nouaceur, Casablanca", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.5,
                 Arrays.asList("O+", "O-", "A-"), "Besoin urgent de sang type O. Sans rendez-vous accepté!"));
         
         allCampaigns.add(new Campaign("c2", "CHU Ibn Rochd", "Ministère de la Santé",
-                "Quartier des Hôpitaux, Casablanca", "December 20, 2025", "9:00 AM - 5:00 PM", 3.2,
+                "Quartier des Hôpitaux, Casablanca", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 3.2,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte hebdomadaire - tous les groupes bienvenus."));
         
         allCampaigns.add(new Campaign("c3", "Morocco Mall", "Croissant Rouge Marocain",
-                "Morocco Mall, Casablanca", "December 22, 2025", "10:00 AM - 8:00 PM", 5.0,
+                "Morocco Mall, Casablanca", generateRandomDate(random, dateFormat), "10:00 AM - 8:00 PM", 5.0,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Journée de don de sang au centre commercial."));
         
         allCampaigns.add(new Campaign("c4", "Clinique Badr", "Groupe Akdital",
-                "Boulevard Zerktouni, Casablanca", "December 25, 2025", "8:00 AM - 3:00 PM", 4.1,
+                "Boulevard Zerktouni, Casablanca", generateRandomDate(random, dateFormat), "8:00 AM - 3:00 PM", 4.1,
                 Arrays.asList("B-", "O-"), "URGENT: Besoin de groupes négatifs."));
+        
+        allCampaigns.add(new Campaign("c5", "Clinique Al Madina", "Croissant Rouge",
+                "Avenue Mers Sultan, Casablanca", generateRandomDate(random, dateFormat), "2:00 PM - 8:00 PM", 3.8,
+                Arrays.asList("A+", "O+", "B+"), "Collecte de l'après-midi."));
 
         // RABAT Campaigns
         allCampaigns.add(new Campaign("r1", "Centre de Transfusion Sanguine", "CHU Ibn Sina",
-                "Avenue Mohamed V, Rabat", "December 19, 2025", "9:00 AM - 5:00 PM", 1.5,
+                "Avenue Mohamed V, Rabat", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 1.5,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte mensuelle de sang."));
         
         allCampaigns.add(new Campaign("r2", "Université Mohammed V", "Faculté de Médecine",
-                "Avenue Allal El Fassi, Rabat", "December 23, 2025", "10:00 AM - 6:00 PM", 3.8,
+                "Avenue Allal El Fassi, Rabat", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 3.8,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte annuelle universitaire."));
         
         allCampaigns.add(new Campaign("r3", "Hôpital Militaire", "Forces Armées Royales",
-                "Avenue des FAR, Rabat", "December 26, 2025", "7:00 AM - 4:00 PM", 2.2,
+                "Avenue des FAR, Rabat", generateRandomDate(random, dateFormat), "7:00 AM - 4:00 PM", 2.2,
                 Arrays.asList("O-", "O+", "A-"), "Don de sang pour les forces armées."));
         
         allCampaigns.add(new Campaign("r4", "Mega Mall Rabat", "Association des Donneurs",
-                "Route de Témara, Rabat", "December 30, 2025", "11:00 AM - 7:00 PM", 6.5,
+                "Route de Témara, Rabat", generateRandomDate(random, dateFormat), "11:00 AM - 7:00 PM", 6.5,
                 Arrays.asList("A+", "B+", "O+"), "Campagne de sensibilisation au don."));
+        
+        allCampaigns.add(new Campaign("r5", "Agdal Centre", "Ministère de la Santé",
+                "Avenue Mehdi Ben Barka, Rabat", generateRandomDate(random, dateFormat), "3:00 PM - 9:00 PM", 4.2,
+                Arrays.asList("O-", "A-", "B-"), "Session du soir pour donneurs actifs."));
 
         // MARRAKECH Campaigns
         allCampaigns.add(new Campaign("m1", "Centre Régional de Transfusion", "Ministère de la Santé",
-                "Boulevard Zerktouni, Marrakech", "December 22, 2025", "9:00 AM - 3:00 PM", 2.0,
+                "Boulevard Zerktouni, Marrakech", generateRandomDate(random, dateFormat), "9:00 AM - 3:00 PM", 2.0,
                 Arrays.asList("B-", "AB-", "O-"), "Journée nationale du don de sang."));
         
         allCampaigns.add(new Campaign("m2", "CHU Mohammed VI", "Université Cadi Ayyad",
-                "Avenue Ibn Sina, Marrakech", "December 24, 2025", "8:00 AM - 5:00 PM", 3.5,
+                "Avenue Ibn Sina, Marrakech", generateRandomDate(random, dateFormat), "8:00 AM - 5:00 PM", 3.5,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Collecte universitaire."));
         
         allCampaigns.add(new Campaign("m3", "Menara Mall", "Croissant Rouge",
-                "Avenue Mohammed VI, Marrakech", "December 28, 2025", "10:00 AM - 8:00 PM", 4.2,
+                "Avenue Mohammed VI, Marrakech", generateRandomDate(random, dateFormat), "10:00 AM - 8:00 PM", 4.2,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Campagne de sensibilisation."));
+        
+        allCampaigns.add(new Campaign("m4", "Carré Eden", "Association Dar Zhor",
+                "Route de Casablanca, Marrakech", generateRandomDate(random, dateFormat), "1:00 PM - 7:00 PM", 5.1,
+                Arrays.asList("O+", "A+"), "Don de sang au centre commercial."));
 
         // TANGER Campaigns
         allCampaigns.add(new Campaign("t1", "Clinique Internationale", "Groupe Akdital",
-                "Avenue Hassan II, Tanger", "December 25, 2025", "11:00 AM - 7:00 PM", 2.8,
+                "Avenue Hassan II, Tanger", generateRandomDate(random, dateFormat), "11:00 AM - 7:00 PM", 2.8,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Don de sang lors de la foire."));
         
         allCampaigns.add(new Campaign("t2", "Hôpital Mohammed V", "Ministère de la Santé",
-                "Avenue Moulay Ismail, Tanger", "December 29, 2025", "8:00 AM - 4:00 PM", 1.9,
+                "Avenue Moulay Ismail, Tanger", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 1.9,
                 Arrays.asList("O+", "O-", "A+"), "Collecte hebdomadaire."));
         
         allCampaigns.add(new Campaign("t3", "Tanger City Mall", "Association Sang pour Tous",
-                "Route de Rabat, Tanger", "January 2, 2026", "10:00 AM - 6:00 PM", 5.5,
+                "Route de Rabat, Tanger", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 5.5,
                 Arrays.asList("A+", "B+", "O+", "AB+"), "Journée portes ouvertes."));
+        
+        allCampaigns.add(new Campaign("t4", "Grand Socco", "Croissant Rouge Marocain",
+                "Place du 9 Avril, Tanger", generateRandomDate(random, dateFormat), "9:00 AM - 3:00 PM", 3.7,
+                Arrays.asList("A+", "A-", "O+", "O-"), "Campagne au coeur de la ville."));
 
         // FES Campaigns
         allCampaigns.add(new Campaign("f1", "CHU Hassan II", "Université Sidi Mohammed Ben Abdellah",
-                "Route Sidi Harazem, Fès", "December 19, 2025", "8:00 AM - 4:00 PM", 2.3,
+                "Route Sidi Harazem, Fès", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.3,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte régionale."));
         
         allCampaigns.add(new Campaign("f2", "Borj Fez Mall", "Croissant Rouge Marocain",
-                "Route de Meknès, Fès", "December 21, 2025", "10:00 AM - 7:00 PM", 4.8,
+                "Route de Meknès, Fès", generateRandomDate(random, dateFormat), "10:00 AM - 7:00 PM", 4.8,
                 Arrays.asList("O+", "O-", "A-", "B-"), "URGENT: Groupes négatifs recherchés."));
+        
+        allCampaigns.add(new Campaign("f3", "Hôpital Ibn Al Khatib", "CHU Fès",
+                "Avenue Allal Ben Abdellah, Fès", generateRandomDate(random, dateFormat), "7:00 AM - 2:00 PM", 2.1,
+                Arrays.asList("AB+", "AB-", "B+"), "Collecte matinale."));
 
         // MEKNES Campaigns
         allCampaigns.add(new Campaign("mk1", "Hôpital Mohammed V", "Ministère de la Santé",
-                "Avenue des FAR, Meknès", "December 27, 2025", "7:00 AM - 3:00 PM", 1.5,
+                "Avenue des FAR, Meknès", generateRandomDate(random, dateFormat), "7:00 AM - 3:00 PM", 1.5,
                 Arrays.asList("O-", "O+"), "URGENT: Pénurie critique de sang type O."));
         
         allCampaigns.add(new Campaign("mk2", "Faculté de Médecine", "Université Moulay Ismail",
-                "Marjane, Meknès", "December 31, 2025", "9:00 AM - 5:00 PM", 3.0,
+                "Marjane, Meknès", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 3.0,
                 Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte étudiante."));
+        
+        allCampaigns.add(new Campaign("mk3", "Palais des Congrès", "Association Al Amal",
+                "Avenue Okba Ibn Nafiaa, Meknès", generateRandomDate(random, dateFormat), "10:00 AM - 4:00 PM", 2.8,
+                Arrays.asList("A+", "A-", "B+", "B-"), "Journée solidaire de don."));
 
         // AGADIR Campaigns
         allCampaigns.add(new Campaign("a1", "CHU Agadir", "Ministère de la Santé",
-                "Avenue Hassan II, Agadir", "December 20, 2025", "8:00 AM - 4:00 PM", 2.1,
+                "Avenue Hassan II, Agadir", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.1,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Collecte hebdomadaire."));
         
         allCampaigns.add(new Campaign("a2", "Marina Shopping", "Croissant Rouge",
-                "Marina d'Agadir", "December 24, 2025", "10:00 AM - 6:00 PM", 3.5,
+                "Marina d'Agadir", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 3.5,
                 Arrays.asList("A+", "B+", "O+"), "Campagne touristique de don."));
+        
+        allCampaigns.add(new Campaign("a3", "Souk El Had", "Association Amal",
+                "Boulevard Mohammed V, Agadir", generateRandomDate(random, dateFormat), "2:00 PM - 8:00 PM", 1.8,
+                Arrays.asList("O+", "O-", "A+"), "Don de sang au marché central."));
 
         // OUJDA Campaigns
         allCampaigns.add(new Campaign("o1", "CHU Mohammed VI Oujda", "Université Mohammed Premier",
-                "Route de Sidi Yahya, Oujda", "December 22, 2025", "8:00 AM - 3:00 PM", 2.0,
+                "Route de Sidi Yahya, Oujda", generateRandomDate(random, dateFormat), "8:00 AM - 3:00 PM", 2.0,
                 Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte régionale."));
+        
+        allCampaigns.add(new Campaign("o2", "Centre Ville Oujda", "Croissant Rouge",
+                "Boulevard Mohammed Derfoufi, Oujda", generateRandomDate(random, dateFormat), "11:00 AM - 6:00 PM", 1.5,
+                Arrays.asList("A+", "B+", "O+"), "Campagne urbaine de sensibilisation."));
+    }
+    
+    private String generateRandomDate(Random random, SimpleDateFormat dateFormat) {
+        Calendar calendar = Calendar.getInstance();
+        int daysToAdd = random.nextInt(7); // 0 to 6 days
+        calendar.add(Calendar.DAY_OF_MONTH, daysToAdd);
+        return dateFormat.format(calendar.getTime());
     }
 
     private void filterCampaignsByLocation() {
@@ -305,13 +351,16 @@ public class CampaignsActivity extends AppCompatActivity {
         // Check donation eligibility
         if (!currentUser.canDonateNow()) {
             int daysRemaining = currentUser.getDaysUntilEligible();
-            new AlertDialog.Builder(this)
-                    .setTitle("Not Eligible Yet")
-                    .setMessage("You must wait 56 days (8 weeks) between blood donations.\n\n" +
-                               "You donated " + getDaysSinceLastDonation() + " days ago.\n" +
-                               "You can donate again in " + daysRemaining + " days.")
-                    .setPositiveButton("OK", null)
-                    .show();
+            StatusDialogHelper.showStatusDialog(
+                this,
+                StatusDialogHelper.StatusType.WARNING,
+                "Not eligible yet",
+                "You must wait 56 days (8 weeks) between donations.\n" +
+                    "You donated " + getDaysSinceLastDonation() + " days ago.\n" +
+                    "Come back in " + daysRemaining + " days.",
+                "Got it",
+                null
+            );
             return;
         }
         
@@ -319,15 +368,17 @@ public class CampaignsActivity extends AppCompatActivity {
         List<Appointment> userAppointments = appointmentRepository.getAppointmentsByUserId(currentUser.getId());
         for (Appointment appt : userAppointments) {
             if (appt.getStatus() == Appointment.Status.SCHEDULED) {
-                new AlertDialog.Builder(this)
-                        .setTitle("Active Appointment Exists")
-                        .setMessage("You already have an active appointment scheduled. You can only book one appointment at a time.\n\nPlease complete or cancel your current appointment before booking a new one.")
-                        .setPositiveButton("View My Appointment", (dialog, which) -> {
+                StatusDialogHelper.showStatusDialog(
+                        this,
+                        StatusDialogHelper.StatusType.INFO,
+                        "Active appointment",
+                        "You already have a scheduled appointment. Complete or cancel it before booking a new one.",
+                        "View appointment",
+                        () -> {
                             Intent intent = new Intent(this, MyAppointmentsActivity.class);
                             startActivity(intent);
-                        })
-                        .setNegativeButton("Close", null)
-                        .show();
+                        }
+                );
                 return;
             }
         }

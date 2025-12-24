@@ -16,6 +16,10 @@ public class User {
     private String profileImageUrl;
     private long createdAt;
     private long lastDonationDate; // Timestamp of last blood donation
+    private String securityQuestion; // First security question for password recovery
+    private String securityAnswer; // Hashed answer for first security question
+    private String securityQuestion2; // Second security question for password recovery
+    private String securityAnswer2; // Hashed answer for second security question
 
     public User() {}
 
@@ -85,6 +89,18 @@ public class User {
 
     public long getLastDonationDate() { return lastDonationDate; }
     public void setLastDonationDate(long lastDonationDate) { this.lastDonationDate = lastDonationDate; }
+
+    public String getSecurityQuestion() { return securityQuestion; }
+    public void setSecurityQuestion(String securityQuestion) { this.securityQuestion = securityQuestion; }
+
+    public String getSecurityAnswer() { return securityAnswer; }
+    public void setSecurityAnswer(String securityAnswer) { this.securityAnswer = securityAnswer; }
+
+    public String getSecurityQuestion2() { return securityQuestion2; }
+    public void setSecurityQuestion2(String securityQuestion2) { this.securityQuestion2 = securityQuestion2; }
+
+    public String getSecurityAnswer2() { return securityAnswer2; }
+    public void setSecurityAnswer2(String securityAnswer2) { this.securityAnswer2 = securityAnswer2; }
 
     /**
      * Check if user can donate blood now based on last donation date.

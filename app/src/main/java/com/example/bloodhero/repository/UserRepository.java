@@ -116,6 +116,42 @@ public class UserRepository {
     }
     
     /**
+     * Get user's security question
+     */
+    public String getSecurityQuestion(String email) {
+        User user = getUserByEmail(email);
+        if (user != null && user.getSecurityQuestion() != null) {
+            return user.getSecurityQuestion();
+        }
+        return null;
+    }
+    
+    /**
+     * Verify user's security answer
+     */
+    public boolean verifySecurityAnswer(String email, String answer) {
+        User user = getUserByEmail(email);
+        if (user != null && user.getSecurityAnswer() != null) {
+            // Case-insensitive comparison
+            return user.getSecurityAnswer().toLowerCase().equals(answer.toLowerCase());
+        }
+        return false;
+    }
+    
+    /**
+     * Update user security question and answer
+     */
+    public boolean updateSecurityQuestion(String userId, String question, String answer) {
+        User user = dbHelper.getUserById(userId);
+        if (user != null) {
+            user.setSecurityQuestion(question);
+            user.setSecurityAnswer(answer);
+            return dbHelper.updateUser(user) > 0;
+        }
+        return false;
+    }
+    
+    /**
      * Update user points
      */
     public boolean updatePoints(String userId, int points) {

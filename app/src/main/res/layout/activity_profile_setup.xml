@@ -262,6 +262,64 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Security Question Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="Security Question for Password Recovery"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:fontFamily="@font/inter" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Choose one of the available questions"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <!-- Security Question Spinner -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilSecurityQuestion"
+                style="@style/Widget.BloodHero.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:startIconDrawable="@drawable/ic_help"
+                app:startIconTint="@color/text_secondary">
+
+                <AutoCompleteTextView
+                    android:id="@+id/etSecurityQuestion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select a security question"
+                    android:inputType="none"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Security Answer -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilSecurityAnswer"
+                style="@style/Widget.BloodHero.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="@color/text_secondary">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSecurityAnswer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Your answer"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
             <!-- Blood Type Section -->
             <TextView
                 android:layout_width="wrap_content"

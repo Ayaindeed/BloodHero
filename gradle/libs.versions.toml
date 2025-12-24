@@ -23,6 +23,8 @@ zxing = "3.5.3"
 zxingembedded = "4.3.0"
 playservicesauth = "21.2.0"
 localbroadcastmanager = "1.1.0"
+core = "1.13.1"
+javamail = "1.6.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -48,6 +50,9 @@ zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" 
 zxing-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxingembedded" }
 playservices-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playservicesauth" }
 localbroadcastmanager = { group = "androidx.localbroadcastmanager", name = "localbroadcastmanager", version.ref = "localbroadcastmanager" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
+core = { group = "androidx.core", name = "core", version.ref = "core" }
+javamail = { group = "com.sun.mail", name = "javax.mail", version.ref = "javamail" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
