@@ -54,7 +54,7 @@
                     android:text="City Blood Drive"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium"
+                    android:fontFamily="@font/inter"
                     android:maxLines="1"
                     android:ellipsize="end" />
 
@@ -79,7 +79,7 @@
                 android:text="2.5 km"
                 android:textColor="@color/success"
                 android:textSize="12sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
         </LinearLayout>
 
@@ -197,7 +197,7 @@
                 android:text="A+  B+  O+  O-"
                 android:textColor="@color/primary"
                 android:textSize="13sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
         </LinearLayout>
 

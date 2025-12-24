@@ -29,7 +29,7 @@
             android:text="A"
             android:textColor="@android:color/white"
             android:textSize="20sp"
-            android:fontFamily="sans-serif-bold" />
+            android:fontFamily="@font/inter" android:textStyle="bold" />
 
         <!-- User Info -->
         <LinearLayout
@@ -52,7 +52,7 @@
                     android:text="User Name"
                     android:textColor="@color/text_primary"
                     android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <TextView
                     android:id="@+id/tvVerified"
@@ -100,7 +100,7 @@
             android:text="A+"
             android:textColor="@android:color/white"
             android:textSize="14sp"
-            android:fontFamily="sans-serif-bold" />
+            android:fontFamily="@font/inter" android:textStyle="bold" />
 
         <!-- Delete Button -->
         <ImageButton

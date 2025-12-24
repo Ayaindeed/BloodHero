@@ -35,7 +35,7 @@
             android:textColor="@color/text_primary"
             android:textSize="12sp"
             android:textAlignment="center"
-            android:fontFamily="sans-serif-medium"
+            android:fontFamily="@font/inter"
             android:maxLines="2"
             android:ellipsize="end" />
 

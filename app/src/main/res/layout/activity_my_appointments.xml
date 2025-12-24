@@ -46,7 +46,7 @@
                     android:text="My Appointments"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
             </LinearLayout>
 
@@ -97,7 +97,7 @@
                 android:text="No Appointments Yet"
                 android:textColor="@color/text_primary"
                 android:textSize="20sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -165,7 +165,7 @@
                             android:text="Red Cross Blood Drive"
                             android:textColor="@color/text_primary"
                             android:textSize="18sp"
-                            android:fontFamily="sans-serif-medium" />
+                            android:fontFamily="@font/inter" />
 
                     </LinearLayout>
 
@@ -178,7 +178,7 @@
                         android:text="Confirmed"
                         android:textColor="@android:color/white"
                         android:textSize="13sp"
-                        android:fontFamily="sans-serif-bold"
+                        android:fontFamily="@font/inter" android:textStyle="bold"
                         android:minWidth="80dp"
                         android:gravity="center"
                         android:background="@drawable/bg_status_confirmed" />
@@ -231,7 +231,7 @@
                                 android:text="Dec 15, 2025"
                                 android:textColor="@color/text_primary"
                                 android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
+                                android:fontFamily="@font/inter" />
 
                         </LinearLayout>
 
@@ -271,7 +271,7 @@
                                 android:text="10:00 AM"
                                 android:textColor="@color/text_primary"
                                 android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
+                                android:fontFamily="@font/inter" />
 
                         </LinearLayout>
 
@@ -313,7 +313,7 @@
                             android:text="City Community Center"
                             android:textColor="@color/text_primary"
                             android:textSize="14sp"
-                            android:fontFamily="sans-serif-medium" />
+                            android:fontFamily="@font/inter" />
 
                     </LinearLayout>
 
@@ -336,7 +336,7 @@
                         android:text="Your Check-in QR Code"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <ImageView
                         android:id="@+id/ivQRCode"

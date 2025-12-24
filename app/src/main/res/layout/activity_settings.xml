@@ -33,7 +33,7 @@
             android:text="Settings"
             android:textColor="@android:color/white"
             android:textSize="20sp"
-            android:fontFamily="sans-serif-medium" />
+            android:fontFamily="@font/inter" />
 
     </LinearLayout>
 
@@ -55,7 +55,7 @@
                 android:text="Appearance"
                 android:textColor="@color/primary"
                 android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="@font/inter"
                 android:layout_marginBottom="12dp" />
 
             <androidx.cardview.widget.CardView
@@ -78,7 +78,7 @@
                         android:text="Theme Mode"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -128,7 +128,7 @@
                 android:text="Language"
                 android:textColor="@color/primary"
                 android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="@font/inter"
                 android:layout_marginBottom="12dp" />
 
             <androidx.cardview.widget.CardView
@@ -157,7 +157,7 @@
                             android:text="App Language"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp"
-                            android:fontFamily="sans-serif-medium" />
+                            android:fontFamily="@font/inter" />
 
                         <TextView
                             android:layout_width="wrap_content"

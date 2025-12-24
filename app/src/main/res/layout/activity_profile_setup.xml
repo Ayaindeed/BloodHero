@@ -36,7 +36,7 @@
                 android:text="@string/profile_setup_title"
                 android:textColor="@color/text_on_primary"
                 android:textSize="28sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -205,7 +205,7 @@
                 android:text="Gender"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
             <RadioGroup
                 android:id="@+id/rgGender"
@@ -270,7 +270,7 @@
                 android:text="@string/select_blood_type"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
             <!-- Blood Type Grid -->
             <GridLayout

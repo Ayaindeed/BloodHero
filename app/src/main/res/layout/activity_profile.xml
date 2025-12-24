@@ -149,7 +149,7 @@
                     android:text="John Doe"
                     android:textColor="@android:color/white"
                     android:textSize="24sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <!-- User Role/Title -->
                 <TextView
@@ -194,7 +194,7 @@
                             android:text="A+"
                             android:textColor="@android:color/white"
                             android:textSize="14sp"
-                            android:fontFamily="sans-serif-bold" />
+                            android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     </LinearLayout>
 
@@ -255,7 +255,7 @@
                         android:text="12"
                         android:textColor="@color/text_primary"
                         android:textSize="32sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -264,7 +264,7 @@
                         android:text="Donations"
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                 </LinearLayout>
 
@@ -313,7 +313,7 @@
                         android:text="1,200"
                         android:textColor="@color/text_primary"
                         android:textSize="32sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -322,7 +322,7 @@
                         android:text="Points"
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                 </LinearLayout>
 
@@ -370,7 +370,7 @@
                         android:text="5"
                         android:textColor="@color/text_primary"
                         android:textSize="32sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -379,7 +379,7 @@
                         android:text="Badges"
                         android:textColor="@color/text_secondary"
                         android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                 </LinearLayout>
 
@@ -442,7 +442,7 @@
                         android:text="My Profile"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -498,7 +498,7 @@
                         android:text="My Appointments"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -554,7 +554,7 @@
                         android:text="Notifications"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -610,7 +610,7 @@
                         android:text="Nearby Centers"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -666,7 +666,7 @@
                         android:text="Help &amp; Support"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <ImageView
                         android:layout_width="20dp"
@@ -731,7 +731,7 @@
                         android:text="Admin Dashboard"
                         android:textColor="@color/text_primary"
                         android:textSize="17sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -786,7 +786,7 @@
                     android:text="@string/logout"
                     android:textColor="@color/primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
             </LinearLayout>
 

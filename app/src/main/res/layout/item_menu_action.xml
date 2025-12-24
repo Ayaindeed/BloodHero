@@ -50,7 +50,7 @@
                 android:text="Schedule New Appointment"
                 android:textColor="@color/text_primary"
                 android:textSize="15sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
             <TextView
                 android:id="@+id/tvMenuSubtitle"

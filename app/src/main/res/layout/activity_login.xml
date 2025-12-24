@@ -37,7 +37,7 @@
                 android:text="Hello Hero,"
                 android:textColor="@android:color/white"
                 android:textSize="36sp"
-                android:fontFamily="sans-serif-bold" />
+                android:fontFamily="@font/inter" android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
                 android:text="Welcome Back!"
                 android:textColor="@android:color/white"
                 android:textSize="36sp"
-                android:fontFamily="sans-serif-bold" />
+                android:fontFamily="@font/inter" android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -75,7 +75,7 @@
                     android:text="Email"
                     android:textColor="@color/primary"
                     android:textSize="14sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilEmail"
@@ -115,7 +115,7 @@
                     android:text="Password"
                     android:textColor="@color/primary"
                     android:textSize="14sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilPassword"
@@ -171,7 +171,7 @@
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
                     android:textAllCaps="true"
-                    android:fontFamily="sans-serif-bold"
+                    android:fontFamily="@font/inter" android:textStyle="bold"
                     android:letterSpacing="0.1"
                     app:cornerRadius="28dp"
                     app:backgroundTint="@color/primary" />
@@ -187,7 +187,7 @@
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textAllCaps="false"
-                    android:fontFamily="sans-serif-medium"
+                    android:fontFamily="@font/inter"
                     app:cornerRadius="28dp"
                     app:strokeColor="@color/divider"
                     app:strokeWidth="1dp"
@@ -219,7 +219,7 @@
                         android:text="Sign up"
                         android:textColor="@color/primary"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-bold"
+                        android:fontFamily="@font/inter" android:textStyle="bold"
                         android:padding="4dp" />
 
                 </LinearLayout>

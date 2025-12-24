@@ -33,7 +33,7 @@
             android:text="Help &amp; Support"
             android:textColor="@android:color/white"
             android:textSize="20sp"
-            android:fontFamily="sans-serif-medium" />
+            android:fontFamily="@font/inter" />
 
     </LinearLayout>
 
@@ -272,7 +272,7 @@
                     android:text="Frequently Asked Questions"
                     android:textColor="@color/primary"
                     android:textSize="14sp"
-                    android:fontFamily="sans-serif-medium"
+                    android:fontFamily="@font/inter"
                     android:layout_marginBottom="12dp" />
 
                 <!-- FAQ 1 -->
@@ -291,7 +291,7 @@
                         android:text="Who can donate blood?"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <TextView
                         android:id="@+id/faqAnswer1"
@@ -321,7 +321,7 @@
                         android:text="How long does a donation take?"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <TextView
                         android:id="@+id/faqAnswer2"
@@ -351,7 +351,7 @@
                         android:text="What should I do before donating?"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <TextView
                         android:id="@+id/faqAnswer3"
@@ -381,7 +381,7 @@
                         android:text="How are points calculated?"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <TextView
                         android:id="@+id/faqAnswer4"
@@ -411,7 +411,7 @@
                         android:text="Can I cancel my appointment?"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <TextView
                         android:id="@+id/faqAnswer5"

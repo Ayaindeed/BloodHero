@@ -36,7 +36,7 @@
                     android:text="User Name"
                     android:textColor="@color/text_primary"
                     android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <TextView
                     android:id="@+id/tvBloodType"
@@ -49,7 +49,7 @@
                     android:text="A+"
                     android:textColor="@android:color/white"
                     android:textSize="11sp"
-                    android:fontFamily="sans-serif-bold" />
+                    android:fontFamily="@font/inter" android:textStyle="bold" />
 
             </LinearLayout>
 

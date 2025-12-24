@@ -42,7 +42,7 @@
                 android:text="Admin Dashboard"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
             <ImageButton
                 android:id="@+id/btnSettings"
@@ -110,7 +110,7 @@
                             android:text="128"
                             android:textColor="@color/text_primary"
                             android:textSize="32sp"
-                            android:fontFamily="sans-serif-bold" />
+                            android:fontFamily="@font/inter" android:textStyle="bold" />
 
                         <View
                             android:layout_width="match_parent"
@@ -153,7 +153,7 @@
                             android:text="54"
                             android:textColor="@color/text_primary"
                             android:textSize="32sp"
-                            android:fontFamily="sans-serif-bold" />
+                            android:fontFamily="@font/inter" android:textStyle="bold" />
 
                         <View
                             android:layout_width="match_parent"
@@ -206,7 +206,7 @@
                             android:text="312"
                             android:textColor="@color/text_primary"
                             android:textSize="32sp"
-                            android:fontFamily="sans-serif-bold" />
+                            android:fontFamily="@font/inter" android:textStyle="bold" />
 
                         <View
                             android:layout_width="match_parent"
@@ -249,7 +249,7 @@
                             android:text="18"
                             android:textColor="@color/text_primary"
                             android:textSize="32sp"
-                            android:fontFamily="sans-serif-bold" />
+                            android:fontFamily="@font/inter" android:textStyle="bold" />
 
                         <View
                             android:layout_width="match_parent"
@@ -291,7 +291,7 @@
                     android:text="Analytics"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-bold" />
+                    android:fontFamily="@font/inter" android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -320,7 +320,7 @@
             android:text="Manage"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
-            android:fontFamily="sans-serif-bold" />
+            android:fontFamily="@font/inter" android:textStyle="bold" />
 
         <!-- Users Card -->
         <androidx.cardview.widget.CardView
@@ -350,7 +350,7 @@
                     android:text="Users"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -390,7 +390,7 @@
                     android:text="Appointments"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -430,7 +430,7 @@
                     android:text="Donations"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -470,7 +470,7 @@
                     android:text="Badges"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <ImageView
                     android:layout_width="20dp"

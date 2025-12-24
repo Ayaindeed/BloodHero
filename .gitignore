@@ -10,6 +10,7 @@
 # Java class files
 *.class
 
+Presentation.md 
 # Generated files
 bin/
 gen/

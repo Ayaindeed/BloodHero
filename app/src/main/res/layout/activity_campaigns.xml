@@ -102,7 +102,7 @@
                     android:text="@string/nearby_campaigns"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <LinearLayout
                     android:id="@+id/btnMapView"
@@ -130,7 +130,7 @@
                         android:text="Map"
                         android:textColor="@color/text_on_primary"
                         android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                 </LinearLayout>
 

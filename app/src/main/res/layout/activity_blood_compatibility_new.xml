@@ -44,7 +44,7 @@
                     android:text="Blood Compatibility"
                     android:textColor="@android:color/white"
                     android:textSize="24sp"
-                    android:fontFamily="sans-serif-bold" />
+                    android:fontFamily="@font/inter" android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -69,7 +69,7 @@
                     android:text="O Positive"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <TextView
                     android:id="@+id/tvBloodTypeDesc"
@@ -130,7 +130,7 @@
                                 android:text="You Can Donate To"
                                 android:textColor="@color/success"
                                 android:textSize="16sp"
-                                android:fontFamily="sans-serif-bold" />
+                                android:fontFamily="@font/inter" android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvCanDonateTo"
@@ -207,7 +207,7 @@
                                 android:text="You Can Receive From"
                                 android:textColor="@color/info"
                                 android:textSize="16sp"
-                                android:fontFamily="sans-serif-bold" />
+                                android:fontFamily="@font/inter" android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvCanReceiveFrom"
@@ -254,7 +254,7 @@
                 android:text="Explore Other Blood Types"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
             <!-- Blood Type Grid -->
             <GridLayout
@@ -401,7 +401,7 @@
                             android:text="Universal Donor"
                             android:textColor="@color/text_primary"
                             android:textSize="15sp"
-                            android:fontFamily="sans-serif-bold" />
+                            android:fontFamily="@font/inter" android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tvSpecialDesc"
@@ -440,7 +440,7 @@
                         android:text="💡 Did You Know?"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"

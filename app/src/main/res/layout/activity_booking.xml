@@ -51,7 +51,7 @@
                         android:text="@string/book_appointment"
                         android:textColor="@android:color/white"
                         android:textSize="20sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                 </LinearLayout>
 
@@ -64,7 +64,7 @@
                     android:text="Red Cross Blood Drive"
                     android:textColor="@android:color/white"
                     android:textSize="22sp"
-                    android:fontFamily="sans-serif-bold" />
+                    android:fontFamily="@font/inter" android:textStyle="bold" />
 
                 <!-- Location -->
                 <LinearLayout
@@ -123,7 +123,7 @@
                         android:text="@string/select_date"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <!-- Date Picker Button -->
                     <LinearLayout
@@ -188,7 +188,7 @@
                         android:text="@string/select_time"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <!-- Time Slots Grid -->
                     <GridLayout
@@ -268,7 +268,7 @@
                         android:text="Pre-Donation Checklist"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <CheckBox
                         android:id="@+id/cbHealthy"
@@ -328,7 +328,7 @@
                         android:text="Special Notes (Optional)"
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:fontFamily="@font/inter" />
 
                     <EditText
                         android:id="@+id/etNotes"

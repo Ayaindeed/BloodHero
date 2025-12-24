@@ -46,7 +46,7 @@
                     android:text="@string/donation_history"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
             </LinearLayout>
 
@@ -93,7 +93,7 @@
                     android:text="0"
                     android:textColor="@color/primary"
                     android:textSize="32sp"
-                    android:fontFamily="sans-serif-bold" />
+                    android:fontFamily="@font/inter" android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -138,7 +138,7 @@
                     android:text="0"
                     android:textColor="@color/success"
                     android:textSize="32sp"
-                    android:fontFamily="sans-serif-bold" />
+                    android:fontFamily="@font/inter" android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -164,7 +164,7 @@
         android:text="Past Donations"
         android:textColor="@color/text_primary"
         android:textSize="16sp"
-        android:fontFamily="sans-serif-medium" />
+        android:fontFamily="@font/inter" />
 
     <!-- Donations List -->
     <androidx.recyclerview.widget.RecyclerView
@@ -201,7 +201,7 @@
             android:text="No donations yet"
             android:textColor="@color/text_secondary"
             android:textSize="16sp"
-            android:fontFamily="sans-serif-medium" />
+            android:fontFamily="@font/inter" />
 
         <TextView
             android:layout_width="wrap_content"

@@ -48,7 +48,7 @@
                 android:text="December 10, 2025"
                 android:textColor="@color/text_primary"
                 android:textSize="15sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
             <TextView
                 android:id="@+id/tvDonationLocation"
@@ -77,7 +77,7 @@
                 android:text="A+"
                 android:textColor="@color/primary"
                 android:textSize="16sp"
-                android:fontFamily="sans-serif-bold" />
+                android:fontFamily="@font/inter" android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvPoints"
@@ -86,7 +86,7 @@
                 android:text="+100 pts"
                 android:textColor="@color/success"
                 android:textSize="12sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
         </LinearLayout>
 

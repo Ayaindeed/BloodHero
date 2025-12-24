@@ -39,7 +39,7 @@
                 android:text="Analytics Dashboard"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
-                android:fontFamily="sans-serif-bold" />
+                android:fontFamily="@font/inter" android:textStyle="bold" />
 
             <ImageView
                 android:layout_width="36dp"
@@ -79,7 +79,7 @@
                         android:text="0"
                         android:textColor="@color/primary"
                         android:textSize="28sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -115,7 +115,7 @@
                         android:text="0"
                         android:textColor="@color/success"
                         android:textSize="28sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -151,7 +151,7 @@
                         android:text="0"
                         android:textColor="@color/warning"
                         android:textSize="28sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -187,7 +187,7 @@
                     android:text="Blood Type Distribution"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <com.github.mikephil.charting.charts.PieChart
                     android:id="@+id/pieChartBloodTypes"
@@ -220,7 +220,7 @@
                     android:text="Monthly Donations"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <com.github.mikephil.charting.charts.BarChart
                     android:id="@+id/barChartMonthly"
@@ -253,7 +253,7 @@
                     android:text="User Registrations (Last 6 Months)"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/lineChartUsers"

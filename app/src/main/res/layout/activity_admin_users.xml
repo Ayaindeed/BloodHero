@@ -33,7 +33,7 @@
             android:text="Admin • Users"
             android:textColor="@android:color/white"
             android:textSize="20sp"
-            android:fontFamily="sans-serif-medium" />
+            android:fontFamily="@font/inter" />
 
         <TextView
             android:id="@+id/tvUserCount"
@@ -42,7 +42,7 @@
             android:text="0"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            android:fontFamily="sans-serif-medium" />
+            android:fontFamily="@font/inter" />
 
     </LinearLayout>
 

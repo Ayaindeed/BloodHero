@@ -46,7 +46,7 @@
                     android:text="@string/leaderboard"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
             </LinearLayout>
 
@@ -83,7 +83,7 @@
                         android:text="2"
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvSecondName"
@@ -93,7 +93,7 @@
                         android:text="Jane D."
                         android:textColor="@android:color/white"
                         android:textSize="13sp"
-                        android:fontFamily="sans-serif-medium"
+                        android:fontFamily="@font/inter"
                         android:maxLines="1" />
 
                     <TextView
@@ -139,7 +139,7 @@
                         android:text="1"
                         android:textColor="@android:color/white"
                         android:textSize="14sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvFirstName"
@@ -149,7 +149,7 @@
                         android:text="John Smith"
                         android:textColor="@android:color/white"
                         android:textSize="15sp"
-                        android:fontFamily="sans-serif-bold"
+                        android:fontFamily="@font/inter" android:textStyle="bold"
                         android:maxLines="1" />
 
                     <TextView
@@ -187,7 +187,7 @@
                         android:text="3"
                         android:textColor="@android:color/white"
                         android:textSize="11sp"
-                        android:fontFamily="sans-serif-bold" />
+                        android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvThirdName"
@@ -197,7 +197,7 @@
                         android:text="Mike R."
                         android:textColor="@android:color/white"
                         android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium"
+                        android:fontFamily="@font/inter"
                         android:maxLines="1" />
 
                     <TextView
@@ -241,7 +241,7 @@
                 android:text="#4"
                 android:textColor="@color/primary"
                 android:textSize="20sp"
-                android:fontFamily="sans-serif-bold"
+                android:fontFamily="@font/inter" android:textStyle="bold"
                 android:gravity="center" />
 
             <de.hdodenhof.circleimageview.CircleImageView
@@ -267,7 +267,7 @@
                     android:text="You"
                     android:textColor="@color/text_primary"
                     android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <TextView
                     android:id="@+id/tvYourDonations"
@@ -286,7 +286,7 @@
                 android:text="1,200 pts"
                 android:textColor="@color/primary"
                 android:textSize="16sp"
-                android:fontFamily="sans-serif-bold" />
+                android:fontFamily="@font/inter" android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -302,7 +302,7 @@
         android:text="All Rankings"
         android:textColor="@color/text_primary"
         android:textSize="16sp"
-        android:fontFamily="sans-serif-medium" />
+        android:fontFamily="@font/inter" />
 
     <!-- Rankings List -->
     <androidx.recyclerview.widget.RecyclerView

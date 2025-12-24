@@ -33,7 +33,7 @@
                 android:text="A+"
                 android:textColor="@android:color/white"
                 android:textSize="20sp"
-                android:fontFamily="sans-serif-bold"
+                android:fontFamily="@font/inter" android:textStyle="bold"
                 android:background="@drawable/bg_blood_type_circle" />
 
             <LinearLayout
@@ -55,7 +55,7 @@
                         android:text="CRITICAL"
                         android:textColor="@android:color/white"
                         android:textSize="10sp"
-                        android:fontFamily="sans-serif-bold"
+                        android:fontFamily="@font/inter" android:textStyle="bold"
                         android:paddingHorizontal="8dp"
                         android:paddingVertical="2dp"
                         android:background="@drawable/bg_urgency_badge" />
@@ -68,7 +68,7 @@
                         android:text="You can donate!"
                         android:textColor="@color/success"
                         android:textSize="11sp"
-                        android:fontFamily="sans-serif-medium"
+                        android:fontFamily="@font/inter"
                         android:visibility="gone" />
 
                 </LinearLayout>
@@ -81,7 +81,7 @@
                     android:text="Patient: John Doe"
                     android:textColor="@color/text_primary"
                     android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
             </LinearLayout>
 
@@ -146,7 +146,7 @@
                 android:text="3 units needed"
                 android:textColor="@color/primary"
                 android:textSize="13sp"
-                android:fontFamily="sans-serif-medium" />
+                android:fontFamily="@font/inter" />
 
         </LinearLayout>
 

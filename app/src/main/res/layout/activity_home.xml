@@ -66,7 +66,7 @@
                             android:text="Hero"
                             android:textColor="@color/text_on_primary"
                             android:textSize="20sp"
-                            android:fontFamily="sans-serif-medium" />
+                            android:fontFamily="@font/inter" />
 
                     </LinearLayout>
 
@@ -94,7 +94,7 @@
                             android:text="--"
                             android:textColor="@color/text_on_primary"
                             android:textSize="18sp"
-                            android:fontFamily="sans-serif-bold" />
+                            android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     </LinearLayout>
 
@@ -121,7 +121,7 @@
                             android:text="0"
                             android:textColor="@color/text_on_primary"
                             android:textSize="18sp"
-                            android:fontFamily="sans-serif-bold" />
+                            android:fontFamily="@font/inter" android:textStyle="bold" />
 
                     </LinearLayout>
 
@@ -161,7 +161,7 @@
                             android:text="@string/make_first_donation"
                             android:textColor="@color/text_primary"
                             android:textSize="20sp"
-                            android:fontFamily="sans-serif-medium" />
+                            android:fontFamily="@font/inter" />
 
                         <!-- Impact Message Card -->
                         <androidx.cardview.widget.CardView
@@ -184,7 +184,7 @@
                                     android:text="@string/donation_impact"
                                     android:textColor="@color/text_primary"
                                     android:textSize="16sp"
-                                    android:fontFamily="sans-serif-medium"
+                                    android:fontFamily="@font/inter"
                                     android:gravity="center" />
 
                                 <TextView
@@ -256,7 +256,7 @@
                                 android:text="0"
                                 android:textColor="@color/text_primary"
                                 android:textSize="20sp"
-                                android:fontFamily="sans-serif-bold"
+                                android:fontFamily="@font/inter" android:textStyle="bold"
                                 android:gravity="center"
                                 android:maxLines="1"
                                 android:ellipsize="end"
@@ -309,7 +309,7 @@
                                 android:text="0"
                                 android:textColor="@color/text_primary"
                                 android:textSize="20sp"
-                                android:fontFamily="sans-serif-bold"
+                                android:fontFamily="@font/inter" android:textStyle="bold"
                                 android:gravity="center"
                                 android:maxLines="1"
                                 android:ellipsize="end"
@@ -362,7 +362,7 @@
                                 android:text="0"
                                 android:textColor="@color/text_primary"
                                 android:textSize="20sp"
-                                android:fontFamily="sans-serif-bold"
+                                android:fontFamily="@font/inter" android:textStyle="bold"
                                 android:gravity="center"
                                 android:maxLines="1"
                                 android:ellipsize="end"
@@ -393,7 +393,7 @@
                     android:text="@string/quick_actions"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:fontFamily="@font/inter" />
 
                 <!-- Quick Action Items -->
                 <include layout="@layout/item_menu_action"
