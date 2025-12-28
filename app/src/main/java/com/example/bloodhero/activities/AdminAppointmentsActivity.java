@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -186,82 +187,124 @@ public class AdminAppointmentsActivity extends AppCompatActivity {
     }
 
     private void confirmAppointment(AppointmentDisplay appointmentDisplay) {
-        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Confirm Appointment")
-                .setMessage("Confirm appointment for " + appointmentDisplay.donorName + "?")
-                .setPositiveButton("Confirm", (dialog, which) -> {
-                    // Update in SQLite - set to CONFIRMED, not COMPLETED
-                    appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.CONFIRMED);
-                    appointmentDisplay.status = "CONFIRMED";
-                    
-                    // Broadcast the update
-                    Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
-                    intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointmentDisplay.id);
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-                    
-                    // Update the appointment in allAppointments list
-                    for (AppointmentDisplay appt : allAppointments) {
-                        if (appt.id.equals(appointmentDisplay.id)) {
-                            appt.status = "CONFIRMED";
-                            break;
-                        }
-                    }
-                    
-                    filterAppointments(tabLayout.getSelectedTabPosition());
-                    Toast.makeText(this, "Appointment confirmed", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        // Create enhanced dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_confirm_appointment, null);
+        
+        TextView tvDonorName = dialogView.findViewById(R.id.tvDonorName);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        Button btnConfirm = dialogView.findViewById(R.id.btnConfirm);
+        
+        tvDonorName.setText(appointmentDisplay.donorName);
+        
+        AlertDialog dialog = builder.setView(dialogView).create();
+        
+        // Set proper window attributes for dialog
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(
+                (int)(getResources().getDisplayMetrics().widthPixels * 0.90),
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+        
+        dialog.show();
+        
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnConfirm.setOnClickListener(v -> {
+            dialog.dismiss();
+            // Update in SQLite - set to CONFIRMED, not COMPLETED
+            appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.CONFIRMED);
+            appointmentDisplay.status = "CONFIRMED";
+            
+            // Broadcast the update
+            Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
+            intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointmentDisplay.id);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            
+            // Update the appointment in allAppointments list
+            for (AppointmentDisplay appt : allAppointments) {
+                if (appt.id.equals(appointmentDisplay.id)) {
+                    appt.status = "CONFIRMED";
+                    break;
+                }
+            }
+            
+            filterAppointments(tabLayout.getSelectedTabPosition());
+            Toast.makeText(this, "Appointment confirmed", Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void markAsCompleted(AppointmentDisplay appointmentDisplay) {
-        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Mark as Completed")
-                .setMessage("Mark " + appointmentDisplay.donorName + "'s donation as completed?\n\nThis will:\n• Award 50 points\n• Update donation count\n• Unlock eligible badges")
-                .setPositiveButton("Complete", (dialog, which) -> {
-                    // Update appointment status in SQLite
-                    appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.COMPLETED);
-                    
-                    // Broadcast the update
-                    Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
-                    intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointmentDisplay.id);
-                    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-                    
-                    // Create and save donation record in SQLite
-                    User user = userRepository.getUserById(appointmentDisplay.userId);
-                    if (user != null) {
-                        Donation donation = new Donation(
-                                UUID.randomUUID().toString(),
-                                user.getId(),
-                                "",
-                                appointmentDisplay.location,
-                                appointmentDisplay.location,
-                                appointmentDisplay.date,
-                                user.getBloodType(),
-                                50,
-                                "COMPLETED"
-                        );
-                        donationRepository.saveDonation(donation);
-                        
-                        // Update user points and donations count
-                        userRepository.incrementDonations(user.getId(), 50);
-                    }
-                    
-                    appointmentDisplay.status = "COMPLETED";
-                    
-                    // Update the appointment in allAppointments list
-                    for (AppointmentDisplay appt : allAppointments) {
-                        if (appt.id.equals(appointmentDisplay.id)) {
-                            appt.status = "COMPLETED";
-                            break;
-                        }
-                    }
-                    
-                    filterAppointments(tabLayout.getSelectedTabPosition());
-                    Toast.makeText(this, "Donation marked as completed! " + appointmentDisplay.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        // Create enhanced dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_mark_completed, null);
+        
+        TextView tvDonorName = dialogView.findViewById(R.id.tvDonorName);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        Button btnComplete = dialogView.findViewById(R.id.btnComplete);
+        
+        tvDonorName.setText(appointmentDisplay.donorName);
+        
+        AlertDialog dialog = builder.setView(dialogView).create();
+        
+        // Set proper window attributes for dialog
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(
+                (int)(getResources().getDisplayMetrics().widthPixels * 0.90),
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+        
+        dialog.show();
+        
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnComplete.setOnClickListener(v -> {
+            dialog.dismiss();
+            // Update appointment status in SQLite
+            appointmentRepository.updateStatus(appointmentDisplay.id, Appointment.Status.COMPLETED);
+            
+            // Broadcast the update
+            Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
+            intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointmentDisplay.id);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            
+            // Create and save donation record in SQLite
+            User user = userRepository.getUserById(appointmentDisplay.userId);
+            if (user != null) {
+                // Record donation with TODAY's date, not appointment date
+                String todayDate = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).format(new java.util.Date());
+                Donation donation = new Donation(
+                        UUID.randomUUID().toString(),
+                        user.getId(),
+                        "",
+                        appointmentDisplay.location,
+                        appointmentDisplay.location,
+                        todayDate,
+                        user.getBloodType(),
+                        50,
+                        "COMPLETED"
+                );
+                donationRepository.saveDonation(donation);
+                
+                // Update user points and donations count
+                userRepository.incrementDonations(user.getId(), 50);
+            }
+            
+            appointmentDisplay.status = "COMPLETED";
+            
+            // Update the appointment in allAppointments list
+            for (AppointmentDisplay appt : allAppointments) {
+                if (appt.id.equals(appointmentDisplay.id)) {
+                    appt.status = "COMPLETED";
+                    break;
+                }
+            }
+            
+            filterAppointments(tabLayout.getSelectedTabPosition());
+            Toast.makeText(this, "Donation marked as completed! " + appointmentDisplay.donorName + " earned 50 points", Toast.LENGTH_LONG).show();
+        });
     }
 
     // Inner class for displaying appointment data

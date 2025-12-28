@@ -90,6 +90,7 @@
     
     <!-- Card Background for consistency -->
     <color name="card_background">#FFFFFF</color>
+    <color name="bg_surface_secondary">#F5F5F5</color>
     <color name="white">#FFFFFF</color>
     
     <!-- ZXing Scanner Colors -->

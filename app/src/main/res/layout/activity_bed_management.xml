@@ -136,6 +136,16 @@
                         android:textColor="@color/success"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+                    
+                    <ImageView
+                        android:id="@+id/ivBed1StatusIcon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="@color/success"
+                        android:contentDescription="Bed Status Icon" />
+                        
                 </LinearLayout>
 
                 <TextView
@@ -147,13 +157,32 @@
                     android:textSize="14sp"
                     android:visibility="gone" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBed1Action"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Assign Donor"
-                    app:cornerRadius="8dp" />
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBed1Action"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Assign Donor"
+                        app:cornerRadius="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBed1Check"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Check Bed"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_info"
+                        app:iconGravity="textStart" />
+
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -196,6 +225,16 @@
                         android:textColor="@color/success"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+                    
+                    <ImageView
+                        android:id="@+id/ivBed2StatusIcon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="@color/success"
+                        android:contentDescription="Bed Status Icon" />
+                        
                 </LinearLayout>
 
                 <TextView
@@ -207,13 +246,32 @@
                     android:textSize="14sp"
                     android:visibility="gone" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBed2Action"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Assign Donor"
-                    app:cornerRadius="8dp" />
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBed2Action"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Assign Donor"
+                        app:cornerRadius="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBed2Check"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Check Bed"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_info"
+                        app:iconGravity="textStart" />
+
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -256,6 +314,16 @@
                         android:textColor="@color/success"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+                    
+                    <ImageView
+                        android:id="@+id/ivBed3StatusIcon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="@color/success"
+                        android:contentDescription="Bed Status Icon" />
+                        
                 </LinearLayout>
 
                 <TextView
@@ -267,13 +335,32 @@
                     android:textSize="14sp"
                     android:visibility="gone" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBed3Action"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Assign Donor"
-                    app:cornerRadius="8dp" />
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBed3Action"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Assign Donor"
+                        app:cornerRadius="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBed3Check"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Check Bed"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_info"
+                        app:iconGravity="textStart" />
+
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -316,6 +403,16 @@
                         android:textColor="@color/success"
                         android:textSize="12sp"
                         android:textStyle="bold" />
+                    
+                    <ImageView
+                        android:id="@+id/ivBed4StatusIcon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="8dp"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="@color/success"
+                        android:contentDescription="Bed Status Icon" />
+                        
                 </LinearLayout>
 
                 <TextView
@@ -327,13 +424,32 @@
                     android:textSize="14sp"
                     android:visibility="gone" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBed4Action"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Assign Donor"
-                    app:cornerRadius="8dp" />
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBed4Action"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Assign Donor"
+                        app:cornerRadius="8dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBed4Check"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="Check Bed"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_info"
+                        app:iconGravity="textStart" />
+
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

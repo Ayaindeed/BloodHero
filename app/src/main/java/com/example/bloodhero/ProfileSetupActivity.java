@@ -28,7 +28,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import com.example.bloodhero.models.User;
+import com.example.bloodhero.utils.EnhancedDialogHelper;import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.UserRepository;
 import com.example.bloodhero.utils.UserHelper;
 import com.google.android.material.button.MaterialButton;
@@ -450,8 +450,8 @@ public class ProfileSetupActivity extends AppCompatActivity {
             years[i] = String.valueOf(maxYear - i);
         }
         
-        // Show AlertDialog with year picker
-        new AlertDialog.Builder(this)
+        // Show AlertDialog with year picker using builder
+        new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Select Birth Year")
                 .setItems(years, (dialog, which) -> {
                     int selectedYear = maxYear - which;

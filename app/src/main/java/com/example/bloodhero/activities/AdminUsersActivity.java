@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bloodhero.R;
 import com.example.bloodhero.database.BloodHeroDatabaseHelper;
 import com.example.bloodhero.models.User;
+import com.example.bloodhero.utils.EnhancedDialogHelper;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
@@ -184,14 +185,13 @@ public class AdminUsersActivity extends AppCompatActivity {
     }
     
     private void showDeleteConfirmation(User user) {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Delete User")
-                .setMessage("Are you sure you want to delete " + user.getName() + "?\n\nThis will permanently remove the user and all their data.")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    deleteUser(user);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        EnhancedDialogHelper.showCriticalActionDialog(
+                this,
+                "Delete User",
+                "Are you sure you want to delete " + user.getName() + "?\n\nThis will permanently remove the user and all their data.",
+                "Delete",
+                () -> deleteUser(user)
+        );
     }
     
     private void deleteUser(User user) {

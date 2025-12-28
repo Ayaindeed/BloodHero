@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bloodhero.R;
+import com.example.bloodhero.utils.EnhancedDialogHelper;import com.example.bloodhero.R;
 import com.example.bloodhero.database.BloodHeroDatabaseHelper;
 import com.example.bloodhero.models.User;
 import com.google.android.material.button.MaterialButton;
@@ -108,14 +108,14 @@ public class AdminBadgesActivity extends AppCompatActivity {
             return;
         }
 
-        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Award Badge")
-                .setMessage("Award \"" + selectedBadge.name + "\" badge to " + user.name + "?")
-                .setPositiveButton("Award", (dialog, which) -> {
-                    Toast.makeText(this, "Badge awarded to " + user.name + "!", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        EnhancedDialogHelper.showConfirmationDialog(
+                this,
+                "Award Badge",
+                "Award \"" + selectedBadge.name + "\" badge to " + user.name + "?",
+                "Award",
+                "Cancel",
+                () -> Toast.makeText(AdminBadgesActivity.this, "Badge awarded to " + user.name + "!", Toast.LENGTH_SHORT).show()
+        );
     }
 
     // Data classes

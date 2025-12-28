@@ -18,6 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.bloodhero.R;
 import com.example.bloodhero.models.Appointment;
+import com.example.bloodhero.utils.EnhancedDialogHelper;
 import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.utils.QRCodeHelper;
 import com.google.zxing.ResultPoint;
@@ -228,16 +229,17 @@ public class QRScannerActivity extends AppCompatActivity {
     }
 
     private void showErrorDialog(String title, String message) {
-        new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("Try Again", (dialog, which) -> {
+        EnhancedDialogHelper.showConfirmationDialog(
+                this,
+                title,
+                message,
+                "Try Again",
+                "Cancel",
+                () -> {
                     isScanning = false;
                     barcodeView.resume();
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> finish())
-                .setCancelable(false)
-                .show();
+                }
+        );
     }
 
     @Override

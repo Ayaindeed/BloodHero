@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import com.example.bloodhero.R;
 import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.repository.DonationRepository;
 import com.example.bloodhero.repository.UserRepository;
+import com.example.bloodhero.utils.EnhancedDialogHelper;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -91,17 +93,34 @@ public class AdminDashboardActivity extends AppCompatActivity {
         });
         
         fabQRScanner.setOnClickListener(v -> {
-            // Show options: QR Scanner or Bed Management
-            new android.app.AlertDialog.Builder(this)
-                    .setTitle("Choose Action")
-                    .setItems(new String[]{"Scan QR Code", "Manage Beds"}, (dialog, which) -> {
-                        if (which == 0) {
-                            startActivity(new Intent(this, QRScannerActivity.class));
-                        } else {
-                            startActivity(new Intent(this, BedManagementActivity.class));
-                        }
-                    })
-                    .show();
+            // Show enhanced action dialog
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_admin_actions, null);
+            android.app.AlertDialog actionDialog = new android.app.AlertDialog.Builder(this)
+                    .setView(dialogView)
+                    .create();
+            
+            if (actionDialog.getWindow() != null) {
+                actionDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
+            
+            // Find action cards
+            androidx.cardview.widget.CardView cardScanQR = dialogView.findViewById(R.id.cardScanQR);
+            androidx.cardview.widget.CardView cardManageBeds = dialogView.findViewById(R.id.cardManageBeds);
+            com.google.android.material.button.MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancelAction);
+            
+            cardScanQR.setOnClickListener(view -> {
+                actionDialog.dismiss();
+                startActivity(new Intent(this, QRScannerActivity.class));
+            });
+            
+            cardManageBeds.setOnClickListener(view -> {
+                actionDialog.dismiss();
+                startActivity(new Intent(this, BedManagementActivity.class));
+            });
+            
+            btnCancel.setOnClickListener(view -> actionDialog.dismiss());
+            
+            actionDialog.show();
         });
 
         cardAppointments.setOnClickListener(v -> {
@@ -132,8 +151,10 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // Get actual registered users count from SQLite (exclude admin)
         int userCount = 0;
         for (com.example.bloodhero.models.User user : allUsers) {
-            // Count only non-admin users (admin email is admin@bloodhero.com)
-            if (user.getEmail() != null && !user.getEmail().equalsIgnoreCase("admin@bloodhero.com")) {
+            // Count only non-admin users (admin email is admin@bloodhero.com and admin@contact.me)
+            if (user.getEmail() != null && 
+                !user.getEmail().equalsIgnoreCase("admin@bloodhero.com") &&
+                !user.getEmail().equalsIgnoreCase("admin@contact.me")) {
                 userCount++;
             }
         }
@@ -145,25 +166,24 @@ public class AdminDashboardActivity extends AppCompatActivity {
         int pendingCount = scheduledCount + confirmedCount;
         tvPendingAppointments.setText(String.valueOf(pendingCount));
         
-        // Get real donations count from SQLite
-        // Sum up all users' donation counts
-        int donationsCount = 0;
-        for (com.example.bloodhero.models.User user : userRepository.getAllUsers()) {
-            donationsCount += user.getTotalDonations();
-        }
+        // Get real donations count from SQLite - use DonationRepository for consistency
+        List<com.example.bloodhero.models.Donation> allDonations = donationRepository.getAllDonations();
+        int donationsCount = allDonations.size();
         tvTotalDonations.setText(String.valueOf(donationsCount));
         
-        // Get total badges count (simplified - showing donation count for now)
-        tvLivesSaved.setText(String.valueOf(donationsCount));
+        // Lives saved = donations * 3 (each donation can save up to 3 lives)
+        int livesSaved = donationsCount * 3;
+        tvLivesSaved.setText(String.valueOf(livesSaved));
     }
     
     private void showLogoutConfirmation() {
-        new AlertDialog.Builder(this)
-                .setTitle("Logout")
-                .setMessage("Are you sure you want to logout from admin panel?")
-                .setPositiveButton("Logout", (dialog, which) -> performLogout())
-                .setNegativeButton("Cancel", null)
-                .show();
+        EnhancedDialogHelper.showCriticalActionDialog(
+                this,
+                "Logout",
+                "Are you sure you want to logout from admin panel?",
+                "Logout",
+                this::performLogout
+        );
     }
     
     private void performLogout() {

@@ -18,6 +18,7 @@ import com.example.bloodhero.R;
 import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.UserRepository;
 import com.example.bloodhero.utils.SessionManager;
+import com.example.bloodhero.utils.EnhancedDialogHelper;
 import com.example.bloodhero.utils.UserHelper;
 
 import java.io.File;
@@ -174,12 +175,13 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showLogoutDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Logout")
-                .setMessage("Are you sure you want to logout?")
-                .setPositiveButton("Logout", (dialog, which) -> performLogout())
-                .setNegativeButton("Cancel", null)
-                .show();
+        EnhancedDialogHelper.showCriticalActionDialog(
+                this,
+                "Logout",
+                "Are you sure you want to logout?",
+                "Logout",
+                this::performLogout
+        );
     }
 
     private void performLogout() {

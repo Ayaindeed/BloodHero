@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
+import com.example.bloodhero.utils.EnhancedDialogHelper;
 import androidx.core.content.ContextCompat;
 
 import com.example.bloodhero.R;
@@ -24,6 +27,7 @@ import com.example.bloodhero.models.Campaign;
 import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.utils.UserHelper;
+import com.example.bloodhero.utils.StatusDialogHelper;
 import com.google.android.material.button.MaterialButton;
 
 import org.osmdroid.api.IMapController;
@@ -296,6 +300,12 @@ public class CampaignMapActivity extends AppCompatActivity {
         all.add(new Campaign("f3", "Hôpital Ibn Al Khatib", "CHU Fès",
                 "Avenue Allal Ben Abdellah, Fès", generateRandomDate(random, dateFormat), "7:00 AM - 2:00 PM", 2.1,
                 Arrays.asList("AB+", "AB-", "B+"), "Collecte matinale."));
+        all.add(new Campaign("f4", "Clinique Al Amal", "Groupe Akdital",
+                "Boulevard Mohammed V, Fès", generateRandomDate(random, dateFormat), "1:00 PM - 8:00 PM", 3.4,
+                Arrays.asList("A+", "O+", "B+"), "Collecte de l'après-midi."));
+        all.add(new Campaign("f5", "Université Sidi Mohammed Ben Abdellah", "Faculté des Sciences",
+                "Route d'Imouzzer, Fès", generateRandomDate(random, dateFormat), "9:00 AM - 6:00 PM", 4.2,
+                Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Campagne étudiante."));
 
         // MEKNES
         all.add(new Campaign("mk1", "Hôpital Mohammed V", "Ministère de la Santé",
@@ -414,44 +424,87 @@ public class CampaignMapActivity extends AppCompatActivity {
         List<Appointment> userAppointments = appointmentRepository.getAppointmentsByUserId(currentUser.getId());
         for (Appointment appt : userAppointments) {
             if (appt.getStatus() == Appointment.Status.SCHEDULED) {
-                new AlertDialog.Builder(this)
-                        .setTitle("Active Appointment Exists")
-                        .setMessage("You already have an active appointment scheduled. You can only book one appointment at a time.\n\nPlease complete or cancel your current appointment before booking a new one.")
-                        .setPositiveButton("View My Appointment", (dialog, which) -> {
-                            Intent intent = new Intent(this, MyAppointmentsActivity.class);
+                EnhancedDialogHelper.showConfirmationDialog(
+                        this,
+                        "Active Appointment Exists",
+                        "You already have an active appointment scheduled. You can only book one appointment at a time.\n\nPlease complete or cancel your current appointment before booking a new one.",
+                        "View",
+                        "Close",
+                        () -> {
+                            Intent intent = new Intent(CampaignMapActivity.this, MyAppointmentsActivity.class);
                             startActivity(intent);
-                        })
-                        .setNegativeButton("Close", null)
-                        .show();
+                        }
+                );
                 return;
             }
         }
         
-        new AlertDialog.Builder(this)
-                .setTitle("Book Appointment")
-                .setMessage("Would you like to book an appointment at " + campaign.getName() + "?\n\nLocation: " + campaign.getLocation() + "\nDate: " + campaign.getDate())
-                .setPositiveButton("Book Now", (dialog, which) -> {
-                    // Create appointment and save to SQLite
-                    Appointment appointment = new Appointment(
-                            UUID.randomUUID().toString(),
-                            currentUser.getId(),
-                            campaign.getId(),
-                            campaign.getName(),
-                            campaign.getLocation(),
-                            campaign.getDate(),
-                            "09:00 AM",
-                            Appointment.Status.SCHEDULED
-                    );
-                    
-                    appointmentRepository.createAppointment(appointment);
-                    
-                    Toast.makeText(this, "Appointment booked successfully!", Toast.LENGTH_SHORT).show();
-                    
-                    // Navigate to MyAppointmentsActivity
-                    Intent intent = new Intent(this, MyAppointmentsActivity.class);
-                    startActivity(intent);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        // Show enhanced book appointment dialog
+        showBookAppointmentDialog(campaign);
+    }
+
+    private void showBookAppointmentDialog(Campaign campaign) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, android.R.style.Theme_Light_NoTitleBar_Fullscreen);
+        
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_book_appointment, null);
+        
+        TextView tvCampaignName = dialogView.findViewById(R.id.tvCampaignName);
+        TextView tvLocation = dialogView.findViewById(R.id.tvLocation);
+        TextView tvDate = dialogView.findViewById(R.id.tvDate);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        Button btnBookNow = dialogView.findViewById(R.id.btnBookNow);
+        
+        tvCampaignName.setText(campaign.getName());
+        tvLocation.setText(campaign.getLocation());
+        tvDate.setText(campaign.getDate());
+        
+        AlertDialog dialog = builder.setView(dialogView).create();
+        
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        btnBookNow.setOnClickListener(v -> {
+            // Create appointment and save to SQLite
+            Appointment appointment = new Appointment(
+                    UUID.randomUUID().toString(),
+                    currentUser.getId(),
+                    campaign.getId(),
+                    campaign.getName(),
+                    campaign.getLocation(),
+                    campaign.getDate(),
+                    "09:00 AM",
+                    Appointment.Status.SCHEDULED
+            );
+            
+            appointmentRepository.createAppointment(appointment);
+            
+            // Show success dialog
+            StatusDialogHelper.showStatusDialog(
+                    this,
+                    StatusDialogHelper.StatusType.SUCCESS,
+                    "Appointment Booked!",
+                    "Your appointment has been successfully scheduled for " + campaign.getDate() + ".",
+                    "View",
+                    () -> {
+                        Intent intent = new Intent(this, MyAppointmentsActivity.class);
+                        startActivity(intent);
+                    }
+            );
+            
+            dialog.dismiss();
+        });
+        
+        dialog.show();
+        
+        // Set dialog to fit screen properly without overlapping
+        if (dialog.getWindow() != null) {
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+            lp.copyFrom(dialog.getWindow().getAttributes());
+            int screenWidth = getResources().getDisplayMetrics().widthPixels;
+            int screenHeight = getResources().getDisplayMetrics().heightPixels;
+            lp.width = (int) (screenWidth * 0.85);
+            lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            lp.y = 0;
+            dialog.getWindow().setAttributes(lp);
+        }
     }
 }

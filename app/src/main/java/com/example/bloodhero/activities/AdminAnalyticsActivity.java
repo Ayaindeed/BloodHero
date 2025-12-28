@@ -43,8 +43,8 @@ public class AdminAnalyticsActivity extends AppCompatActivity {
 
     private ImageButton btnBack;
     private TextView tvTotalUsers, tvTotalDonations, tvActiveCampaigns;
+    private TextView tvWeeklyDonations, tvMonthlyDonations, tvAllTimeDonations;
     private PieChart pieChartBloodTypes;
-    private BarChart barChartMonthly;
     private LineChart lineChartUsers;
     
     private UserRepository userRepository;
@@ -61,7 +61,7 @@ public class AdminAnalyticsActivity extends AppCompatActivity {
         initViews();
         loadStats();
         setupPieChart();
-        setupBarChart();
+        setupDonationStats();
         setupLineChart();
         setupClickListeners();
     }
@@ -71,7 +71,7 @@ public class AdminAnalyticsActivity extends AppCompatActivity {
         super.onResume();
         // Refresh data when returning to this activity
         loadStats();
-        setupBarChart();
+        setupDonationStats();
         setupPieChart();
         setupLineChart();
     }
@@ -81,8 +81,10 @@ public class AdminAnalyticsActivity extends AppCompatActivity {
         tvTotalUsers = findViewById(R.id.tvTotalUsers);
         tvTotalDonations = findViewById(R.id.tvTotalDonations);
         tvActiveCampaigns = findViewById(R.id.tvActiveCampaigns);
+        tvWeeklyDonations = findViewById(R.id.tvWeeklyDonations);
+        tvMonthlyDonations = findViewById(R.id.tvMonthlyDonations);
+        tvAllTimeDonations = findViewById(R.id.tvAllTimeDonations);
         pieChartBloodTypes = findViewById(R.id.pieChartBloodTypes);
-        barChartMonthly = findViewById(R.id.barChartMonthly);
         lineChartUsers = findViewById(R.id.lineChartUsers);
     }
 
@@ -201,103 +203,42 @@ public class AdminAnalyticsActivity extends AppCompatActivity {
         };
     }
 
-    private void setupBarChart() {
-        ArrayList<BarEntry> entries = new ArrayList<>();
-        
-        // Get real monthly donation data from SQLite
+    private void setupDonationStats() {
         List<Donation> allDonations = donationRepository.getAllDonations();
-        int[] monthlyCounts = new int[6]; // Last 6 months
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Calendar now = Calendar.getInstance();
-        int currentMonth = now.get(Calendar.MONTH);
-        int currentYear = now.get(Calendar.YEAR);
         
-        Log.d("AdminAnalytics", "Total donations in DB: " + allDonations.size());
+        int weeklyCount = 0;
+        int monthlyCount = 0;
+        int allTimeCount = allDonations.size();
         
-        // Calculate donations for each of the last 6 months
+        // Calculate weekly and monthly donations
         for (Donation donation : allDonations) {
             try {
                 if (donation.getDate() == null || donation.getDate().isEmpty()) continue;
                 
                 Calendar donationCal = Calendar.getInstance();
                 donationCal.setTime(sdf.parse(donation.getDate()));
-                int donationMonth = donationCal.get(Calendar.MONTH);
-                int donationYear = donationCal.get(Calendar.YEAR);
                 
-                Log.d("AdminAnalytics", "Donation date: " + donation.getDate() + 
-                      ", month: " + donationMonth + ", year: " + donationYear);
+                // Calculate days difference
+                long daysDiff = (now.getTimeInMillis() - donationCal.getTimeInMillis()) / (1000 * 60 * 60 * 24);
                 
-                // Get month difference (0 = current month, 1 = last month, etc.)
-                int monthDiff = (currentYear - donationYear) * 12 + (currentMonth - donationMonth);
+                if (daysDiff <= 7) {
+                    weeklyCount++;
+                }
                 
-                Log.d("AdminAnalytics", "Month diff: " + monthDiff);
-                
-                if (monthDiff >= 0 && monthDiff < 6) {
-                    int index = 5 - monthDiff; // Reverse order for chart display
-                    monthlyCounts[index]++;
-                    Log.d("AdminAnalytics", "Adding to index " + index + ", new count: " + monthlyCounts[index]);
+                if (daysDiff <= 30) {
+                    monthlyCount++;
                 }
             } catch (Exception e) {
                 Log.e("AdminAnalytics", "Error parsing donation date: " + donation.getDate(), e);
-                e.printStackTrace();
             }
         }
         
-        // Log final counts
-        for (int i = 0; i < 6; i++) {
-            Log.d("AdminAnalytics", "Month " + i + " count: " + monthlyCounts[i]);
-        }
-        
-        // Add entries (show actual count even if 0)
-        for (int i = 0; i < 6; i++) {
-            entries.add(new BarEntry(i, monthlyCounts[i]));
-        }
-
-        BarDataSet dataSet = new BarDataSet(entries, "Donations");
-        dataSet.setColor(Color.parseColor("#E53935"));
-        dataSet.setValueTextSize(12f);
-        
-        // Check if dark mode for text color
-        boolean isDarkMode = (getResources().getConfiguration().uiMode 
-                & android.content.res.Configuration.UI_MODE_NIGHT_MASK) 
-                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
-        dataSet.setValueTextColor(isDarkMode ? Color.WHITE : Color.BLACK);
-        dataSet.setDrawValues(true);
-
-        BarData data = new BarData(dataSet);
-        data.setBarWidth(0.7f);
-
-        barChartMonthly.setData(data);
-        barChartMonthly.getDescription().setEnabled(false);
-        barChartMonthly.setFitBars(true);
-        barChartMonthly.setDrawGridBackground(false);
-        barChartMonthly.setDrawBarShadow(false);
-        barChartMonthly.setHighlightFullBarEnabled(true);
-        
-        // Generate last 6 months labels
-        String[] months = getLastSixMonths();
-        XAxis xAxis = barChartMonthly.getXAxis();
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(months));
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setGranularity(1f);
-        xAxis.setDrawGridLines(false);
-        xAxis.setTextSize(11f);
-        xAxis.setTextColor(isDarkMode ? Color.WHITE : Color.BLACK);
-        
-        barChartMonthly.getAxisLeft().setAxisMinimum(0f);
-        barChartMonthly.getAxisLeft().setDrawGridLines(true);
-        barChartMonthly.getAxisLeft().setGridColor(isDarkMode ? Color.parseColor("#2D2424") : Color.parseColor("#E0E0E0"));
-        barChartMonthly.getAxisLeft().setTextColor(isDarkMode ? Color.WHITE : Color.BLACK);
-        barChartMonthly.getAxisLeft().setTextSize(11f);
-        barChartMonthly.getAxisRight().setEnabled(false);
-        
-        Legend legend = barChartMonthly.getLegend();
-        legend.setEnabled(true);
-        legend.setTextColor(isDarkMode ? Color.WHITE : Color.BLACK);
-        legend.setTextSize(12f);
-        
-        barChartMonthly.animateY(1200);
-        barChartMonthly.invalidate();
+        // Update TextViews
+        tvWeeklyDonations.setText(String.valueOf(weeklyCount));
+        tvMonthlyDonations.setText(String.valueOf(monthlyCount));
+        tvAllTimeDonations.setText(String.valueOf(allTimeCount));
     }
 
     private void setupLineChart() {

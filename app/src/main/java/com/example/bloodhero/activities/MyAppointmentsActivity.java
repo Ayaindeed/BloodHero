@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,15 +25,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.example.bloodhero.HomeActivity;
 import com.example.bloodhero.R;
 import com.example.bloodhero.models.Appointment;
+import com.example.bloodhero.models.Campaign;
 import com.example.bloodhero.models.Donation;
 import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.AppointmentRepository;
+import com.example.bloodhero.utils.EnhancedDialogHelper;
 import com.example.bloodhero.repository.DonationRepository;
 import com.example.bloodhero.repository.UserRepository;
 import com.example.bloodhero.utils.QRCodeHelper;
 import com.example.bloodhero.utils.UserHelper;
 import com.example.bloodhero.utils.VerificationCodeGenerator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -238,22 +243,17 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         btnEnterCode.setOnClickListener(v -> showVerificationCodeDialog());
         
         btnCheckIn.setOnClickListener(v -> performCheckIn());
-
-        findViewById(R.id.btnFindCampaign).setOnClickListener(v -> {
-            Intent intent = new Intent(this, CampaignsActivity.class);
-            startActivity(intent);
-        });
     }
 
     private void showCancelConfirmation() {
-        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Cancel Appointment")
-                .setMessage("Are you sure you want to cancel this appointment? This action cannot be undone.")
-                .setPositiveButton("Yes, Cancel", (dialog, which) -> {
-                    cancelAppointment();
-                })
-                .setNegativeButton("No, Keep It", null)
-                .show();
+        EnhancedDialogHelper.showConfirmationDialog(
+                this,
+                "Cancel Appointment",
+                "Are you sure you want to cancel this appointment? This action cannot be undone.",
+                "Yes, Cancel",
+                "No, Keep It",
+                this::cancelAppointment
+        );
     }
 
     private void cancelAppointment() {
@@ -308,10 +308,13 @@ public class MyAppointmentsActivity extends AppCompatActivity {
             return;
         }
         
-        new AlertDialog.Builder(this)
-                .setTitle("Check In")
-                .setMessage("Check in for your appointment now?")
-                .setPositiveButton("Check In", (dialog, which) -> {
+        EnhancedDialogHelper.showConfirmationDialog(
+                this,
+                "Check In",
+                "Check in for your appointment now?",
+                "Check In",
+                "Cancel",
+                () -> {
                     // Update status to CHECKED_IN
                     boolean success = appointmentRepository.updateStatus(
                             currentAppointment.getId(), 
@@ -319,14 +322,13 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                     );
                     
                     if (success) {
-                        Toast.makeText(this, "✓ Checked in successfully!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MyAppointmentsActivity.this, "✓ Checked in successfully!", Toast.LENGTH_SHORT).show();
                         loadAppointment(); // Refresh UI
                     } else {
-                        Toast.makeText(this, "Failed to check in", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MyAppointmentsActivity.this, "Failed to check in", Toast.LENGTH_SHORT).show();
                     }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                }
+        );
     }
     
     private void showVerificationCodeDialog() {
@@ -335,22 +337,37 @@ public class MyAppointmentsActivity extends AppCompatActivity {
             return;
         }
         
-        // Create input field
-        final EditText input = new EditText(this);
-        input.setHint("Enter 4-character code");
-        input.setFilters(new InputFilter[]{new InputFilter.LengthFilter(4), new InputFilter.AllCaps()});
-        input.setPadding(50, 30, 50, 30);
+        // Create enhanced dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogTheme);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_enter_verification_code, null);
         
-        new AlertDialog.Builder(this)
-                .setTitle("Enter Verification Code")
-                .setMessage("Enter the 4-character code given by the admin after your donation:")
-                .setView(input)
-                .setPositiveButton("Verify", (dialog, which) -> {
-                    String enteredCode = input.getText().toString().trim().toUpperCase();
-                    verifyDonationCode(enteredCode);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        EditText etCode = dialogView.findViewById(R.id.etVerificationCode);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        Button btnVerify = dialogView.findViewById(R.id.btnVerify);
+        
+        AlertDialog dialog = builder.setView(dialogView).create();
+        
+        // Set proper window attributes for dialog
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(
+                (int)(getResources().getDisplayMetrics().widthPixels * 0.90),
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+        
+        dialog.show();
+        
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnVerify.setOnClickListener(v -> {
+            String enteredCode = etCode.getText().toString().trim().toUpperCase();
+            if (enteredCode.isEmpty()) {
+                Toast.makeText(this, "Please enter a code", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            dialog.dismiss();
+            verifyDonationCode(enteredCode);
+        });
     }
     
     private void verifyDonationCode(String enteredCode) {
@@ -368,12 +385,14 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         if (currentAppointment.verifyCode(enteredCode)) {
             completeDonation();
         } else {
-            new AlertDialog.Builder(this)
-                    .setTitle("Invalid Code")
-                    .setMessage("The code you entered is incorrect. Please try again or contact the donation center.")
-                    .setPositiveButton("Try Again", (dialog, which) -> showVerificationCodeDialog())
-                    .setNegativeButton("Cancel", null)
-                    .show();
+            EnhancedDialogHelper.showConfirmationDialog(
+                    this,
+                    "Invalid Code",
+                    "The code you entered is incorrect. Please try again or contact the donation center.",
+                    "Try Again",
+                    "Cancel",
+                    this::showVerificationCodeDialog
+            );
         }
     }
     
@@ -420,16 +439,243 @@ public class MyAppointmentsActivity extends AppCompatActivity {
     }
     
     private void showCompletionDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("🎉 Donation Complete!")
-                .setMessage("Thank you for your donation!\n\n" +
-                        "You've earned 50 points!\n" +
-                        "Total donations: " + currentUser.getTotalDonations() + "\n" +
-                        "Total points: " + currentUser.getTotalPoints())
-                .setPositiveButton("OK", (dialog, which) -> {
+        EnhancedDialogHelper.showInfoDialog(
+                this,
+                "🎉 Donation Complete!",
+                "Thank you for your donation!\n\n" +
+                "You've earned 50 points!\n" +
+                "Total donations: " + currentUser.getTotalDonations() + "\n" +
+                "Total points: " + currentUser.getTotalPoints(),
+                "OK",
+                () -> {
                     loadAppointment(); // Refresh UI
-                })
-                .setCancelable(false)
-                .show();
+                }
+        );
+    }
+
+    private void seedAppointmentsForAllCampaigns() {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+        String today = sdf.format(new java.util.Date());
+        
+        // Get user's city
+        String userCity = getUserCity();
+        
+        // Create all campaigns and filter by user's city
+        List<Campaign> userCampaigns = filterCampaignsByUserCity(getAllCampaigns(), userCity);
+        
+        // Create appointments for user's city campaigns with today's date
+        for (Campaign campaign : userCampaigns) {
+            Appointment appointment = new Appointment(
+                    UUID.randomUUID().toString(),
+                    currentUser.getId(),
+                    campaign.getId(),
+                    campaign.getName(),
+                    campaign.getLocation(),
+                    today,
+                    campaign.getTime(),
+                    Appointment.Status.CONFIRMED
+            );
+            appointmentRepository.createAppointment(appointment);
+        }
+    }
+
+    private String getUserCity() {
+        String userCity = "";
+        
+        if (currentUser != null && currentUser.getLocation() != null) {
+            userCity = currentUser.getLocation().toLowerCase();
+        } else {
+            android.content.SharedPreferences prefs = getSharedPreferences("BloodHeroPrefs", MODE_PRIVATE);
+            userCity = prefs.getString("user_location", "").toLowerCase();
+        }
+        
+        // Extract city name from location string
+        if (userCity.contains("casablanca") || userCity.contains("casa")) {
+            return "casablanca";
+        } else if (userCity.contains("rabat")) {
+            return "rabat";
+        } else if (userCity.contains("marrakech") || userCity.contains("marrakesh")) {
+            return "marrakech";
+        } else if (userCity.contains("tanger") || userCity.contains("tangier")) {
+            return "tanger";
+        } else if (userCity.contains("fes") || userCity.contains("fez") || userCity.contains("fès")) {
+            return "fes";
+        } else if (userCity.contains("meknes") || userCity.contains("meknès")) {
+            return "meknes";
+        } else if (userCity.contains("agadir")) {
+            return "agadir";
+        } else if (userCity.contains("oujda")) {
+            return "oujda";
+        }
+        
+        return "casablanca"; // Default to Casablanca
+    }
+
+    private List<Campaign> filterCampaignsByUserCity(List<Campaign> campaigns, String userCity) {
+        List<Campaign> filtered = new ArrayList<>();
+        
+        for (Campaign campaign : campaigns) {
+            String location = campaign.getLocation().toLowerCase();
+            
+            if (userCity.equals("casablanca") && (location.contains("casablanca") || location.contains("casa"))) {
+                filtered.add(campaign);
+            } else if (userCity.equals("rabat") && location.contains("rabat")) {
+                filtered.add(campaign);
+            } else if (userCity.equals("marrakech") && (location.contains("marrakech") || location.contains("marrakesh"))) {
+                filtered.add(campaign);
+            } else if (userCity.equals("tanger") && (location.contains("tanger") || location.contains("tangier"))) {
+                filtered.add(campaign);
+            } else if (userCity.equals("fes") && (location.contains("fès") || location.contains("fes") || location.contains("fez"))) {
+                filtered.add(campaign);
+            } else if (userCity.equals("meknes") && (location.contains("mekn") || location.contains("meknès"))) {
+                filtered.add(campaign);
+            } else if (userCity.equals("agadir") && location.contains("agadir")) {
+                filtered.add(campaign);
+            } else if (userCity.equals("oujda") && location.contains("oujda")) {
+                filtered.add(campaign);
+            }
+        }
+        
+        return filtered;
+    }
+
+    private List<Campaign> getAllCampaigns() {
+        List<Campaign> campaigns = new ArrayList<>();
+        java.util.Random random = new java.util.Random();
+        java.text.SimpleDateFormat dateFormat = new java.text.SimpleDateFormat("MMMM d, yyyy", java.util.Locale.ENGLISH);
+
+        // CASABLANCA Campaigns
+        campaigns.add(new Campaign("c1", "Hôpital Cheikh Khalifa", "Fondation Cheikh Khalifa",
+                "Route de Nouaceur, Casablanca", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.5,
+                Arrays.asList("O+", "O-", "A+", "A-"), "Don de sang organisé par la Fondation Cheikh Khalifa."));
+        
+        campaigns.add(new Campaign("c2", "Centre Khalid Ibn Walid", "Ministère de la Santé",
+                "Quartier Ain Sebaa, Casablanca", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 3.2,
+                Arrays.asList("B+", "B-", "AB+", "AB-"), "Collecte régulière pour les patients."));
+        
+        campaigns.add(new Campaign("c3", "Casablanca City Center", "Croissant Rouge Marocain",
+                "Boulevard de la Corniche, Casablanca", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 4.1,
+                Arrays.asList("A+", "O+", "B+"), "Journée internationale du don de sang."));
+        
+        campaigns.add(new Campaign("c4", "Hôpital Ibn Sina", "CHU Casablanca",
+                "Route d'El Jadida, Casablanca", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.8,
+                Arrays.asList("O+", "A+", "B+", "AB+"), "Don de sang urgent."));
+        
+        campaigns.add(new Campaign("c5", "Aïn Chock Medical Center", "Centre Médical Aïn Chock",
+                "Avenue Lalla Yacout, Casablanca", generateRandomDate(random, dateFormat), "11:00 AM - 7:00 PM", 1.9,
+                Arrays.asList("O+", "A+"), "Don de sang au centre commercial."));
+
+        // RABAT Campaigns
+        campaigns.add(new Campaign("r1", "Hôpital Al Farabi", "Ministère de la Santé",
+                "Avenue de la République, Rabat", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.2,
+                Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Centre principal de transfusion."));
+        
+        campaigns.add(new Campaign("r2", "Centre Hospitalier Universitaire", "Université Mohammed V",
+                "Avenue de Marrakech, Rabat", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 3.5,
+                Arrays.asList("O+", "O-", "AB+"), "Collecte pour les étudiants."));
+        
+        campaigns.add(new Campaign("r3", "Takadoum Medical Plaza", "Croissant Rouge",
+                "Boulevard de l'Océan Atlantique, Rabat", generateRandomDate(random, dateFormat), "10:00 AM - 7:00 PM", 4.3,
+                Arrays.asList("A+", "B+", "O+"), "Campagne de sensibilisation."));
+        
+        campaigns.add(new Campaign("r4", "Hôpital Cheikh Zaid", "Waqf Islamique",
+                "Rue Oum Assalam, Rabat", generateRandomDate(random, dateFormat), "8:30 AM - 3:30 PM", 2.0,
+                Arrays.asList("B+", "B-"), "Don de sang spécial."));
+        
+        campaigns.add(new Campaign("r5", "Centre de Rabat Ville", "Collecte Nationale",
+                "Avenue Allal Ben Abdellah, Rabat", generateRandomDate(random, dateFormat), "2:00 PM - 8:00 PM", 1.7,
+                Arrays.asList("O+", "A+"), "Don de sang au centre commercial."));
+
+        // MARRAKECH Campaigns
+        campaigns.add(new Campaign("m1", "Hôpital Ibn Nafis", "CHU Marrakech",
+                "Boulevard Zerktouni, Marrakech", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.4,
+                Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Centre régional de santé."));
+        
+        campaigns.add(new Campaign("m2", "Medina Clinic", "Ministère de la Santé",
+                "Rue de Youssef Ben Tachfine, Marrakech", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 3.6,
+                Arrays.asList("AB+", "AB-", "O+"), "Collecte dans la médina."));
+        
+        campaigns.add(new Campaign("m3", "Marrakech Mall", "Association Sang Maroc",
+                "Avenue Mohammed VI, Marrakech", generateRandomDate(random, dateFormat), "10:00 AM - 8:00 PM", 5.2,
+                Arrays.asList("A+", "B+", "O+"), "Campagne publique grande envergure."));
+        
+        campaigns.add(new Campaign("m4", "Hôpital El Ghassani", "CHU Marrakech",
+                "Rue El Ghanim, Marrakech", generateRandomDate(random, dateFormat), "7:00 AM - 3:00 PM", 2.1,
+                Arrays.asList("O+", "O-", "A+"), "Don de sang matinal."));
+
+        // TANGER Campaigns
+        campaigns.add(new Campaign("t1", "Clinique Internationale", "Groupe Akdital",
+                "Avenue Hassan II, Tanger", generateRandomDate(random, dateFormat), "11:00 AM - 7:00 PM", 2.8,
+                Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Don de sang lors de la foire."));
+        
+        campaigns.add(new Campaign("t2", "Hôpital Mohammed V", "Ministère de la Santé",
+                "Avenue Moulay Ismail, Tanger", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 1.9,
+                Arrays.asList("O+", "O-", "A+"), "Collecte hebdomadaire."));
+        
+        campaigns.add(new Campaign("t3", "Tanger City Mall", "Association Sang pour Tous",
+                "Route de Rabat, Tanger", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 5.5,
+                Arrays.asList("A+", "B+", "O+", "AB+"), "Journée portes ouvertes."));
+        
+        campaigns.add(new Campaign("t4", "Grand Socco", "Croissant Rouge Marocain",
+                "Place du 9 Avril, Tanger", generateRandomDate(random, dateFormat), "9:00 AM - 3:00 PM", 3.7,
+                Arrays.asList("A+", "A-", "O+", "O-"), "Campagne au coeur de la ville."));
+
+        // FES Campaigns
+        campaigns.add(new Campaign("f1", "CHU Hassan II", "Université Sidi Mohammed Ben Abdellah",
+                "Route Sidi Harazem, Fès", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.3,
+                Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte régionale."));
+        
+        campaigns.add(new Campaign("f2", "Borj Fez Mall", "Croissant Rouge Marocain",
+                "Route de Meknès, Fès", generateRandomDate(random, dateFormat), "10:00 AM - 7:00 PM", 4.8,
+                Arrays.asList("O+", "O-", "A-", "B-"), "URGENT: Groupes négatifs recherchés."));
+        
+        campaigns.add(new Campaign("f3", "Hôpital Ibn Al Khatib", "CHU Fès",
+                "Avenue Allal Ben Abdellah, Fès", generateRandomDate(random, dateFormat), "7:00 AM - 2:00 PM", 2.1,
+                Arrays.asList("AB+", "AB-", "B+"), "Collecte matinale."));
+
+        // MEKNES Campaigns
+        campaigns.add(new Campaign("mk1", "Hôpital Mohammed V", "Ministère de la Santé",
+                "Avenue des FAR, Meknès", generateRandomDate(random, dateFormat), "7:00 AM - 3:00 PM", 1.5,
+                Arrays.asList("O-", "O+"), "URGENT: Pénurie critique de sang type O."));
+        
+        campaigns.add(new Campaign("mk2", "Faculté de Médecine", "Université Moulay Ismail",
+                "Marjane, Meknès", generateRandomDate(random, dateFormat), "9:00 AM - 5:00 PM", 3.0,
+                Arrays.asList("A+", "B+", "AB+", "O+"), "Collecte étudiante."));
+        
+        campaigns.add(new Campaign("mk3", "Palais des Congrès", "Association Al Amal",
+                "Avenue Okba Ibn Nafiaa, Meknès", generateRandomDate(random, dateFormat), "10:00 AM - 4:00 PM", 2.8,
+                Arrays.asList("A+", "A-", "B+", "B-"), "Journée solidaire de don."));
+
+        // AGADIR Campaigns
+        campaigns.add(new Campaign("a1", "CHU Agadir", "Ministère de la Santé",
+                "Avenue Hassan II, Agadir", generateRandomDate(random, dateFormat), "8:00 AM - 4:00 PM", 2.1,
+                Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-"), "Collecte hebdomadaire."));
+        
+        campaigns.add(new Campaign("a2", "Marina Shopping", "Croissant Rouge",
+                "Marina d'Agadir", generateRandomDate(random, dateFormat), "10:00 AM - 6:00 PM", 3.5,
+                Arrays.asList("A+", "B+", "O+"), "Campagne touristique de don."));
+        
+        campaigns.add(new Campaign("a3", "Souk El Had", "Association Amal",
+                "Boulevard Mohammed V, Agadir", generateRandomDate(random, dateFormat), "2:00 PM - 8:00 PM", 1.8,
+                Arrays.asList("O+", "O-", "A+"), "Don de sang au marché central."));
+
+        // OUJDA Campaigns
+        campaigns.add(new Campaign("o1", "CHU Mohammed VI Oujda", "Université Mohammed Premier",
+                "Route de Sidi Yahya, Oujda", generateRandomDate(random, dateFormat), "8:00 AM - 3:00 PM", 2.0,
+                Arrays.asList("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"), "Collecte régionale."));
+        
+        campaigns.add(new Campaign("o2", "Centre Ville Oujda", "Croissant Rouge",
+                "Boulevard Mohammed Derfoufi, Oujda", generateRandomDate(random, dateFormat), "11:00 AM - 6:00 PM", 1.5,
+                Arrays.asList("A+", "B+", "O+"), "Campagne urbaine de sensibilisation."));
+
+        return campaigns;
+    }
+
+    private String generateRandomDate(java.util.Random random, java.text.SimpleDateFormat dateFormat) {
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        int daysToAdd = random.nextInt(7); // 0 to 6 days
+        calendar.add(java.util.Calendar.DAY_OF_MONTH, daysToAdd);
+        return dateFormat.format(calendar.getTime());
     }
 }
+

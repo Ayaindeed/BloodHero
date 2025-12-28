@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bloodhero.R;
+import com.example.bloodhero.utils.EnhancedDialogHelper;
 import com.example.bloodhero.models.Appointment;
 import com.example.bloodhero.models.Campaign;
 import com.example.bloodhero.models.User;
@@ -216,16 +217,14 @@ public class BookingActivity extends AppCompatActivity {
     }
 
     private void showSuccessDialog() {
-        new AlertDialog.Builder(this, R.style.AlertDialogTheme)
-                .setTitle("Booking Confirmed!")
-                .setMessage("Your appointment has been scheduled for " + selectedDate + " at " + selectedTime +
-                        ".\n\nPlease arrive 10 minutes early and bring a valid ID.")
-                .setPositiveButton("View My Appointments", (dialog, which) -> {
-                    finish();
-                    // User can navigate to MyAppointmentsActivity from home
-                })
-                .setNegativeButton("Done", (dialog, which) -> finish())
-                .setCancelable(false)
-                .show();
+        EnhancedDialogHelper.showConfirmationDialog(
+                this,
+                "Booking Confirmed!",
+                "Your appointment has been scheduled for " + selectedDate + " at " + selectedTime +
+                        ".\n\nPlease arrive 10 minutes early and bring a valid ID.",
+                "View",
+                "Done",
+                this::finish
+        );
     }
 }

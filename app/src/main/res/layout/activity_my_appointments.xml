@@ -78,10 +78,11 @@
         <LinearLayout
             android:id="@+id/emptyState"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:minHeight="300dp">
 
             <ImageView
                 android:layout_width="120dp"
@@ -107,16 +108,6 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:gravity="center" />
-
-            <Button
-                android:id="@+id/btnFindCampaign"
-                style="@style/BloodHeroButton.Primary"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginTop="24dp"
-                android:paddingStart="32dp"
-                android:paddingEnd="32dp"
-                android:text="Find a Campaign" />
 
         </LinearLayout>
 

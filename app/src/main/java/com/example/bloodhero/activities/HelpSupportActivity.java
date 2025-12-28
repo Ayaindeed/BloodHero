@@ -91,16 +91,24 @@ public class HelpSupportActivity extends AppCompatActivity {
         });
 
         menuAbout.setOnClickListener(v -> {
-            // Show about dialog
-            new androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("About BloodHero")
-                    .setMessage("BloodHero v1.0.0\n\n" +
-                            "A blood donation app connecting donors with campaigns across Morocco.\n\n" +
-                            "Every donation can save up to 3 lives.\n\n" +
-                            "Created by: Aya & Hassane\n\n" +
-                            "© 2025 BloodHero")
-                    .setPositiveButton("OK", null)
-                    .show();
+            // Show enhanced about dialog
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_about_bloodhero, null);
+            androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setView(dialogView)
+                    .create();
+            
+            // Make dialog background transparent for custom design
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
+            
+            // Find and setup close button
+            com.google.android.material.button.MaterialButton btnClose = dialogView.findViewById(R.id.btnClose);
+            if (btnClose != null) {
+                btnClose.setOnClickListener(closeView -> dialog.dismiss());
+            }
+            
+            dialog.show();
         });
 
         // FAQ toggle listeners

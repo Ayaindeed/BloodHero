@@ -191,41 +191,113 @@ public class BloodRequestsActivity extends AppCompatActivity implements BloodReq
 
     @Override
     public void onRespondClick(BloodRequest request) {
-        new AlertDialog.Builder(this)
-                .setTitle("Respond to Request")
-                .setMessage("You're volunteering to donate " + request.getBloodType() + 
-                        " blood at " + request.getHospital() + ", " + request.getCity() + 
-                        ".\n\nPatient: " + request.getPatientName() + 
-                        "\nUnits needed: " + request.getUnitsNeeded() +
-                        "\n\nDo you want to proceed?")
-                .setPositiveButton("Yes, I'll Help", (dialog, which) -> {
-                    // Save response
-                    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                    prefs.edit()
-                            .putBoolean("responded_to_request", true)
-                            .putString("responded_request_id", request.getId())
-                            .apply();
-                    
-                    Toast.makeText(this, "Thank you! The hospital will be notified.", Toast.LENGTH_LONG).show();
-                    
-                    // Show contact info
-                    new AlertDialog.Builder(this)
-                            .setTitle("Next Steps")
-                            .setMessage("Please contact the hospital to confirm your visit:\n\n" +
-                                    "Hospital: " + request.getHospital() + "\n" +
-                                    "City: " + request.getCity() + "\n" +
-                                    "Phone: " + request.getContactPhone() + "\n\n" +
-                                    "Bring your ID and arrive within 24 hours if possible.")
-                            .setPositiveButton("Call Now", (d, w) -> {
-                                Intent callIntent = new Intent(Intent.ACTION_DIAL);
-                                callIntent.setData(Uri.parse("tel:" + request.getContactPhone()));
-                                startActivity(callIntent);
-                            })
-                            .setNegativeButton("Later", null)
-                            .show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        // Create enhanced confirmation dialog
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_blood_request_response, null);
+        AlertDialog confirmDialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+        
+        if (confirmDialog.getWindow() != null) {
+            confirmDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        
+        // Setup dialog views
+        TextView tvBloodType = dialogView.findViewById(R.id.tvBloodType);
+        TextView tvPatientName = dialogView.findViewById(R.id.tvPatientName);
+        TextView tvHospital = dialogView.findViewById(R.id.tvHospital);
+        TextView tvCity = dialogView.findViewById(R.id.tvCity);
+        TextView tvUnits = dialogView.findViewById(R.id.tvUnits);
+        com.google.android.material.button.MaterialButton btnConfirm = dialogView.findViewById(R.id.btnConfirm);
+        com.google.android.material.button.MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+        
+        tvBloodType.setText(request.getBloodType());
+        tvPatientName.setText(request.getPatientName());
+        tvHospital.setText(request.getHospital());
+        tvCity.setText(request.getCity());
+        tvUnits.setText(request.getUnitsNeeded() + " units needed");
+        
+        btnConfirm.setOnClickListener(v -> {
+            confirmDialog.dismiss();
+            
+            // Save response
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+            prefs.edit()
+                    .putBoolean("responded_to_request", true)
+                    .putString("responded_request_id", request.getId())
+                    .apply();
+            
+            // Create appointment for this urgent request
+            createUrgentAppointment(request);
+            
+            Toast.makeText(this, "Thank you! The hospital will be notified.", Toast.LENGTH_LONG).show();
+            
+            // Show enhanced next steps dialog
+            showNextStepsDialog(request);
+        });
+        
+        btnCancel.setOnClickListener(v -> confirmDialog.dismiss());
+        
+        confirmDialog.show();
+    }
+    
+    private void createUrgentAppointment(BloodRequest request) {
+        // Import required classes at the top if not already imported
+        com.example.bloodhero.repository.AppointmentRepository appointmentRepo = 
+                com.example.bloodhero.repository.AppointmentRepository.getInstance(this);
+        com.example.bloodhero.utils.UserHelper userHelper = new com.example.bloodhero.utils.UserHelper();
+        com.example.bloodhero.models.User currentUser = userHelper.getCurrentUser(this);
+        
+        if (currentUser != null) {
+            // Create appointment for urgent blood request
+            String appointmentId = "urgent_" + request.getId() + "_" + System.currentTimeMillis();
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+            String today = sdf.format(new java.util.Date());
+            
+            com.example.bloodhero.models.Appointment appointment = new com.example.bloodhero.models.Appointment(
+                    appointmentId,
+                    currentUser.getId(),
+                    "urgent_" + request.getId(),
+                    "Urgent Blood Request - " + request.getPatientName(),
+                    request.getHospital() + ", " + request.getCity(),
+                    today,
+                    "As soon as possible",
+                    com.example.bloodhero.models.Appointment.Status.CONFIRMED
+            );
+            
+            appointmentRepo.createAppointment(appointment);
+        }
+    }
+    
+    private void showNextStepsDialog(BloodRequest request) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_next_steps, null);
+        AlertDialog nextStepsDialog = new AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+        
+        if (nextStepsDialog.getWindow() != null) {
+            nextStepsDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        
+        TextView tvHospitalInfo = dialogView.findViewById(R.id.tvHospitalInfo);
+        TextView tvCityInfo = dialogView.findViewById(R.id.tvCityInfo);
+        TextView tvPhoneInfo = dialogView.findViewById(R.id.tvPhoneInfo);
+        com.google.android.material.button.MaterialButton btnCallNow = dialogView.findViewById(R.id.btnCallNow);
+        com.google.android.material.button.MaterialButton btnLater = dialogView.findViewById(R.id.btnLater);
+        
+        tvHospitalInfo.setText(request.getHospital());
+        tvCityInfo.setText(request.getCity());
+        tvPhoneInfo.setText(request.getContactPhone());
+        
+        btnCallNow.setOnClickListener(v -> {
+            Intent callIntent = new Intent(Intent.ACTION_DIAL);
+            callIntent.setData(Uri.parse("tel:" + request.getContactPhone()));
+            startActivity(callIntent);
+            nextStepsDialog.dismiss();
+        });
+        
+        btnLater.setOnClickListener(v -> nextStepsDialog.dismiss());
+        
+        nextStepsDialog.show();
     }
 
     @Override

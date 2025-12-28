@@ -19,6 +19,7 @@ import com.example.bloodhero.models.User;
 import com.example.bloodhero.repository.AppointmentRepository;
 import com.example.bloodhero.repository.UserRepository;
 import com.example.bloodhero.utils.VerificationCodeGenerator;
+import com.example.bloodhero.utils.EnhancedDialogHelper;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
@@ -42,6 +43,8 @@ public class BedManagementActivity extends AppCompatActivity {
     private TextView[] bedStatusTexts;
     private TextView[] bedDonorNames;
     private MaterialButton[] bedActionButtons;
+    private MaterialButton[] bedCheckButtons; // Check bed condition buttons
+    private android.widget.ImageView[] bedStatusIcons; // Icons to show bed condition
     
     private List<Appointment> waitingAppointments;
     private Appointment[] bedsInUse; // Track which appointment is in each bed
@@ -76,6 +79,8 @@ public class BedManagementActivity extends AppCompatActivity {
         bedStatusTexts = new TextView[TOTAL_BEDS];
         bedDonorNames = new TextView[TOTAL_BEDS];
         bedActionButtons = new MaterialButton[TOTAL_BEDS];
+        bedCheckButtons = new MaterialButton[TOTAL_BEDS];
+        bedStatusIcons = new android.widget.ImageView[TOTAL_BEDS];
         
         bedCards[0] = findViewById(R.id.bedCard1);
         bedCards[1] = findViewById(R.id.bedCard2);
@@ -97,11 +102,22 @@ public class BedManagementActivity extends AppCompatActivity {
         bedActionButtons[2] = findViewById(R.id.btnBed3Action);
         bedActionButtons[3] = findViewById(R.id.btnBed4Action);
         
+        bedCheckButtons[0] = findViewById(R.id.btnBed1Check);
+        bedCheckButtons[1] = findViewById(R.id.btnBed2Check);
+        bedCheckButtons[2] = findViewById(R.id.btnBed3Check);
+        bedCheckButtons[3] = findViewById(R.id.btnBed4Check);
+        
+        bedStatusIcons[0] = findViewById(R.id.ivBed1StatusIcon);
+        bedStatusIcons[1] = findViewById(R.id.ivBed2StatusIcon);
+        bedStatusIcons[2] = findViewById(R.id.ivBed3StatusIcon);
+        bedStatusIcons[3] = findViewById(R.id.ivBed4StatusIcon);
+        
         btnBack.setOnClickListener(v -> finish());
         
         for (int i = 0; i < TOTAL_BEDS; i++) {
             final int bedNumber = i + 1;
             bedActionButtons[i].setOnClickListener(v -> handleBedAction(bedNumber));
+            bedCheckButtons[i].setOnClickListener(v -> handleCheckBed(bedNumber));
         }
     }
     
@@ -168,20 +184,26 @@ public class BedManagementActivity extends AppCompatActivity {
                 
                 bedStatusTexts[i].setText("IN USE");
                 bedStatusTexts[i].setTextColor(getResources().getColor(R.color.error));
+                bedStatusIcons[i].setImageResource(R.drawable.ic_person);
+                bedStatusIcons[i].setColorFilter(getResources().getColor(R.color.error));
                 bedDonorNames[i].setText(donor != null ? donor.getName() : "Unknown");
                 bedDonorNames[i].setVisibility(View.VISIBLE);
                 bedActionButtons[i].setText("Complete Donation");
                 bedActionButtons[i].setEnabled(true);
+                bedCheckButtons[i].setVisibility(View.GONE); // Hide check button when bed in use
             } else {
                 // Bed available - check condition
                 if ("maintenance".equals(bedConditions[i])) {
                     bedStatusTexts[i].setText("MAINTENANCE");
                     bedStatusTexts[i].setTextColor(getResources().getColor(R.color.warning));
+                    bedStatusIcons[i].setImageResource(R.drawable.ic_warning);
+                    bedStatusIcons[i].setColorFilter(getResources().getColor(R.color.warning));
                     bedDonorNames[i].setText("Needs service");
                     bedDonorNames[i].setVisibility(View.VISIBLE);
                     bedDonorNames[i].setTextColor(getResources().getColor(R.color.warning));
                     bedActionButtons[i].setText("Mark as Fixed");
                     bedActionButtons[i].setEnabled(true);
+                    bedCheckButtons[i].setVisibility(View.GONE); // Hide check button during maintenance
                     final int bedIndex = i; // Make final copy for lambda
                     final int bedNum = i + 1;
                     bedActionButtons[i].setOnClickListener(v -> {
@@ -189,13 +211,27 @@ public class BedManagementActivity extends AppCompatActivity {
                         Toast.makeText(this, "Bed " + bedNum + " marked as ready", Toast.LENGTH_SHORT).show();
                         updateUI();
                     });
+                } else if ("needs_check".equals(bedConditions[i])) {
+                    bedStatusTexts[i].setText("CHECK NEEDED");
+                    bedStatusTexts[i].setTextColor(getResources().getColor(R.color.info));
+                    bedStatusIcons[i].setImageResource(R.drawable.ic_info);
+                    bedStatusIcons[i].setColorFilter(getResources().getColor(R.color.info));
+                    bedDonorNames[i].setText("Inspection required");
+                    bedDonorNames[i].setVisibility(View.VISIBLE);
+                    bedDonorNames[i].setTextColor(getResources().getColor(R.color.info));
+                    bedActionButtons[i].setText("Check Bed");
+                    bedActionButtons[i].setEnabled(true);
+                    bedCheckButtons[i].setVisibility(View.GONE); // Hide separate check button
                 } else {
                     bedStatusTexts[i].setText("AVAILABLE");
                     bedStatusTexts[i].setTextColor(getResources().getColor(R.color.success));
+                    bedStatusIcons[i].setImageResource(R.drawable.ic_check_circle);
+                    bedStatusIcons[i].setColorFilter(getResources().getColor(R.color.success));
                     bedDonorNames[i].setText("");
                     bedDonorNames[i].setVisibility(View.GONE);
                     bedActionButtons[i].setText("Assign Donor");
                     bedActionButtons[i].setEnabled(!waitingAppointments.isEmpty());
+                    bedCheckButtons[i].setVisibility(View.VISIBLE); // Show check button for available beds
                 }
             }
         }
@@ -213,6 +249,47 @@ public class BedManagementActivity extends AppCompatActivity {
                 assignDonorToBed(bedNumber, waitingAppointments.get(0));
             }
         }
+    }
+    
+    private void handleCheckBed(int bedNumber) {
+        final int bedIndex = bedNumber - 1;
+        
+        // Show bed inspection dialog
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_bed_condition_check, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+        
+        AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        dialog.setCancelable(false);
+        
+        // Set bed info
+        TextView tvBedTitle = dialogView.findViewById(R.id.tvBedTitle);
+        TextView tvDonorInfo = dialogView.findViewById(R.id.tvDonorInfo);
+        MaterialButton btnBedReady = dialogView.findViewById(R.id.btnBedReady);
+        MaterialButton btnNeedsMaintenance = dialogView.findViewById(R.id.btnNeedsMaintenance);
+        MaterialButton btnCancel = dialogView.findViewById(R.id.btnCancel);
+        
+        tvBedTitle.setText("Check Bed " + bedNumber + " Condition");
+        tvDonorInfo.setText("Inspect the bed and confirm its status");
+        
+        btnBedReady.setOnClickListener(v -> {
+            bedConditions[bedIndex] = "good";
+            dialog.dismiss();
+            Toast.makeText(this, "Bed " + bedNumber + " confirmed ready for use", Toast.LENGTH_SHORT).show();
+            updateUI();
+        });
+        
+        btnNeedsMaintenance.setOnClickListener(v -> {
+            bedConditions[bedIndex] = "maintenance";
+            dialog.dismiss();
+            Toast.makeText(this, "Bed " + bedNumber + " marked for maintenance", Toast.LENGTH_SHORT).show();
+            updateUI();
+        });
+        
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        dialog.show();
     }
     
     private void showBedSelectionDialog(Appointment appointment) {
@@ -292,16 +369,14 @@ public class BedManagementActivity extends AppCompatActivity {
         for (int i = 0; i < TOTAL_BEDS; i++) {
             if (bedsInUse[i] == null && "good".equals(bedConditions[i])) {
                 int bedNumber = i + 1;
-                new AlertDialog.Builder(this)
-                        .setTitle("Alternative Bed Available")
-                        .setMessage("Bed " + bedNumber + " is available and in good condition.\n\nAssign donor to Bed " + bedNumber + "?")
-                        .setPositiveButton("Assign", (dialog, which) -> {
-                            checkBedConditionBeforeAssignment(bedNumber, appointment);
-                        })
-                        .setNegativeButton("Choose Manually", (dialog, which) -> {
-                            showBedSelectionDialog(appointment);
-                        })
-                        .show();
+                EnhancedDialogHelper.showConfirmationDialog(
+                        this,
+                        "Alternative Bed Available",
+                        "Bed " + bedNumber + " is available and in good condition.\n\nAssign donor to Bed " + bedNumber + "?",
+                        "Assign",
+                        "Choose Manually",
+                        () -> checkBedConditionBeforeAssignment(bedNumber, appointment)
+                );
                 return;
             }
         }
@@ -313,10 +388,13 @@ public class BedManagementActivity extends AppCompatActivity {
         User donor = userRepository.getUserById(appointment.getUserId());
         String donorName = donor != null ? donor.getName() : "Unknown";
         
-        new AlertDialog.Builder(this)
-                .setTitle("Assign to Bed " + bedNumber + "?")
-                .setMessage("Assign " + donorName + " to bed " + bedNumber + "?")
-                .setPositiveButton("Assign", (dialog, which) -> {
+        EnhancedDialogHelper.showConfirmationDialog(
+                this,
+                "Assign to Bed " + bedNumber + "?",
+                "Assign " + donorName + " to bed " + bedNumber + "?",
+                "Assign",
+                "Cancel",
+                () -> {
                     appointment.assignToBed(bedNumber);
                     boolean success = appointmentRepository.assignToBed(appointment.getId(), bedNumber);
                     
@@ -324,27 +402,29 @@ public class BedManagementActivity extends AppCompatActivity {
                         // Broadcast the update
                         Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
                         intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointment.getId());
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+                        LocalBroadcastManager.getInstance(BedManagementActivity.this).sendBroadcast(intent);
                         
-                        Toast.makeText(this, "Donor assigned to bed " + bedNumber, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BedManagementActivity.this, "Donor assigned to bed " + bedNumber, Toast.LENGTH_SHORT).show();
                         loadData();
                     } else {
-                        Toast.makeText(this, "Failed to assign bed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BedManagementActivity.this, "Failed to assign bed", Toast.LENGTH_SHORT).show();
                     }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                }
+        );
     }
     
     private void completeDonation(int bedNumber, Appointment appointment) {
         User donor = userRepository.getUserById(appointment.getUserId());
         String donorName = donor != null ? donor.getName() : "Unknown";
         
-        new AlertDialog.Builder(this)
-                .setTitle("Complete Donation?")
-                .setMessage("Has " + donorName + " completed their donation on bed " + bedNumber + "?\n\n" +
-                        "A verification code will be generated for the donor to enter in their app.")
-                .setPositiveButton("Generate Code", (dialog, which) -> {
+        EnhancedDialogHelper.showConfirmationDialog(
+                this,
+                "Complete Donation?",
+                "Has " + donorName + " completed their donation on bed " + bedNumber + "?\n\n" +
+                "A verification code will be generated for the donor to enter in their app.",
+                "Generate Code",
+                "Cancel",
+                () -> {
                     // Generate verification code
                     String code = VerificationCodeGenerator.generateCode();
                     appointment.setPendingVerification(code);
@@ -355,26 +435,26 @@ public class BedManagementActivity extends AppCompatActivity {
                         // Broadcast the update
                         Intent intent = new Intent(MyAppointmentsActivity.ACTION_APPOINTMENT_UPDATED);
                         intent.putExtra(MyAppointmentsActivity.EXTRA_APPOINTMENT_ID, appointment.getId());
-                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+                        LocalBroadcastManager.getInstance(BedManagementActivity.this).sendBroadcast(intent);
                         
                         showVerificationCodeDialog(donorName, code);
                         loadData();
                     } else {
-                        Toast.makeText(this, "Failed to generate code", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BedManagementActivity.this, "Failed to generate code", Toast.LENGTH_SHORT).show();
                     }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                }
+        );
     }
     
     private void showVerificationCodeDialog(String donorName, String code) {
-        new AlertDialog.Builder(this)
-                .setTitle("✓ Donation Complete")
-                .setMessage("Give this code to " + donorName + " to enter in their app:\n\n" +
-                        "CODE: " + code + "\n\n" +
-                        "They must enter this code to complete the donation process.")
-                .setPositiveButton("OK", null)
-                .setCancelable(false)
-                .show();
+        EnhancedDialogHelper.showInfoDialog(
+                this,
+                "✓ Donation Complete",
+                "Give this code to " + donorName + " to enter in their app:\n\n" +
+                "CODE: " + code + "\n\n" +
+                "They must enter this code to complete the donation process.",
+                "OK",
+                null
+        );
     }
 }
